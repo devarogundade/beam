@@ -1,0 +1,77 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Events
+    network: scroll-sepolia
+    source:
+      address: "0x5EBd3AD5132C09D3ce4264583E55CC757e6b0043"
+      abi: Events
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - HookRegistered
+        - HookUnRegistered
+        - MerchantCreated
+        - MerchantMetadataUpdated
+        - OneTimePaymentCreated
+        - OneTimePaymentFulfilled
+        - PaymentReceived
+        - RecurrentPaymentCancelled
+        - RecurrentPaymentCreated
+        - RecurrentPaymentFulfilled
+        - SignersUpdated
+        - SubsciptionDeleted
+        - SubscriptionCreated
+        - SubscriptionUpdated
+        - TokensUpdated
+        - WithdrawRequestApproved
+        - WithdrawRequestCreated
+        - WithdrawRequestExecuted
+      abis:
+        - name: Events
+          file: ./abis/Events.json
+      eventHandlers:
+        - event: HookRegistered(indexed address,address)
+          handler: handleHookRegistered
+        - event: HookUnRegistered(indexed address,address)
+          handler: handleHookUnRegistered
+        - event: MerchantCreated(indexed address,(uint8,string),address,address[],address[],uint256)
+          handler: handleMerchantCreated
+        - event: MerchantMetadataUpdated(indexed address,(uint8,string))
+          handler: handleMerchantMetadataUpdated
+        - event: OneTimePaymentCreated(bytes32,address,address[],address,address,uint256[],address,uint256,uint256,string,(uint8,string),uint8)
+          handler: handleOneTimePaymentCreated
+        - event: OneTimePaymentFulfilled(bytes32,address,address,address,uint256,address,uint256,uint256,uint8)
+          handler: handleOneTimePaymentFulfilled
+        - event: PaymentReceived(indexed address,address,address,uint256,bytes32)
+          handler: handlePaymentReceived
+        - event: RecurrentPaymentCancelled(bytes32)
+          handler: handleRecurrentPaymentCancelled
+        - event: RecurrentPaymentCreated(bytes32,address,address,uint256,address,uint256,address,uint256,uint256,string,(uint8,string),uint8)
+          handler: handleRecurrentPaymentCreated
+        - event: RecurrentPaymentFulfilled(bytes32,address,address,uint256,address,uint256,address,uint256,uint256,uint8)
+          handler: handleRecurrentPaymentFulfilled
+        - event: SignersUpdated(indexed address,address[],uint256)
+          handler: handleSignersUpdated
+        - event: SubsciptionDeleted(indexed bytes32)
+          handler: handleSubsciptionDeleted
+        - event: SubscriptionCreated(indexed bytes32,indexed address,uint256,uint256,uint256,string)
+          handler: handleSubscriptionCreated
+        - event: SubscriptionUpdated(indexed bytes32,uint256,uint256,string,bool)
+          handler: handleSubscriptionUpdated
+        - event: TokensUpdated(indexed address,address[])
+          handler: handleTokensUpdated
+        - event: WithdrawRequestApproved(indexed address,indexed uint256,address)
+          handler: handleWithdrawRequestApproved
+        - event: WithdrawRequestCreated(indexed address,indexed uint256,address,uint256,address,address[],bool)
+          handler: handleWithdrawRequestCreated
+        - event: WithdrawRequestExecuted(indexed address,indexed uint256)
+          handler: handleWithdrawRequestExecuted
+      file: ./src/events.ts

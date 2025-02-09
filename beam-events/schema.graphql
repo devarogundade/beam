@@ -1,0 +1,83 @@
+type Merchant @entity(immutable: false) {
+  id: Bytes!
+  merchant: Bytes! # address
+  metadata_schemaVersion: Int! # uint8
+  metadata_value: String! # string
+  wallet: Bytes! # address
+  tokens: [Bytes!]! # address[]
+  hook: Bytes! # address
+  signers: [Bytes!]! # address[]
+  minSigners: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Payment @entity(immutable: false) {
+  id: Bytes!
+  paymentId: Bytes! # bytes32
+  payer: Bytes! # address
+  payers: [Bytes!]! # address[]
+  fulfilleds: [Bytes!]! # address[]
+  merchant: Bytes! # address
+  token: Bytes! # address
+  amounts: [BigInt!]! # uint256[]
+  adjustedToken: Bytes! # address
+  adjustedAmount: BigInt! # uint256
+  dueDate: BigInt! # uint256
+  amount: BigInt! # uint256
+  timestamp: BigInt! # uint256
+  description: String! # string
+  metadata_schemaVersion: Int! # uint8
+  metadata_value: String! # string
+  status: Int! # uint8
+  type: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Transaction @entity(immutable: true) {
+  id: Bytes!
+  paymentId: Bytes! # bytes32
+  from: Bytes! # address
+  recipient: Bytes! # address
+  token: Bytes! # address
+  amount: BigInt! # uint256
+  adjustedToken: Bytes! # address
+  adjustedAmount: BigInt! # uint256
+  description: String! # string
+  type: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Subscription @entity(immutable: false) {
+  id: Bytes!
+  subsciptionId: Bytes!
+  merchant: Bytes! # address
+  interval: BigInt! # uint256
+  amount: BigInt! # uint256
+  gracePeriod: BigInt! # uint256
+  description: String! # string
+  trashed: Boolean!
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WithdrawRequest @entity(immutable: false) {
+  id: Bytes!
+  merchant: Bytes! # address
+  requestId: BigInt! # uint256
+  token: Bytes! # address
+  amount: BigInt! # uint256
+  recipient: Bytes! # address
+  signers: [Bytes!]! # address[]
+  fulfilleds: [Bytes!]! # address[]
+  executed: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
