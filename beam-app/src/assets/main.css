@@ -6,6 +6,8 @@
   margin: 0;
   box-sizing: border-box;
   font-family: "Lexend", serif;
+  scroll-behavior: smooth;
+  transition: 0.1s;
 }
 
 a {

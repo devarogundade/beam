@@ -14,9 +14,11 @@ const route = useRoute();
 
 <template>
     <div class="sidebar">
-        <header>
-            <BeamLogo />
-        </header>
+        <RouterLink to="/">
+            <header>
+                <BeamLogo />
+            </header>
+        </RouterLink>
 
         <main>
             <p class="main_title">MAIN</p>
@@ -33,14 +35,6 @@ const route = useRoute();
                     </div>
                 </RouterLink>
 
-                <div :class="route.name?.toString().startsWith('overview') ? 'option option_selected' : 'option'">
-                    <div class="selector"></div>
-
-                    <button>
-                        <OverviewIcon />
-                        <p>Overview</p>
-                    </button>
-                </div>
 
                 <RouterLink to="/payments">
                     <div :class="route.name?.toString().startsWith('payments') ? 'option option_selected' : 'option'">
@@ -68,6 +62,16 @@ const route = useRoute();
                         </button>
                     </RouterLink>
                 </div>
+
+                <div :class="route.name?.toString().startsWith('overview') ? 'option option_selected' : 'option'">
+                    <div class="selector"></div>
+
+                    <button>
+                        <OverviewIcon />
+                        <p>BeamAI</p>
+                    </button>
+                </div>
+
             </div>
         </main>
 
@@ -102,6 +106,9 @@ const route = useRoute();
     top: 0;
     position: sticky;
     height: 100vh;
+    width: 260px;
+    z-index: 20;
+    position: fixed;
     border-right: 1px solid var(--bg-lightest);
 }
 

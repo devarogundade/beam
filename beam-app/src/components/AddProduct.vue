@@ -3,8 +3,17 @@ import CheckIcon from './icons/CheckIcon.vue';
 import CloseIcon from './icons/CloseIcon.vue';
 import EraserIcon from './icons/EraserIcon.vue';
 import UploadIcon from './icons/UploadIcon.vue';
+import { onMounted, onUnmounted } from 'vue';
 
 const emit = defineEmits(['close']);
+
+onMounted(() => {
+    document.body.style.overflowY = 'hidden';
+});
+
+onUnmounted(() => {
+    document.body.style.overflowY = 'auto';
+});
 </script>
 
 <template>

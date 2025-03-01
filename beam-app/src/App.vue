@@ -26,6 +26,7 @@ getAnalytics(app);
   <section>
     <main>
       <SideBar />
+      <div></div>
       <div>
         <AppHeader />
         <RouterView />

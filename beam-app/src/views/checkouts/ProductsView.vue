@@ -3,14 +3,13 @@ import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
-import ProductDetails from '@/components/ProductDetails.vue';
 import { ref } from 'vue';
-import AddProduct from '@/components/AddProduct.vue';
+import ProductDetails from '@/components/ProductDetails.vue';
 
 const modules = [Pagination];
 
-const addingProduct = ref(false);
 const selectedProduct = ref<number | null>(null);
+
 </script>
 
 <template>
@@ -40,7 +39,6 @@ const selectedProduct = ref<number | null>(null);
         </div>
     </div>
 
-    <AddProduct v-if="addingProduct" @close="addingProduct = false" />
     <ProductDetails v-if="selectedProduct" :product="selectedProduct" @close="selectedProduct = null" />
 </template>
 
