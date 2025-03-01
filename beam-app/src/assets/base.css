@@ -1,0 +1,16 @@
+:root {
+  --bg: rgba(23, 23, 23, 1);
+  --bg-light: rgba(28, 28, 28, 1);
+  --bg-lighter: rgba(33, 33, 33, 1);
+  --bg-lightest: rgba(41, 41, 41, 1);
+
+  --primary: rgba(245, 95, 20, 1);
+  --primary-light: rgba(245, 137, 83, 1);
+
+  --tx-normal: rgba(254, 254, 254, 1);
+  --tx-semi: rgba(162, 162, 162, 1);
+  --tx-dimmed: rgba(107, 107, 107, 1);
+
+  --accent-green: rgba(25, 176, 99, 1);
+  --accent-red: rgba(245, 59, 81, 1);
+}
