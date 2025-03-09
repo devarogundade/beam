@@ -10,6 +10,7 @@ import { useWalletStore } from '@/stores/wallet';
 import { Connection } from '@/scripts/types';
 import Converter from '@/scripts/converter';
 import EyeIcon from './icons/EyeIcon.vue';
+import WalletIcon from './icons/WalletIcon.vue';
 
 interface Props {
     parent?: string;
@@ -65,9 +66,15 @@ watch(route, (newValue) => {
                 <BellIcon />
             </div>
 
-            <button>
-                <WalletIcon v-if="!walletStore.address" />
-                <MetamaskIcon v-else-if="walletStore.connection == Connection.Wallet" />
+            <RouterLink to="/onboarding" v-if="!walletStore.address">
+                <button>
+                    <WalletIcon />
+                    <p>{{ walletStore.address ? Converter.fineAddress(walletStore.address, 5) : 'Connect Wallet' }}</p>
+                </button>
+            </RouterLink>
+
+            <button v-else>
+                <MetamaskIcon v-if="walletStore.connection == Connection.Wallet" />
                 <EyeIcon v-else="walletStore.connection == Connection.Guest" />
                 <p>{{ walletStore.address ? Converter.fineAddress(walletStore.address, 5) : 'Connect Wallet' }}</p>
             </button>

@@ -8,7 +8,6 @@ import { ref } from 'vue';
 const route = useRoute();
 
 const addingProduct = ref(false);
-
 </script>
 
 <template>

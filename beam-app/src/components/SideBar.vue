@@ -137,7 +137,7 @@ header {
 
 main {
     padding-top: 24px;
-    height: calc(100vh - 280px);
+    height: calc(100vh - 250px);
     overflow: auto;
 }
 
@@ -228,10 +228,11 @@ main {
 
 footer {
     width: 100%;
-    height: 180px;
+    height: 200px;
     display: sticky;
     bottom: 0;
     display: flex;
+    flex-direction: column;
     align-items: flex-end;
 }
 
@@ -240,9 +241,8 @@ footer {
     height: 44px;
     display: flex;
     align-items: center;
+    padding: 0 20px;
     gap: 12px;
-    padding: 0 12px;
-    margin: 0 20px;
     background: none;
     border: none;
     cursor: pointer;
@@ -256,7 +256,7 @@ footer {
 }
 
 .account {
-    width: 100%;
+    width: calc(100% - 40px);
     display: flex;
     align-items: center;
     justify-content: space-between;

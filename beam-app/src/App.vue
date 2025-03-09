@@ -9,7 +9,7 @@ const router = useRouter();
 const walletStore = useWalletStore();
 
 onMounted(() => {
-  // if (!walletStore.address) router.push('/onboarding');
+  if (!walletStore.address) router.push('/onboarding');
 });
 </script>
 

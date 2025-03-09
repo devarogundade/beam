@@ -52,7 +52,7 @@ const faqs = [
 }
 
 .messages {
-    padding: 40px;
+    padding: 40px 50px;
 }
 
 .no_message {
@@ -90,7 +90,7 @@ const faqs = [
     position: absolute;
     bottom: 0;
     width: 100%;
-    padding: 30px 40px;
+    padding: 30px 50px;
     z-index: 10;
 }
 
