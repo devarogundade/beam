@@ -3,12 +3,12 @@ import {
   HookUnRegistered as HookUnRegisteredEvent,
   MerchantCreated as MerchantCreatedEvent,
   MerchantMetadataUpdated as MerchantMetadataUpdatedEvent,
-  OneTimePaymentCreated as OneTimePaymentCreatedEvent,
-  OneTimePaymentFulfilled as OneTimePaymentFulfilledEvent,
-  PaymentReceived as PaymentReceivedEvent,
-  RecurrentPaymentCancelled as RecurrentPaymentCancelledEvent,
-  RecurrentPaymentCreated as RecurrentPaymentCreatedEvent,
-  RecurrentPaymentFulfilled as RecurrentPaymentFulfilledEvent,
+  OneTimeTransactionCreated as OneTimeTransactionCreatedEvent,
+  OneTimeTransactionFulfilled as OneTimeTransactionFulfilledEvent,
+  TransactionReceived as TransactionReceivedEvent,
+  RecurrentTransactionCancelled as RecurrentTransactionCancelledEvent,
+  RecurrentTransactionCreated as RecurrentTransactionCreatedEvent,
+  RecurrentTransactionFulfilled as RecurrentTransactionFulfilledEvent,
   SignersUpdated as SignersUpdatedEvent,
   SubsciptionDeleted as SubsciptionDeletedEvent,
   SubscriptionCreated as SubscriptionCreatedEvent,
@@ -16,14 +16,14 @@ import {
   TokensUpdated as TokensUpdatedEvent,
   WithdrawRequestApproved as WithdrawRequestApprovedEvent,
   WithdrawRequestCreated as WithdrawRequestCreatedEvent,
-  WithdrawRequestExecuted as WithdrawRequestExecutedEvent
+  WithdrawRequestExecuted as WithdrawRequestExecutedEvent,
 } from "../generated/Events/Events";
 import {
   Merchant,
-  Payment,
+  Transaction,
   Subscription,
   WithdrawRequest,
-  Transaction,
+  Confirmation,
 } from "../generated/schema";
 import { Bytes, Value } from "@graphprotocol/graph-ts";
 
@@ -53,7 +53,9 @@ export function handleMerchantCreated(event: MerchantCreatedEvent): void {
   merchant.metadata_value = event.params.metadata.value;
   merchant.wallet = event.params.wallet;
   merchant.tokens = Value.fromAddressArray(event.params.tokens).toBytesArray();
-  merchant.signers = Value.fromAddressArray(event.params.signers).toBytesArray();
+  merchant.signers = Value.fromAddressArray(
+    event.params.signers
+  ).toBytesArray();
   merchant.minSigners = event.params.minSigners;
 
   merchant.blockNumber = event.block.number;
@@ -75,56 +77,26 @@ export function handleMerchantMetadataUpdated(
   merchant.save();
 }
 
-export function handleOneTimePaymentCreated(
-  event: OneTimePaymentCreatedEvent
+export function handleOneTimeTransactionCreated(
+  event: OneTimeTransactionCreatedEvent
 ): void {
-  let payment = new Payment(event.params.paymentId);
+  let transaction = new Transaction(event.params.transactionId);
 
-  payment.paymentId = event.params.paymentId;
-  payment.payer = event.params.payer;
-  payment.payers = Value.fromAddressArray(event.params.payers).toBytesArray();
-  payment.merchant = event.params.merchant;
-  payment.token = event.params.token;
-  payment.amounts = event.params.amounts;
-  payment.adjustedToken = event.params.adjustedToken;
-  payment.adjustedAmount = event.params.adjustedAmount;
-  payment.timestamp = event.params.timestamp;
-  payment.description = event.params.description;
-  payment.metadata_schemaVersion = event.params.metadata.schemaVersion;
-  payment.metadata_value = event.params.metadata.value;
-  payment.status = event.params.status;
-  payment.type = 0;
-
-  payment.blockNumber = event.block.number;
-  payment.blockTimestamp = event.block.timestamp;
-  payment.transactionHash = event.transaction.hash;
-
-  payment.save();
-}
-
-export function handleOneTimePaymentFulfilled(
-  event: OneTimePaymentFulfilledEvent
-): void {
-  let payment = Payment.load(event.params.paymentId);
-  if (!payment) return;
-
-  payment.fulfilleds.push(Value.fromAddress(event.params.payer).toBytes());
-  payment.status = event.params.status;
-
-  payment.save();
-
-  let transaction = new Transaction(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-
-  transaction.paymentId = event.params.paymentId;
-  transaction.from = event.params.payer;
-  transaction.recipient = event.params.merchant;
-  transaction.token = transaction.token;
-  transaction.amount = event.params.amount;
+  transaction.transactionId = event.params.transactionId;
+  transaction.payer = event.params.payer;
+  transaction.payers = Value.fromAddressArray(
+    event.params.payers
+  ).toBytesArray();
+  transaction.merchant = event.params.merchant;
+  transaction.token = event.params.token;
+  transaction.amounts = event.params.amounts;
   transaction.adjustedToken = event.params.adjustedToken;
   transaction.adjustedAmount = event.params.adjustedAmount;
-  transaction.description = payment.description;
+  transaction.timestamp = event.params.timestamp;
+  transaction.description = event.params.description;
+  transaction.metadata_schemaVersion = event.params.metadata.schemaVersion;
+  transaction.metadata_value = event.params.metadata.value;
+  transaction.status = event.params.status;
   transaction.type = 0;
 
   transaction.blockNumber = event.block.number;
@@ -134,16 +106,87 @@ export function handleOneTimePaymentFulfilled(
   transaction.save();
 }
 
-export function handlePaymentReceived(event: PaymentReceivedEvent): void {
-  let transaction = new Transaction(
+export function handleOneTimeTransactionFulfilled(
+  event: OneTimeTransactionFulfilledEvent
+): void {
+  let transaction = Transaction.load(event.params.transactionId);
+  if (!transaction) return;
+
+  transaction.fulfilleds.push(Value.fromAddress(event.params.payer).toBytes());
+  transaction.status = event.params.status;
+
+  transaction.save();
+
+  let confirmation = new Confirmation(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
 
-  transaction.paymentId = event.params.paymentId;
-  transaction.from = event.params.payer;
-  transaction.recipient = event.params.merchant;
+  confirmation.transactionId = event.params.transactionId;
+  confirmation.from = event.params.payer;
+  confirmation.recipient = event.params.merchant;
+  confirmation.token = transaction.token;
+  confirmation.amount = event.params.amount;
+  confirmation.adjustedToken = event.params.adjustedToken;
+  confirmation.adjustedAmount = event.params.adjustedAmount;
+  confirmation.description = transaction.description;
+  confirmation.type = 0;
+
+  confirmation.blockNumber = event.block.number;
+  confirmation.blockTimestamp = event.block.timestamp;
+  confirmation.transactionHash = event.transaction.hash;
+
+  confirmation.save();
+}
+
+export function handleTransactionReceived(
+  event: TransactionReceivedEvent
+): void {
+  let confirmation = new Confirmation(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+
+  confirmation.transactionId = event.params.transactionId;
+  confirmation.from = event.params.payer;
+  confirmation.recipient = event.params.merchant;
+  confirmation.token = event.params.token;
+  confirmation.amount = event.params.amount;
+  confirmation.type = 1;
+
+  confirmation.blockNumber = event.block.number;
+  confirmation.blockTimestamp = event.block.timestamp;
+  confirmation.transactionHash = event.transaction.hash;
+
+  confirmation.save();
+}
+
+export function handleRecurrentTransactionCancelled(
+  event: RecurrentTransactionCancelledEvent
+): void {
+  let transaction = Transaction.load(event.params.transactionId);
+  if (!transaction) return;
+
+  transaction.transactionId = event.params.transactionId;
+  transaction.status = 3;
+
+  transaction.save();
+}
+
+export function handleRecurrentTransactionCreated(
+  event: RecurrentTransactionCreatedEvent
+): void {
+  let transaction = new Transaction(event.params.transactionId);
+
+  transaction.transactionId = event.params.transactionId;
+  transaction.payer = event.params.payer;
+  transaction.merchant = event.params.merchant;
+  transaction.dueDate = event.params.dueDate;
   transaction.token = event.params.token;
   transaction.amount = event.params.amount;
+  transaction.timestamp = event.params.timestamp;
+  transaction.description = event.params.description;
+  transaction.metadata_schemaVersion = event.params.metadata.schemaVersion;
+  transaction.metadata_value = event.params.metadata.value;
+  transaction.status = event.params.status;
   transaction.type = 1;
 
   transaction.blockNumber = event.block.number;
@@ -153,90 +196,51 @@ export function handlePaymentReceived(event: PaymentReceivedEvent): void {
   transaction.save();
 }
 
-export function handleRecurrentPaymentCancelled(
-  event: RecurrentPaymentCancelledEvent
+export function handleRecurrentTransactionFulfilled(
+  event: RecurrentTransactionFulfilledEvent
 ): void {
-  let payment = Payment.load(event.params.paymentId);
-  if (!payment) return;
+  let transaction = Transaction.load(event.params.transactionId);
+  if (!transaction) return;
 
-  payment.paymentId = event.params.paymentId;
-  payment.status = 3;
+  transaction.dueDate = event.params.dueDate;
+  transaction.status = event.params.status;
 
-  payment.save();
-}
+  transaction.save();
 
-export function handleRecurrentPaymentCreated(
-  event: RecurrentPaymentCreatedEvent
-): void {
-  let payment = new Payment(event.params.paymentId);
-
-  payment.paymentId = event.params.paymentId;
-  payment.payer = event.params.payer;
-  payment.merchant = event.params.merchant;
-  payment.dueDate = event.params.dueDate;
-  payment.token = event.params.token;
-  payment.amount = event.params.amount;
-  payment.timestamp = event.params.timestamp;
-  payment.description = event.params.description;
-  payment.metadata_schemaVersion = event.params.metadata.schemaVersion;
-  payment.metadata_value = event.params.metadata.value;
-  payment.status = event.params.status;
-  payment.type = 1;
-
-  payment.blockNumber = event.block.number;
-  payment.blockTimestamp = event.block.timestamp;
-  payment.transactionHash = event.transaction.hash;
-
-  payment.save();
-}
-
-export function handleRecurrentPaymentFulfilled(
-  event: RecurrentPaymentFulfilledEvent
-): void {
-  let payment = Payment.load(event.params.paymentId);
-  if (!payment) return;
-
-  payment.dueDate = event.params.dueDate;
-  payment.status = event.params.status;
-
-  payment.save();
-
-  let transaction = new Transaction(
+  let confirmation = new Confirmation(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
 
-  transaction.paymentId = event.params.paymentId;
-  transaction.from = event.params.payer;
-  transaction.recipient = event.params.merchant;
-  transaction.token = event.params.token;
-  transaction.amount = event.params.amount;
-  transaction.adjustedToken = event.params.adjustedToken;
-  transaction.adjustedAmount = event.params.adjustedAmount;
-  transaction.description = payment.description;
-  transaction.type = 0;
+  confirmation.transactionId = event.params.transactionId;
+  confirmation.from = event.params.payer;
+  confirmation.recipient = event.params.merchant;
+  confirmation.token = event.params.token;
+  confirmation.amount = event.params.amount;
+  confirmation.adjustedToken = event.params.adjustedToken;
+  confirmation.adjustedAmount = event.params.adjustedAmount;
+  confirmation.description = transaction.description;
+  confirmation.type = 0;
 
-  transaction.blockNumber = event.block.number;
-  transaction.blockTimestamp = event.block.timestamp;
-  transaction.transactionHash = event.transaction.hash;
+  confirmation.blockNumber = event.block.number;
+  confirmation.blockTimestamp = event.block.timestamp;
+  confirmation.transactionHash = event.transaction.hash;
 
-  transaction.save();
+  confirmation.save();
 }
 
-export function handleSignersUpdated(
-  event: SignersUpdatedEvent
-): void {
+export function handleSignersUpdated(event: SignersUpdatedEvent): void {
   let merchant = Merchant.load(event.params.merchant);
   if (!merchant) return;
 
-  merchant.signers = Value.fromAddressArray(event.params.signers).toBytesArray();
+  merchant.signers = Value.fromAddressArray(
+    event.params.signers
+  ).toBytesArray();
   merchant.minSigners = event.params.minSigners;
 
   merchant.save();
 }
 
-export function handleSubsciptionDeleted(
-  event: SubsciptionDeletedEvent
-): void {
+export function handleSubsciptionDeleted(event: SubsciptionDeletedEvent): void {
   let subscription = Subscription.load(event.params.subsciptionId);
   if (!subscription) return;
 
@@ -278,9 +282,7 @@ export function handleSubscriptionUpdated(
   subscription.save();
 }
 
-export function handleTokensUpdated(
-  event: TokensUpdatedEvent
-): void {
+export function handleTokensUpdated(event: TokensUpdatedEvent): void {
   let merchant = Merchant.load(event.params.merchant);
   if (!merchant) return;
 
@@ -336,19 +338,19 @@ export function handleWithdrawRequestExecuted(
 
   request.save();
 
-  let transaction = new Transaction(
+  let confirmation = new Confirmation(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   );
 
-  transaction.from = event.params.merchant;
-  transaction.recipient = request.recipient;
-  transaction.token = request.token;
-  transaction.amount = request.amount;
-  transaction.type = 2;
+  confirmation.from = event.params.merchant;
+  confirmation.recipient = request.recipient;
+  confirmation.token = request.token;
+  confirmation.amount = request.amount;
+  confirmation.type = 2;
 
-  transaction.blockNumber = event.block.number;
-  transaction.blockTimestamp = event.block.timestamp;
-  transaction.transactionHash = event.transaction.hash;
+  confirmation.blockNumber = event.block.number;
+  confirmation.blockTimestamp = event.block.timestamp;
+  confirmation.transactionHash = event.transaction.hash;
 
-  transaction.save();
+  confirmation.save();
 }

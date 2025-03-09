@@ -2,7 +2,7 @@ import { vars } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox-viem";
 
 const MNEMONIC = vars.get("MNEMONIC");
-const SCAN_API_KEY = vars.get("SCAN_API_KEY");
+const SCROLL_API_KEY = vars.get("SCROLL_API_KEY");
 
 module.exports = {
   mocha: {
@@ -35,7 +35,7 @@ module.exports = {
   },
   etherscan: {
     apiKey: {
-      scrollSepolia: SCAN_API_KEY,
+      scrollSepolia: SCROLL_API_KEY,
     },
     customChains: [
       {

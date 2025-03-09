@@ -22,11 +22,11 @@ const progress = ref<boolean>(false);
 
 const payments = ref<Payment[]>([]);
 
-const getPayments = async (load: boolean = true) => {
+const getTransactions = async (load: boolean = true) => {
   if (!walletStore.address) return;
   progress.value = load;
 
-  payments.value = await beamSdk.oneTimePayment.getPayments({
+  payments.value = await beamSdk.oneTimeTransaction.getTransactions({
     merchant: walletStore.address,
     page: 1,
     limit: 50
@@ -36,7 +36,7 @@ const getPayments = async (load: boolean = true) => {
 };
 
 onMounted(() => {
-  getPayments();
+  getTransactions();
 });
 </script>
 
@@ -119,7 +119,7 @@ onMounted(() => {
     <div class="transactions">
       <div class="title">
         <div class="name">
-          <p>Transactions</p>
+          <p>Confirmations</p>
           <p>21 <span>Txns</span></p>
         </div>
 

@@ -15,7 +15,7 @@ interface IHook {
     ) external;
 
     function onAfterPayment(
-        bytes32 paymentId,
+        bytes32 transactionId,
         address payer,
         address token,
         uint256 amount,

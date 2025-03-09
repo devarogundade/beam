@@ -1,14 +1,12 @@
-import axios from "axios";
 import type {
   Merchant,
-  Payment,
   Transaction,
+  Confirmation,
   Subscription,
   WithdrawRequest,
 } from "../types";
 import type { Hex } from "viem";
-import { Endpoints } from "./endpoints";
-import { PaymentStatus, PaymentType } from "src/enums";
+import { TransactionStatus, TransactionType } from "src/enums";
 import { BeamClient } from "src/client";
 
 export class Graph {
@@ -45,13 +43,13 @@ export class Graph {
     }
   }
 
-  async getPayment(paymentId: Hex): Promise<Payment | null> {
+  async getTransaction(transactionId: Hex): Promise<Transaction | null> {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            payment(where: {paymentId: "${paymentId}"}) {
+            transaction(where: {transactionId: "${transactionId}"}) {
                 id
-                paymentId
+                transactionId
                 payer
                 payers
                 fulfilleds
@@ -75,13 +73,13 @@ export class Graph {
         }`,
       });
 
-      return data.data.payment;
+      return data.data.transaction;
     } catch (error) {
       return null;
     }
   }
 
-  async getPayments(
+  async getTransactions(
     merchant: Hex,
     page: number,
     limit: number,
@@ -90,9 +88,9 @@ export class Graph {
     amountMax?: number,
     timestampMin?: number,
     timestampMax?: number,
-    status?: PaymentStatus,
-    type?: PaymentType
-  ): Promise<Payment[]> {
+    status?: TransactionStatus,
+    type?: TransactionType
+  ): Promise<Transaction[]> {
     try {
       let filters = `merchant: "${merchant}"`;
 
@@ -106,7 +104,7 @@ export class Graph {
 
       const data = await this.client.graphCall<any>({
         query: `{
-        payments(
+        transactions(
           where: { ${filters} }
           first: ${limit}
           skip: ${(page - 1) * limit}
@@ -114,7 +112,7 @@ export class Graph {
           orderDirection: desc
         ) {
           id
-          paymentId
+          transactionId
           payer
           payers
           fulfilleds
@@ -138,20 +136,20 @@ export class Graph {
       }`,
       });
 
-      return data?.data?.payments ?? [];
+      return data?.data?.transactions ?? [];
     } catch (error) {
       console.error("Error fetching payments:", error);
       return [];
     }
   }
 
-  async getTransaction(id: Hex): Promise<Transaction | null> {
+  async getConfirmation(id: Hex): Promise<Confirmation | null> {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            transaction(where: {id: "${id}"}) {
+            confirmation(where: {id: "${id}"}) {
                 id
-                paymentId
+                transactionId
                 from
                 recipient
                 token
@@ -167,19 +165,21 @@ export class Graph {
         }`,
       });
 
-      return data.data.transaction;
+      return data.data.confirmation;
     } catch (error) {
       return null;
     }
   }
 
-  async getPaymentTransactions(paymentId: Hex): Promise<Transaction[]> {
+  async getTransactionConfirmations(
+    transactionId: Hex
+  ): Promise<Confirmation[]> {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            transactions(where: {paymentId: "${paymentId}"}) {
+            confirmations(where: {transactionId: "${transactionId}"}) {
                 id
-                paymentId
+                transactionId
                 from
                 recipient
                 token
@@ -195,19 +195,19 @@ export class Graph {
         }`,
       });
 
-      return data.data.transactions;
+      return data.data.confirmations;
     } catch (error) {
       return [];
     }
   }
 
-  async getTransactions(account: Hex): Promise<Transaction[]> {
+  async getConfirmations(account: Hex): Promise<Confirmation[]> {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            transactions(where: {recipient: "${account}"}) {
+            confirmations(where: {recipient: "${account}"}) {
                 id
-                paymentId
+                transactionId
                 from
                 recipient
                 token
@@ -223,7 +223,7 @@ export class Graph {
         }`,
       });
 
-      return data.data.transactions;
+      return data.data.confirmations;
     } catch (error) {
       return [];
     }

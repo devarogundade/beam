@@ -12,8 +12,8 @@ import {IWallet} from "./interfaces/IWallet.sol";
 import {IMerchant} from "./interfaces/IMerchant.sol";
 import {IBeamEvents} from "./events/IBeamEvents.sol";
 import {IHookManager} from "./interfaces/IHookManager.sol";
-import {IOneTimePayment} from "./interfaces/IOneTimePayment.sol";
-import {IRecurrentPayment} from "./interfaces/IRecurrentPayment.sol";
+import {IOneTimeTransaction} from "./interfaces/IOneTimeTransaction.sol";
+import {IRecurrentTransaction} from "./interfaces/IRecurrentTransaction.sol";
 
 import {IAaveV3} from "./interfaces/IAaveV3.sol";
 import {IUniswap} from "./interfaces/IUniswap.sol";
@@ -21,42 +21,42 @@ import {IUniswap} from "./interfaces/IUniswap.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 import {BeamHelpers} from "./BeamHelpers.sol";
-import {PaymentRouter} from "./PaymentRouter.sol";
+import {TransactionRouter} from "./TransactionRouter.sol";
 
-contract Beam is Ownable, PaymentRouter, BeamHelpers {
+contract Beam is Ownable, TransactionRouter, BeamHelpers {
     IBeamEvents internal _events;
-    IOneTimePayment internal _oneTimePayment;
-    IRecurrentPayment internal _recurrentPayment;
+    IOneTimeTransaction internal _oneTimeTransaction;
+    IRecurrentTransaction internal _recurrentTransaction;
 
     constructor(
         IBeamEvents events_,
         IMerchant merchant_,
-        IOneTimePayment oneTimePayment_,
-        IRecurrentPayment recurrentPayment_,
+        IOneTimeTransaction oneTimeTransaction_,
+        IRecurrentTransaction recurrentTransaction_,
         IHookManager hookManager_,
         IAaveV3 aave_,
         IUniswap uniswap_
     )
         Ownable(msg.sender)
-        PaymentRouter(aave_, uniswap_)
+        TransactionRouter(aave_, uniswap_)
         BeamHelpers(merchant_, hookManager_)
     {
         _events = events_;
-        _oneTimePayment = oneTimePayment_;
-        _recurrentPayment = recurrentPayment_;
+        _oneTimeTransaction = oneTimeTransaction_;
+        _recurrentTransaction = recurrentTransaction_;
     }
 
-    function oneTimePayment(
-        Params.CreateOneTimePayment memory params
+    function oneTimeTransaction(
+        Params.CreateOneTimeTransaction memory params
     ) external payable {
         AddressLib.requireOne(params.merchant);
         AddressLib.requireEvery(params.payers);
         IntegerLib.requireEvery(params.amounts);
 
-        bytes32 paymentId = _oneTimePayment.create(msg.sender, params);
+        bytes32 transactionId = _oneTimeTransaction.create(msg.sender, params);
 
-        (bool completed, uint256 amount) = _oneTimePayment.onFulfill(
-            paymentId,
+        (bool completed, uint256 amount) = _oneTimeTransaction.onFulfill(
+            transactionId,
             msg.sender,
             params.mintReceipt
         );
@@ -99,14 +99,14 @@ contract Beam is Ownable, PaymentRouter, BeamHelpers {
         IWallet(wallet).deposit{value: msg.value}(
             adjustedToken,
             adjustedAmount,
-            paymentId
+            transactionId
         );
 
-        if (completed) _oneTimePayment.onComplete(paymentId);
+        if (completed) _oneTimeTransaction.onComplete(transactionId);
 
         Params.AfterPayment memory afterPaymentParams = Params.AfterPayment({
             merchant: params.merchant,
-            paymentId: paymentId,
+            transactionId: transactionId,
             payer: msg.sender,
             token: params.token,
             amount: amount,
@@ -116,8 +116,8 @@ contract Beam is Ownable, PaymentRouter, BeamHelpers {
 
         _hookManager.afterPayment(afterPaymentParams);
 
-        _events.oneTimePaymentCreated(
-            paymentId,
+        _events.oneTimeTransactionCreated(
+            transactionId,
             msg.sender,
             params.payers,
             params.merchant,
@@ -128,30 +128,29 @@ contract Beam is Ownable, PaymentRouter, BeamHelpers {
             block.timestamp,
             params.description,
             params.metadata,
-            _oneTimePayment.getStatus(paymentId)
+            _oneTimeTransaction.getStatus(transactionId)
         );
     }
 
-    function fulfillOneTimePayment(
-        Params.FulfillOneTimePayment memory params
+    function fulfillOneTimeTransaction(
+        Params.FulfillOneTimeTransaction memory params
     ) external payable {
-        Types.OneTimePayment memory payment = _oneTimePayment.getPayment(
-            params.paymentId
-        );
+        Types.OneTimeTransaction memory transaction = _oneTimeTransaction
+            .getTransaction(params.transactionId);
 
-        (bool completed, uint256 amount) = _oneTimePayment.onFulfill(
-            params.paymentId,
+        (bool completed, uint256 amount) = _oneTimeTransaction.onFulfill(
+            params.transactionId,
             msg.sender,
             params.mintReceipt
         );
 
-        address wallet = _merchant.getWallet(payment.merchant);
+        address wallet = _merchant.getWallet(transaction.merchant);
         AddressLib.requireOne(wallet);
 
         Params.BeforePayment memory beforePaymentParams = Params.BeforePayment({
-            merchant: payment.merchant,
+            merchant: transaction.merchant,
             payer: msg.sender,
-            token: payment.token,
+            token: transaction.token,
             amount: amount
         });
 
@@ -159,9 +158,9 @@ contract Beam is Ownable, PaymentRouter, BeamHelpers {
 
         Params.AdjustTokenAmount memory adjustTokenAmountParams = Params
             .AdjustTokenAmount({
-                merchant: payment.merchant,
+                merchant: transaction.merchant,
                 payer: msg.sender,
-                token: payment.token,
+                token: transaction.token,
                 amount: amount
             });
 
@@ -183,16 +182,16 @@ contract Beam is Ownable, PaymentRouter, BeamHelpers {
         IWallet(wallet).deposit{value: msg.value}(
             adjustedToken,
             adjustedAmount,
-            params.paymentId
+            params.transactionId
         );
 
-        if (completed) _oneTimePayment.onComplete(params.paymentId);
+        if (completed) _oneTimeTransaction.onComplete(params.transactionId);
 
         Params.AfterPayment memory afterPaymentParams = Params.AfterPayment({
-            merchant: payment.merchant,
-            paymentId: params.paymentId,
+            merchant: transaction.merchant,
+            transactionId: params.transactionId,
             payer: msg.sender,
-            token: payment.token,
+            token: transaction.token,
             amount: amount,
             adjustedToken: adjustedToken,
             adjustedAmount: adjustedAmount
@@ -200,28 +199,31 @@ contract Beam is Ownable, PaymentRouter, BeamHelpers {
 
         _hookManager.afterPayment(afterPaymentParams);
 
-        _events.oneTimePaymentFulfilled(
-            params.paymentId,
+        _events.oneTimeTransactionFulfilled(
+            params.transactionId,
             msg.sender,
-            payment.merchant,
-            payment.token,
+            transaction.merchant,
+            transaction.token,
             amount,
             adjustedToken,
             adjustedAmount,
             block.timestamp,
-            _oneTimePayment.getStatus(params.paymentId)
+            _oneTimeTransaction.getStatus(params.transactionId)
         );
     }
 
-    function recurrentPayment(
-        Params.CreateRecurrentPayment memory params
+    function recurrentTransaction(
+        Params.CreateRecurrentTransaction memory params
     ) external payable {
         AddressLib.requireOne(params.merchant);
 
-        bytes32 paymentId = _recurrentPayment.create(msg.sender, params);
+        bytes32 transactionId = _recurrentTransaction.create(
+            msg.sender,
+            params
+        );
 
-        (uint256 amount, address token, uint256 dueDate) = _recurrentPayment
-            .onFulfill(paymentId, msg.sender, params.mintReceipt);
+        (uint256 amount, address token, uint256 dueDate) = _recurrentTransaction
+            .onFulfill(transactionId, msg.sender, params.mintReceipt);
 
         address wallet = _merchant.getWallet(params.merchant);
         AddressLib.requireOne(wallet);
@@ -261,14 +263,14 @@ contract Beam is Ownable, PaymentRouter, BeamHelpers {
         IWallet(wallet).deposit{value: msg.value}(
             adjustedToken,
             adjustedAmount,
-            paymentId
+            transactionId
         );
 
-        _recurrentPayment.onComplete(paymentId, amount);
+        _recurrentTransaction.onComplete(transactionId, amount);
 
         Params.AfterPayment memory afterPaymentParams = Params.AfterPayment({
             merchant: params.merchant,
-            paymentId: paymentId,
+            transactionId: transactionId,
             payer: msg.sender,
             token: token,
             amount: amount,
@@ -278,8 +280,8 @@ contract Beam is Ownable, PaymentRouter, BeamHelpers {
 
         _hookManager.afterPayment(afterPaymentParams);
 
-        _events.recurrentPaymentCreated(
-            paymentId,
+        _events.recurrentTransactionCreated(
+            transactionId,
             msg.sender,
             params.merchant,
             dueDate,
@@ -290,25 +292,24 @@ contract Beam is Ownable, PaymentRouter, BeamHelpers {
             block.timestamp,
             params.description,
             params.metadata,
-            _recurrentPayment.getStatus(paymentId)
+            _recurrentTransaction.getStatus(transactionId)
         );
     }
 
-    function fulfillRecurrentPayment(
-        Params.FulfillRecurrentPayment memory params
+    function fulfillRecurrentTransaction(
+        Params.FulfillRecurrentTransaction memory params
     ) external payable {
-        Types.RecurrentPayment memory payment = _recurrentPayment.getPayment(
-            params.paymentId
-        );
+        Types.RecurrentTransaction memory transaction = _recurrentTransaction
+            .getTransaction(params.transactionId);
 
-        (uint256 amount, address token, uint256 dueDate) = _recurrentPayment
-            .onFulfill(params.paymentId, msg.sender, params.mintReceipt);
+        (uint256 amount, address token, uint256 dueDate) = _recurrentTransaction
+            .onFulfill(params.transactionId, msg.sender, params.mintReceipt);
 
-        address wallet = _merchant.getWallet(payment.merchant);
+        address wallet = _merchant.getWallet(transaction.merchant);
         AddressLib.requireOne(wallet);
 
         Params.BeforePayment memory beforePaymentParams = Params.BeforePayment({
-            merchant: payment.merchant,
+            merchant: transaction.merchant,
             payer: msg.sender,
             token: token,
             amount: amount
@@ -318,7 +319,7 @@ contract Beam is Ownable, PaymentRouter, BeamHelpers {
 
         Params.AdjustTokenAmount memory adjustTokenAmountParams = Params
             .AdjustTokenAmount({
-                merchant: payment.merchant,
+                merchant: transaction.merchant,
                 payer: msg.sender,
                 token: token,
                 amount: amount
@@ -342,14 +343,14 @@ contract Beam is Ownable, PaymentRouter, BeamHelpers {
         IWallet(wallet).deposit{value: msg.value}(
             adjustedToken,
             adjustedAmount,
-            params.paymentId
+            params.transactionId
         );
 
-        _recurrentPayment.onComplete(params.paymentId, amount);
+        _recurrentTransaction.onComplete(params.transactionId, amount);
 
         Params.AfterPayment memory afterPaymentParams = Params.AfterPayment({
-            merchant: payment.merchant,
-            paymentId: params.paymentId,
+            merchant: transaction.merchant,
+            transactionId: params.transactionId,
             payer: msg.sender,
             token: token,
             amount: amount,
@@ -359,25 +360,37 @@ contract Beam is Ownable, PaymentRouter, BeamHelpers {
 
         _hookManager.afterPayment(afterPaymentParams);
 
-        _events.recurrentPaymentFulfilled(
-            params.paymentId,
+        _events.recurrentTransactionFulfilled(
+            params.transactionId,
             msg.sender,
-            payment.merchant,
+            transaction.merchant,
             dueDate,
             token,
             amount,
             adjustedToken,
             adjustedAmount,
             block.timestamp,
-            _recurrentPayment.getStatus(params.paymentId)
+            _recurrentTransaction.getStatus(params.transactionId)
         );
     }
 
-    function cancelRecurrentPayment(
-        Params.CancelRecurrentPayment memory params
+    function cancelRecurrentTransaction(
+        Params.CancelRecurrentTransaction memory params
     ) external {
-        _recurrentPayment.onCancel(msg.sender, params.paymentId);
+        _recurrentTransaction.onCancel(msg.sender, params.transactionId);
 
-        _events.recurrentPaymentCancelled(params.paymentId);
+        _events.recurrentTransactionCancelled(params.transactionId);
+    }
+
+    function mintOneTimeTransactionReceipt(
+        Params.MintReceipt memory params
+    ) external {
+        _oneTimeTransaction.mintReceipt(params);
+    }
+
+    function mintRecurrentTransactionReceipt(
+        Params.MintReceipt memory params
+    ) external {
+        _recurrentTransaction.mintReceipt(params);
     }
 }

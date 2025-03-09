@@ -1,11 +1,11 @@
 import type { Hex } from "viem";
 
-export enum PaymentType {
+export enum TransactionType {
   OneTime = 0,
   Recurrent = 1,
 }
 
-export enum PaymentStatus {
+export enum TransactionStatus {
   Pending = 0,
   Active = 1,
   Completed = 2,

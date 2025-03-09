@@ -2,12 +2,12 @@
 pragma solidity ^0.8.28;
 
 interface IWalletEvents {
-    event PaymentReceived(
+    event TransactionReceived(
         address indexed merchant,
         address token,
         address payer,
         uint256 amount,
-        bytes32 paymentId
+        bytes32 transactionId
     );
 
     event WithdrawRequestCreated(
@@ -44,7 +44,7 @@ interface IWalletEvents {
         address token,
         address payer,
         uint256 amount,
-        bytes32 paymentId
+        bytes32 transactionId
     ) external;
 
     function withdrawRequestCreated(

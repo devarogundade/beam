@@ -1,16 +1,16 @@
-import { newMockEvent } from "matchstick-as"
-import { ethereum, Address, BigInt, Bytes } from "@graphprotocol/graph-ts"
+import { newMockEvent } from "matchstick-as";
+import { ethereum, Address, BigInt, Bytes } from "@graphprotocol/graph-ts";
 import {
   HookRegistered,
   HookUnRegistered,
   MerchantCreated,
   MerchantMetadataUpdated,
-  OneTimePaymentCreated,
-  OneTimePaymentFulfilled,
-  PaymentReceived,
-  RecurrentPaymentCancelled,
-  RecurrentPaymentCreated,
-  RecurrentPaymentFulfilled,
+  OneTimeTransactionCreated,
+  OneTimeTransactionFulfilled,
+  TransactionReceived,
+  RecurrentTransactionCancelled,
+  RecurrentTransactionCreated,
+  RecurrentTransactionFulfilled,
   RoleAdminChanged,
   RoleGranted,
   RoleRevoked,
@@ -21,43 +21,43 @@ import {
   TokensUpdated,
   WithdrawRequestApproved,
   WithdrawRequestCreated,
-  WithdrawRequestExecuted
-} from "../generated/Events/Events"
+  WithdrawRequestExecuted,
+} from "../generated/Events/Events";
 
 export function createHookRegisteredEvent(
   merchant: Address,
   hook: Address
 ): HookRegistered {
-  let hookRegisteredEvent = changetype<HookRegistered>(newMockEvent())
+  let hookRegisteredEvent = changetype<HookRegistered>(newMockEvent());
 
-  hookRegisteredEvent.parameters = new Array()
+  hookRegisteredEvent.parameters = new Array();
 
   hookRegisteredEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
+  );
   hookRegisteredEvent.parameters.push(
     new ethereum.EventParam("hook", ethereum.Value.fromAddress(hook))
-  )
+  );
 
-  return hookRegisteredEvent
+  return hookRegisteredEvent;
 }
 
 export function createHookUnRegisteredEvent(
   merchant: Address,
   hook: Address
 ): HookUnRegistered {
-  let hookUnRegisteredEvent = changetype<HookUnRegistered>(newMockEvent())
+  let hookUnRegisteredEvent = changetype<HookUnRegistered>(newMockEvent());
 
-  hookUnRegisteredEvent.parameters = new Array()
+  hookUnRegisteredEvent.parameters = new Array();
 
   hookUnRegisteredEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
+  );
   hookUnRegisteredEvent.parameters.push(
     new ethereum.EventParam("hook", ethereum.Value.fromAddress(hook))
-  )
+  );
 
-  return hookUnRegisteredEvent
+  return hookUnRegisteredEvent;
 }
 
 export function createMerchantCreatedEvent(
@@ -68,33 +68,33 @@ export function createMerchantCreatedEvent(
   signers: Array<Address>,
   minSigners: BigInt
 ): MerchantCreated {
-  let merchantCreatedEvent = changetype<MerchantCreated>(newMockEvent())
+  let merchantCreatedEvent = changetype<MerchantCreated>(newMockEvent());
 
-  merchantCreatedEvent.parameters = new Array()
+  merchantCreatedEvent.parameters = new Array();
 
   merchantCreatedEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
+  );
   merchantCreatedEvent.parameters.push(
     new ethereum.EventParam("metadata", ethereum.Value.fromTuple(metadata))
-  )
+  );
   merchantCreatedEvent.parameters.push(
     new ethereum.EventParam("wallet", ethereum.Value.fromAddress(wallet))
-  )
+  );
   merchantCreatedEvent.parameters.push(
     new ethereum.EventParam("tokens", ethereum.Value.fromAddressArray(tokens))
-  )
+  );
   merchantCreatedEvent.parameters.push(
     new ethereum.EventParam("signers", ethereum.Value.fromAddressArray(signers))
-  )
+  );
   merchantCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "minSigners",
       ethereum.Value.fromUnsignedBigInt(minSigners)
     )
-  )
+  );
 
-  return merchantCreatedEvent
+  return merchantCreatedEvent;
 }
 
 export function createMerchantMetadataUpdatedEvent(
@@ -102,22 +102,22 @@ export function createMerchantMetadataUpdatedEvent(
   metadata: ethereum.Tuple
 ): MerchantMetadataUpdated {
   let merchantMetadataUpdatedEvent =
-    changetype<MerchantMetadataUpdated>(newMockEvent())
+    changetype<MerchantMetadataUpdated>(newMockEvent());
 
-  merchantMetadataUpdatedEvent.parameters = new Array()
+  merchantMetadataUpdatedEvent.parameters = new Array();
 
   merchantMetadataUpdatedEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
+  );
   merchantMetadataUpdatedEvent.parameters.push(
     new ethereum.EventParam("metadata", ethereum.Value.fromTuple(metadata))
-  )
+  );
 
-  return merchantMetadataUpdatedEvent
+  return merchantMetadataUpdatedEvent;
 }
 
-export function createOneTimePaymentCreatedEvent(
-  paymentId: Bytes,
+export function createOneTimeTransactionCreatedEvent(
+  transactionId: Bytes,
   payer: Address,
   payers: Array<Address>,
   merchant: Address,
@@ -129,75 +129,75 @@ export function createOneTimePaymentCreatedEvent(
   description: string,
   metadata: ethereum.Tuple,
   status: i32
-): OneTimePaymentCreated {
-  let oneTimePaymentCreatedEvent =
-    changetype<OneTimePaymentCreated>(newMockEvent())
+): OneTimeTransactionCreated {
+  let oneTimeTransactionCreatedEvent =
+    changetype<OneTimeTransactionCreated>(newMockEvent());
 
-  oneTimePaymentCreatedEvent.parameters = new Array()
+  oneTimeTransactionCreatedEvent.parameters = new Array();
 
-  oneTimePaymentCreatedEvent.parameters.push(
+  oneTimeTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
-      "paymentId",
-      ethereum.Value.fromFixedBytes(paymentId)
+      "transactionId",
+      ethereum.Value.fromFixedBytes(transactionId)
     )
-  )
-  oneTimePaymentCreatedEvent.parameters.push(
+  );
+  oneTimeTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam("payer", ethereum.Value.fromAddress(payer))
-  )
-  oneTimePaymentCreatedEvent.parameters.push(
+  );
+  oneTimeTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam("payers", ethereum.Value.fromAddressArray(payers))
-  )
-  oneTimePaymentCreatedEvent.parameters.push(
+  );
+  oneTimeTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
-  oneTimePaymentCreatedEvent.parameters.push(
+  );
+  oneTimeTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam("token", ethereum.Value.fromAddress(token))
-  )
-  oneTimePaymentCreatedEvent.parameters.push(
+  );
+  oneTimeTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "amounts",
       ethereum.Value.fromUnsignedBigIntArray(amounts)
     )
-  )
-  oneTimePaymentCreatedEvent.parameters.push(
+  );
+  oneTimeTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "adjustedToken",
       ethereum.Value.fromAddress(adjustedToken)
     )
-  )
-  oneTimePaymentCreatedEvent.parameters.push(
+  );
+  oneTimeTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "adjustedAmount",
       ethereum.Value.fromUnsignedBigInt(adjustedAmount)
     )
-  )
-  oneTimePaymentCreatedEvent.parameters.push(
+  );
+  oneTimeTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "timestamp",
       ethereum.Value.fromUnsignedBigInt(timestamp)
     )
-  )
-  oneTimePaymentCreatedEvent.parameters.push(
+  );
+  oneTimeTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "description",
       ethereum.Value.fromString(description)
     )
-  )
-  oneTimePaymentCreatedEvent.parameters.push(
+  );
+  oneTimeTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam("metadata", ethereum.Value.fromTuple(metadata))
-  )
-  oneTimePaymentCreatedEvent.parameters.push(
+  );
+  oneTimeTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "status",
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(status))
     )
-  )
+  );
 
-  return oneTimePaymentCreatedEvent
+  return oneTimeTransactionCreatedEvent;
 }
 
-export function createOneTimePaymentFulfilledEvent(
-  paymentId: Bytes,
+export function createOneTimeTransactionFulfilledEvent(
+  transactionId: Bytes,
   payer: Address,
   merchant: Address,
   token: Address,
@@ -206,111 +206,111 @@ export function createOneTimePaymentFulfilledEvent(
   adjustedAmount: BigInt,
   timestamp: BigInt,
   status: i32
-): OneTimePaymentFulfilled {
-  let oneTimePaymentFulfilledEvent =
-    changetype<OneTimePaymentFulfilled>(newMockEvent())
+): OneTimeTransactionFulfilled {
+  let oneTimeTransactionFulfilledEvent =
+    changetype<OneTimeTransactionFulfilled>(newMockEvent());
 
-  oneTimePaymentFulfilledEvent.parameters = new Array()
+  oneTimeTransactionFulfilledEvent.parameters = new Array();
 
-  oneTimePaymentFulfilledEvent.parameters.push(
+  oneTimeTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam(
-      "paymentId",
-      ethereum.Value.fromFixedBytes(paymentId)
+      "transactionId",
+      ethereum.Value.fromFixedBytes(transactionId)
     )
-  )
-  oneTimePaymentFulfilledEvent.parameters.push(
+  );
+  oneTimeTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam("payer", ethereum.Value.fromAddress(payer))
-  )
-  oneTimePaymentFulfilledEvent.parameters.push(
+  );
+  oneTimeTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
-  oneTimePaymentFulfilledEvent.parameters.push(
+  );
+  oneTimeTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam("token", ethereum.Value.fromAddress(token))
-  )
-  oneTimePaymentFulfilledEvent.parameters.push(
+  );
+  oneTimeTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam("amount", ethereum.Value.fromUnsignedBigInt(amount))
-  )
-  oneTimePaymentFulfilledEvent.parameters.push(
+  );
+  oneTimeTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam(
       "adjustedToken",
       ethereum.Value.fromAddress(adjustedToken)
     )
-  )
-  oneTimePaymentFulfilledEvent.parameters.push(
+  );
+  oneTimeTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam(
       "adjustedAmount",
       ethereum.Value.fromUnsignedBigInt(adjustedAmount)
     )
-  )
-  oneTimePaymentFulfilledEvent.parameters.push(
+  );
+  oneTimeTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam(
       "timestamp",
       ethereum.Value.fromUnsignedBigInt(timestamp)
     )
-  )
-  oneTimePaymentFulfilledEvent.parameters.push(
+  );
+  oneTimeTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam(
       "status",
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(status))
     )
-  )
+  );
 
-  return oneTimePaymentFulfilledEvent
+  return oneTimeTransactionFulfilledEvent;
 }
 
-export function createPaymentReceivedEvent(
+export function createTransactionReceivedEvent(
   merchant: Address,
   token: Address,
   payer: Address,
   amount: BigInt,
-  paymentId: Bytes
-): PaymentReceived {
-  let paymentReceivedEvent = changetype<PaymentReceived>(newMockEvent())
+  transactionId: Bytes
+): TransactionReceived {
+  let paymentReceivedEvent = changetype<TransactionReceived>(newMockEvent());
 
-  paymentReceivedEvent.parameters = new Array()
+  paymentReceivedEvent.parameters = new Array();
 
   paymentReceivedEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
+  );
   paymentReceivedEvent.parameters.push(
     new ethereum.EventParam("token", ethereum.Value.fromAddress(token))
-  )
+  );
   paymentReceivedEvent.parameters.push(
     new ethereum.EventParam("payer", ethereum.Value.fromAddress(payer))
-  )
+  );
   paymentReceivedEvent.parameters.push(
     new ethereum.EventParam("amount", ethereum.Value.fromUnsignedBigInt(amount))
-  )
+  );
   paymentReceivedEvent.parameters.push(
     new ethereum.EventParam(
-      "paymentId",
-      ethereum.Value.fromFixedBytes(paymentId)
+      "transactionId",
+      ethereum.Value.fromFixedBytes(transactionId)
     )
-  )
+  );
 
-  return paymentReceivedEvent
+  return paymentReceivedEvent;
 }
 
-export function createRecurrentPaymentCancelledEvent(
-  paymentId: Bytes
-): RecurrentPaymentCancelled {
-  let recurrentPaymentCancelledEvent =
-    changetype<RecurrentPaymentCancelled>(newMockEvent())
+export function createRecurrentTransactionCancelledEvent(
+  transactionId: Bytes
+): RecurrentTransactionCancelled {
+  let recurrentTransactionCancelledEvent =
+    changetype<RecurrentTransactionCancelled>(newMockEvent());
 
-  recurrentPaymentCancelledEvent.parameters = new Array()
+  recurrentTransactionCancelledEvent.parameters = new Array();
 
-  recurrentPaymentCancelledEvent.parameters.push(
+  recurrentTransactionCancelledEvent.parameters.push(
     new ethereum.EventParam(
-      "paymentId",
-      ethereum.Value.fromFixedBytes(paymentId)
+      "transactionId",
+      ethereum.Value.fromFixedBytes(transactionId)
     )
-  )
+  );
 
-  return recurrentPaymentCancelledEvent
+  return recurrentTransactionCancelledEvent;
 }
 
-export function createRecurrentPaymentCreatedEvent(
-  paymentId: Bytes,
+export function createRecurrentTransactionCreatedEvent(
+  transactionId: Bytes,
   payer: Address,
   merchant: Address,
   dueDate: BigInt,
@@ -322,75 +322,75 @@ export function createRecurrentPaymentCreatedEvent(
   description: string,
   metadata: ethereum.Tuple,
   status: i32
-): RecurrentPaymentCreated {
-  let recurrentPaymentCreatedEvent =
-    changetype<RecurrentPaymentCreated>(newMockEvent())
+): RecurrentTransactionCreated {
+  let recurrentTransactionCreatedEvent =
+    changetype<RecurrentTransactionCreated>(newMockEvent());
 
-  recurrentPaymentCreatedEvent.parameters = new Array()
+  recurrentTransactionCreatedEvent.parameters = new Array();
 
-  recurrentPaymentCreatedEvent.parameters.push(
+  recurrentTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
-      "paymentId",
-      ethereum.Value.fromFixedBytes(paymentId)
+      "transactionId",
+      ethereum.Value.fromFixedBytes(transactionId)
     )
-  )
-  recurrentPaymentCreatedEvent.parameters.push(
+  );
+  recurrentTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam("payer", ethereum.Value.fromAddress(payer))
-  )
-  recurrentPaymentCreatedEvent.parameters.push(
+  );
+  recurrentTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
-  recurrentPaymentCreatedEvent.parameters.push(
+  );
+  recurrentTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "dueDate",
       ethereum.Value.fromUnsignedBigInt(dueDate)
     )
-  )
-  recurrentPaymentCreatedEvent.parameters.push(
+  );
+  recurrentTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam("token", ethereum.Value.fromAddress(token))
-  )
-  recurrentPaymentCreatedEvent.parameters.push(
+  );
+  recurrentTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam("amount", ethereum.Value.fromUnsignedBigInt(amount))
-  )
-  recurrentPaymentCreatedEvent.parameters.push(
+  );
+  recurrentTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "adjustedToken",
       ethereum.Value.fromAddress(adjustedToken)
     )
-  )
-  recurrentPaymentCreatedEvent.parameters.push(
+  );
+  recurrentTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "adjustedAmount",
       ethereum.Value.fromUnsignedBigInt(adjustedAmount)
     )
-  )
-  recurrentPaymentCreatedEvent.parameters.push(
+  );
+  recurrentTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "timestamp",
       ethereum.Value.fromUnsignedBigInt(timestamp)
     )
-  )
-  recurrentPaymentCreatedEvent.parameters.push(
+  );
+  recurrentTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "description",
       ethereum.Value.fromString(description)
     )
-  )
-  recurrentPaymentCreatedEvent.parameters.push(
+  );
+  recurrentTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam("metadata", ethereum.Value.fromTuple(metadata))
-  )
-  recurrentPaymentCreatedEvent.parameters.push(
+  );
+  recurrentTransactionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "status",
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(status))
     )
-  )
+  );
 
-  return recurrentPaymentCreatedEvent
+  return recurrentTransactionCreatedEvent;
 }
 
-export function createRecurrentPaymentFulfilledEvent(
-  paymentId: Bytes,
+export function createRecurrentTransactionFulfilledEvent(
+  transactionId: Bytes,
   payer: Address,
   merchant: Address,
   dueDate: BigInt,
@@ -400,62 +400,62 @@ export function createRecurrentPaymentFulfilledEvent(
   adjustedAmount: BigInt,
   timestamp: BigInt,
   status: i32
-): RecurrentPaymentFulfilled {
-  let recurrentPaymentFulfilledEvent =
-    changetype<RecurrentPaymentFulfilled>(newMockEvent())
+): RecurrentTransactionFulfilled {
+  let recurrentTransactionFulfilledEvent =
+    changetype<RecurrentTransactionFulfilled>(newMockEvent());
 
-  recurrentPaymentFulfilledEvent.parameters = new Array()
+  recurrentTransactionFulfilledEvent.parameters = new Array();
 
-  recurrentPaymentFulfilledEvent.parameters.push(
+  recurrentTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam(
-      "paymentId",
-      ethereum.Value.fromFixedBytes(paymentId)
+      "transactionId",
+      ethereum.Value.fromFixedBytes(transactionId)
     )
-  )
-  recurrentPaymentFulfilledEvent.parameters.push(
+  );
+  recurrentTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam("payer", ethereum.Value.fromAddress(payer))
-  )
-  recurrentPaymentFulfilledEvent.parameters.push(
+  );
+  recurrentTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
-  recurrentPaymentFulfilledEvent.parameters.push(
+  );
+  recurrentTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam(
       "dueDate",
       ethereum.Value.fromUnsignedBigInt(dueDate)
     )
-  )
-  recurrentPaymentFulfilledEvent.parameters.push(
+  );
+  recurrentTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam("token", ethereum.Value.fromAddress(token))
-  )
-  recurrentPaymentFulfilledEvent.parameters.push(
+  );
+  recurrentTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam("amount", ethereum.Value.fromUnsignedBigInt(amount))
-  )
-  recurrentPaymentFulfilledEvent.parameters.push(
+  );
+  recurrentTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam(
       "adjustedToken",
       ethereum.Value.fromAddress(adjustedToken)
     )
-  )
-  recurrentPaymentFulfilledEvent.parameters.push(
+  );
+  recurrentTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam(
       "adjustedAmount",
       ethereum.Value.fromUnsignedBigInt(adjustedAmount)
     )
-  )
-  recurrentPaymentFulfilledEvent.parameters.push(
+  );
+  recurrentTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam(
       "timestamp",
       ethereum.Value.fromUnsignedBigInt(timestamp)
     )
-  )
-  recurrentPaymentFulfilledEvent.parameters.push(
+  );
+  recurrentTransactionFulfilledEvent.parameters.push(
     new ethereum.EventParam(
       "status",
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(status))
     )
-  )
+  );
 
-  return recurrentPaymentFulfilledEvent
+  return recurrentTransactionFulfilledEvent;
 }
 
 export function createRoleAdminChangedEvent(
@@ -463,27 +463,27 @@ export function createRoleAdminChangedEvent(
   previousAdminRole: Bytes,
   newAdminRole: Bytes
 ): RoleAdminChanged {
-  let roleAdminChangedEvent = changetype<RoleAdminChanged>(newMockEvent())
+  let roleAdminChangedEvent = changetype<RoleAdminChanged>(newMockEvent());
 
-  roleAdminChangedEvent.parameters = new Array()
+  roleAdminChangedEvent.parameters = new Array();
 
   roleAdminChangedEvent.parameters.push(
     new ethereum.EventParam("role", ethereum.Value.fromFixedBytes(role))
-  )
+  );
   roleAdminChangedEvent.parameters.push(
     new ethereum.EventParam(
       "previousAdminRole",
       ethereum.Value.fromFixedBytes(previousAdminRole)
     )
-  )
+  );
   roleAdminChangedEvent.parameters.push(
     new ethereum.EventParam(
       "newAdminRole",
       ethereum.Value.fromFixedBytes(newAdminRole)
     )
-  )
+  );
 
-  return roleAdminChangedEvent
+  return roleAdminChangedEvent;
 }
 
 export function createRoleGrantedEvent(
@@ -491,21 +491,21 @@ export function createRoleGrantedEvent(
   account: Address,
   sender: Address
 ): RoleGranted {
-  let roleGrantedEvent = changetype<RoleGranted>(newMockEvent())
+  let roleGrantedEvent = changetype<RoleGranted>(newMockEvent());
 
-  roleGrantedEvent.parameters = new Array()
+  roleGrantedEvent.parameters = new Array();
 
   roleGrantedEvent.parameters.push(
     new ethereum.EventParam("role", ethereum.Value.fromFixedBytes(role))
-  )
+  );
   roleGrantedEvent.parameters.push(
     new ethereum.EventParam("account", ethereum.Value.fromAddress(account))
-  )
+  );
   roleGrantedEvent.parameters.push(
     new ethereum.EventParam("sender", ethereum.Value.fromAddress(sender))
-  )
+  );
 
-  return roleGrantedEvent
+  return roleGrantedEvent;
 }
 
 export function createRoleRevokedEvent(
@@ -513,21 +513,21 @@ export function createRoleRevokedEvent(
   account: Address,
   sender: Address
 ): RoleRevoked {
-  let roleRevokedEvent = changetype<RoleRevoked>(newMockEvent())
+  let roleRevokedEvent = changetype<RoleRevoked>(newMockEvent());
 
-  roleRevokedEvent.parameters = new Array()
+  roleRevokedEvent.parameters = new Array();
 
   roleRevokedEvent.parameters.push(
     new ethereum.EventParam("role", ethereum.Value.fromFixedBytes(role))
-  )
+  );
   roleRevokedEvent.parameters.push(
     new ethereum.EventParam("account", ethereum.Value.fromAddress(account))
-  )
+  );
   roleRevokedEvent.parameters.push(
     new ethereum.EventParam("sender", ethereum.Value.fromAddress(sender))
-  )
+  );
 
-  return roleRevokedEvent
+  return roleRevokedEvent;
 }
 
 export function createSignersUpdatedEvent(
@@ -535,41 +535,41 @@ export function createSignersUpdatedEvent(
   signers: Array<Address>,
   minSigners: BigInt
 ): SignersUpdated {
-  let signersUpdatedEvent = changetype<SignersUpdated>(newMockEvent())
+  let signersUpdatedEvent = changetype<SignersUpdated>(newMockEvent());
 
-  signersUpdatedEvent.parameters = new Array()
+  signersUpdatedEvent.parameters = new Array();
 
   signersUpdatedEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
+  );
   signersUpdatedEvent.parameters.push(
     new ethereum.EventParam("signers", ethereum.Value.fromAddressArray(signers))
-  )
+  );
   signersUpdatedEvent.parameters.push(
     new ethereum.EventParam(
       "minSigners",
       ethereum.Value.fromUnsignedBigInt(minSigners)
     )
-  )
+  );
 
-  return signersUpdatedEvent
+  return signersUpdatedEvent;
 }
 
 export function createSubsciptionDeletedEvent(
   subsciptionId: Bytes
 ): SubsciptionDeleted {
-  let subsciptionDeletedEvent = changetype<SubsciptionDeleted>(newMockEvent())
+  let subsciptionDeletedEvent = changetype<SubsciptionDeleted>(newMockEvent());
 
-  subsciptionDeletedEvent.parameters = new Array()
+  subsciptionDeletedEvent.parameters = new Array();
 
   subsciptionDeletedEvent.parameters.push(
     new ethereum.EventParam(
       "subsciptionId",
       ethereum.Value.fromFixedBytes(subsciptionId)
     )
-  )
+  );
 
-  return subsciptionDeletedEvent
+  return subsciptionDeletedEvent;
 }
 
 export function createSubscriptionCreatedEvent(
@@ -580,42 +580,43 @@ export function createSubscriptionCreatedEvent(
   gracePeriod: BigInt,
   description: string
 ): SubscriptionCreated {
-  let subscriptionCreatedEvent = changetype<SubscriptionCreated>(newMockEvent())
+  let subscriptionCreatedEvent =
+    changetype<SubscriptionCreated>(newMockEvent());
 
-  subscriptionCreatedEvent.parameters = new Array()
+  subscriptionCreatedEvent.parameters = new Array();
 
   subscriptionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "subsciptionId",
       ethereum.Value.fromFixedBytes(subsciptionId)
     )
-  )
+  );
   subscriptionCreatedEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
+  );
   subscriptionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "interval",
       ethereum.Value.fromUnsignedBigInt(interval)
     )
-  )
+  );
   subscriptionCreatedEvent.parameters.push(
     new ethereum.EventParam("amount", ethereum.Value.fromUnsignedBigInt(amount))
-  )
+  );
   subscriptionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "gracePeriod",
       ethereum.Value.fromUnsignedBigInt(gracePeriod)
     )
-  )
+  );
   subscriptionCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "description",
       ethereum.Value.fromString(description)
     )
-  )
+  );
 
-  return subscriptionCreatedEvent
+  return subscriptionCreatedEvent;
 }
 
 export function createSubscriptionUpdatedEvent(
@@ -625,54 +626,55 @@ export function createSubscriptionUpdatedEvent(
   description: string,
   active: boolean
 ): SubscriptionUpdated {
-  let subscriptionUpdatedEvent = changetype<SubscriptionUpdated>(newMockEvent())
+  let subscriptionUpdatedEvent =
+    changetype<SubscriptionUpdated>(newMockEvent());
 
-  subscriptionUpdatedEvent.parameters = new Array()
+  subscriptionUpdatedEvent.parameters = new Array();
 
   subscriptionUpdatedEvent.parameters.push(
     new ethereum.EventParam(
       "subsciptionId",
       ethereum.Value.fromFixedBytes(subsciptionId)
     )
-  )
+  );
   subscriptionUpdatedEvent.parameters.push(
     new ethereum.EventParam("amount", ethereum.Value.fromUnsignedBigInt(amount))
-  )
+  );
   subscriptionUpdatedEvent.parameters.push(
     new ethereum.EventParam(
       "gracePeriod",
       ethereum.Value.fromUnsignedBigInt(gracePeriod)
     )
-  )
+  );
   subscriptionUpdatedEvent.parameters.push(
     new ethereum.EventParam(
       "description",
       ethereum.Value.fromString(description)
     )
-  )
+  );
   subscriptionUpdatedEvent.parameters.push(
     new ethereum.EventParam("active", ethereum.Value.fromBoolean(active))
-  )
+  );
 
-  return subscriptionUpdatedEvent
+  return subscriptionUpdatedEvent;
 }
 
 export function createTokensUpdatedEvent(
   merchant: Address,
   tokens: Array<Address>
 ): TokensUpdated {
-  let tokensUpdatedEvent = changetype<TokensUpdated>(newMockEvent())
+  let tokensUpdatedEvent = changetype<TokensUpdated>(newMockEvent());
 
-  tokensUpdatedEvent.parameters = new Array()
+  tokensUpdatedEvent.parameters = new Array();
 
   tokensUpdatedEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
+  );
   tokensUpdatedEvent.parameters.push(
     new ethereum.EventParam("tokens", ethereum.Value.fromAddressArray(tokens))
-  )
+  );
 
-  return tokensUpdatedEvent
+  return tokensUpdatedEvent;
 }
 
 export function createWithdrawRequestApprovedEvent(
@@ -681,24 +683,24 @@ export function createWithdrawRequestApprovedEvent(
   signer: Address
 ): WithdrawRequestApproved {
   let withdrawRequestApprovedEvent =
-    changetype<WithdrawRequestApproved>(newMockEvent())
+    changetype<WithdrawRequestApproved>(newMockEvent());
 
-  withdrawRequestApprovedEvent.parameters = new Array()
+  withdrawRequestApprovedEvent.parameters = new Array();
 
   withdrawRequestApprovedEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
+  );
   withdrawRequestApprovedEvent.parameters.push(
     new ethereum.EventParam(
       "requestId",
       ethereum.Value.fromUnsignedBigInt(requestId)
     )
-  )
+  );
   withdrawRequestApprovedEvent.parameters.push(
     new ethereum.EventParam("signer", ethereum.Value.fromAddress(signer))
-  )
+  );
 
-  return withdrawRequestApprovedEvent
+  return withdrawRequestApprovedEvent;
 }
 
 export function createWithdrawRequestCreatedEvent(
@@ -711,36 +713,36 @@ export function createWithdrawRequestCreatedEvent(
   executed: boolean
 ): WithdrawRequestCreated {
   let withdrawRequestCreatedEvent =
-    changetype<WithdrawRequestCreated>(newMockEvent())
+    changetype<WithdrawRequestCreated>(newMockEvent());
 
-  withdrawRequestCreatedEvent.parameters = new Array()
+  withdrawRequestCreatedEvent.parameters = new Array();
 
   withdrawRequestCreatedEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
+  );
   withdrawRequestCreatedEvent.parameters.push(
     new ethereum.EventParam(
       "requestId",
       ethereum.Value.fromUnsignedBigInt(requestId)
     )
-  )
+  );
   withdrawRequestCreatedEvent.parameters.push(
     new ethereum.EventParam("token", ethereum.Value.fromAddress(token))
-  )
+  );
   withdrawRequestCreatedEvent.parameters.push(
     new ethereum.EventParam("amount", ethereum.Value.fromUnsignedBigInt(amount))
-  )
+  );
   withdrawRequestCreatedEvent.parameters.push(
     new ethereum.EventParam("recipient", ethereum.Value.fromAddress(recipient))
-  )
+  );
   withdrawRequestCreatedEvent.parameters.push(
     new ethereum.EventParam("signers", ethereum.Value.fromAddressArray(signers))
-  )
+  );
   withdrawRequestCreatedEvent.parameters.push(
     new ethereum.EventParam("executed", ethereum.Value.fromBoolean(executed))
-  )
+  );
 
-  return withdrawRequestCreatedEvent
+  return withdrawRequestCreatedEvent;
 }
 
 export function createWithdrawRequestExecutedEvent(
@@ -748,19 +750,19 @@ export function createWithdrawRequestExecutedEvent(
   requestId: BigInt
 ): WithdrawRequestExecuted {
   let withdrawRequestExecutedEvent =
-    changetype<WithdrawRequestExecuted>(newMockEvent())
+    changetype<WithdrawRequestExecuted>(newMockEvent());
 
-  withdrawRequestExecutedEvent.parameters = new Array()
+  withdrawRequestExecutedEvent.parameters = new Array();
 
   withdrawRequestExecutedEvent.parameters.push(
     new ethereum.EventParam("merchant", ethereum.Value.fromAddress(merchant))
-  )
+  );
   withdrawRequestExecutedEvent.parameters.push(
     new ethereum.EventParam(
       "requestId",
       ethereum.Value.fromUnsignedBigInt(requestId)
     )
-  )
+  );
 
-  return withdrawRequestExecutedEvent
+  return withdrawRequestExecutedEvent;
 }

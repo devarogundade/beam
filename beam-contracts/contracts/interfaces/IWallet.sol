@@ -12,7 +12,7 @@ interface IWallet {
     function deposit(
         address token,
         uint256 amount,
-        bytes32 paymentId
+        bytes32 transactionId
     ) external payable;
 
     function approveWithdraw(uint256 requestId) external;

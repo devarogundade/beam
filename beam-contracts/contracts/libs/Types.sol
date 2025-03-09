@@ -14,7 +14,7 @@ library Types {
         address wallet;
     }
 
-    struct OneTimePayment {
+    struct OneTimeTransaction {
         address payer;
         address[] payers;
         address merchant;
@@ -24,7 +24,7 @@ library Types {
         uint256[] timestamps;
         string description;
         Metadata metadata;
-        Enums.PaymentStatus status;
+        Enums.TransactionStatus status;
     }
 
     struct Subscription {
@@ -37,7 +37,7 @@ library Types {
         bool active;
     }
 
-    struct RecurrentPayment {
+    struct RecurrentTransaction {
         address payer;
         address merchant;
         bytes32 subscriptionId;
@@ -46,7 +46,7 @@ library Types {
         uint256[] amounts;
         uint256 dueDate;
         Metadata metadata;
-        Enums.PaymentStatus status;
+        Enums.TransactionStatus status;
     }
 
     struct WithdrawRequest {

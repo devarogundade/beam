@@ -14,7 +14,7 @@ export type ReceiptOptions = {
   amount: bigint;
   tokenId: number;
   timestamp: number;
-  paymentId: Hex;
+  transactionId: Hex;
   transactionHash: Hex;
 };
 

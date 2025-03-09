@@ -5,23 +5,23 @@ export class AppEvents {
     console.log('receiptMinted', logs);
   }
 
-  static oneTimePaymentCreated(logs: any) {
-    console.log('oneTimePaymentCreated', logs);
+  static oneTimeTransactionCreated(logs: any) {
+    console.log('oneTimeTransactionCreated', logs);
   }
 
-  static oneTimePaymentFulfilled(logs: any) {
-    console.log('oneTimePaymentFulfilled', logs);
+  static oneTimeTransactionFulfilled(logs: any) {
+    console.log('oneTimeTransactionFulfilled', logs);
   }
 
-  static recurrentPaymentCreated(logs: any) {
-    console.log('recurrentPaymentCreated', logs);
+  static recurrentTransactionCreated(logs: any) {
+    console.log('recurrentTransactionCreated', logs);
   }
 
-  static recurrentPaymentFulfilled(logs: any) {
-    console.log('recurrentPaymentFulfilled', logs);
+  static recurrentTransactionFulfilled(logs: any) {
+    console.log('recurrentTransactionFulfilled', logs);
   }
 
-  static recurrentPaymentCancelled(logs: any) {
-    console.log('recurrentPaymentCancelled', logs);
+  static recurrentTransactionCancelled(logs: any) {
+    console.log('recurrentTransactionCancelled', logs);
   }
 }

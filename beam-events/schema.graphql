@@ -13,9 +13,9 @@ type Merchant @entity(immutable: false) {
   transactionHash: Bytes!
 }
 
-type Payment @entity(immutable: false) {
+type Transaction @entity(immutable: false) {
   id: Bytes!
-  paymentId: Bytes! # bytes32
+  transactionId: Bytes! # bytes32
   payer: Bytes! # address
   payers: [Bytes!]! # address[]
   fulfilleds: [Bytes!]! # address[]
@@ -37,9 +37,9 @@ type Payment @entity(immutable: false) {
   transactionHash: Bytes!
 }
 
-type Transaction @entity(immutable: true) {
+type Confirmation @entity(immutable: true) {
   id: Bytes!
-  paymentId: Bytes! # bytes32
+  transactionId: Bytes! # bytes32
   from: Bytes! # address
   recipient: Bytes! # address
   token: Bytes! # address

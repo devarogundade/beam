@@ -20,7 +20,7 @@ library Params {
         address hook;
     }
 
-    struct CreateOneTimePayment {
+    struct CreateOneTimeTransaction {
         address[] payers;
         address merchant;
         uint256[] amounts;
@@ -30,16 +30,16 @@ library Params {
         Types.Metadata metadata;
         bool mintReceipt;
         uint256 healthFactorMultiplier;
-        Enums.PaymentRoute route;
+        Enums.TransactionRoute route;
         Signature signature;
     }
 
-    struct FulfillOneTimePayment {
-        bytes32 paymentId;
+    struct FulfillOneTimeTransaction {
+        bytes32 transactionId;
         address tokenB;
         bool mintReceipt;
         uint256 healthFactorMultiplier;
-        Enums.PaymentRoute route;
+        Enums.TransactionRoute route;
         Signature signature;
     }
 
@@ -63,7 +63,7 @@ library Params {
         bytes32 subscriptionId;
     }
 
-    struct CreateRecurrentPayment {
+    struct CreateRecurrentTransaction {
         address merchant;
         address tokenB;
         bytes32 subscriptionId;
@@ -71,21 +71,21 @@ library Params {
         Types.Metadata metadata;
         bool mintReceipt;
         uint256 healthFactorMultiplier;
-        Enums.PaymentRoute route;
+        Enums.TransactionRoute route;
         Signature signature;
     }
 
-    struct FulfillRecurrentPayment {
-        bytes32 paymentId;
+    struct FulfillRecurrentTransaction {
+        bytes32 transactionId;
         address tokenB;
         bool mintReceipt;
         uint256 healthFactorMultiplier;
-        Enums.PaymentRoute route;
+        Enums.TransactionRoute route;
         Signature signature;
     }
 
-    struct CancelRecurrentPayment {
-        bytes32 paymentId;
+    struct CancelRecurrentTransaction {
+        bytes32 transactionId;
     }
 
     struct ExecuteSwap {
@@ -124,16 +124,13 @@ library Params {
         uint256 amount;
         address wallet;
         uint256 healthFactorMultiplier;
-        Enums.PaymentRoute route;
+        Enums.TransactionRoute route;
         Signature signature;
     }
 
     struct MintReceipt {
-        address payer;
-        address token;
-        uint256 amount;
-        uint256 timestamp;
-        bytes32 paymentId;
+        address to;
+        bytes32 transactionId;
     }
 
     struct Signature {
@@ -152,7 +149,7 @@ library Params {
 
     struct AfterPayment {
         address merchant;
-        bytes32 paymentId;
+        bytes32 transactionId;
         address payer;
         address token;
         uint256 amount;

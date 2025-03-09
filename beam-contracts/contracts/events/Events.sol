@@ -27,8 +27,8 @@ contract Events is
         _grantRole(DEFAULT_ADMIN_ROLE, CONTROLLER);
     }
 
-    function oneTimePaymentCreated(
-        bytes32 paymentId,
+    function oneTimeTransactionCreated(
+        bytes32 transactionId,
         address payer,
         address[] calldata payers,
         address merchant,
@@ -39,10 +39,10 @@ contract Events is
         uint256 timestamp,
         string calldata description,
         Types.Metadata calldata metadata,
-        Enums.PaymentStatus status
+        Enums.TransactionStatus status
     ) external override onlyRole(BEAM_ROLE) {
-        emit OneTimePaymentCreated(
-            paymentId,
+        emit OneTimeTransactionCreated(
+            transactionId,
             payer,
             payers,
             merchant,
@@ -57,8 +57,8 @@ contract Events is
         );
     }
 
-    function oneTimePaymentFulfilled(
-        bytes32 paymentId,
+    function oneTimeTransactionFulfilled(
+        bytes32 transactionId,
         address payer,
         address merchant,
         address token,
@@ -66,10 +66,10 @@ contract Events is
         address adjustedToken,
         uint256 adjustedAmount,
         uint256 timestamp,
-        Enums.PaymentStatus status
+        Enums.TransactionStatus status
     ) external override onlyRole(BEAM_ROLE) {
-        emit OneTimePaymentFulfilled(
-            paymentId,
+        emit OneTimeTransactionFulfilled(
+            transactionId,
             payer,
             merchant,
             token,
@@ -81,8 +81,8 @@ contract Events is
         );
     }
 
-    function recurrentPaymentCreated(
-        bytes32 paymentId,
+    function recurrentTransactionCreated(
+        bytes32 transactionId,
         address payer,
         address merchant,
         uint256 dueDate,
@@ -93,10 +93,10 @@ contract Events is
         uint256 timestamp,
         string calldata description,
         Types.Metadata calldata metadata,
-        Enums.PaymentStatus status
+        Enums.TransactionStatus status
     ) external override onlyRole(BEAM_ROLE) {
-        emit RecurrentPaymentCreated(
-            paymentId,
+        emit RecurrentTransactionCreated(
+            transactionId,
             payer,
             merchant,
             dueDate,
@@ -111,8 +111,8 @@ contract Events is
         );
     }
 
-    function recurrentPaymentFulfilled(
-        bytes32 paymentId,
+    function recurrentTransactionFulfilled(
+        bytes32 transactionId,
         address payer,
         address merchant,
         uint256 dueDate,
@@ -121,10 +121,10 @@ contract Events is
         address adjustedToken,
         uint256 adjustedAmount,
         uint256 timestamp,
-        Enums.PaymentStatus status
+        Enums.TransactionStatus status
     ) external override onlyRole(BEAM_ROLE) {
-        emit RecurrentPaymentFulfilled(
-            paymentId,
+        emit RecurrentTransactionFulfilled(
+            transactionId,
             payer,
             merchant,
             dueDate,
@@ -137,10 +137,10 @@ contract Events is
         );
     }
 
-    function recurrentPaymentCancelled(
-        bytes32 paymentId
+    function recurrentTransactionCancelled(
+        bytes32 transactionId
     ) external override onlyRole(BEAM_ROLE) {
-        emit RecurrentPaymentCancelled(paymentId);
+        emit RecurrentTransactionCancelled(transactionId);
     }
 
     function paymentReceived(
@@ -148,9 +148,9 @@ contract Events is
         address token,
         address payer,
         uint256 amount,
-        bytes32 paymentId
+        bytes32 transactionId
     ) external override onlyRole(WALLET_ROLE) {
-        emit PaymentReceived(merchant, token, payer, amount, paymentId);
+        emit TransactionReceived(merchant, token, payer, amount, transactionId);
     }
 
     function withdrawRequestCreated(

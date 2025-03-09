@@ -59,7 +59,7 @@ const makePayment = async () => {
             parseEther(amountInUsd.toString())
         );
 
-        const result = await beamSdk.oneTimePayment.create({
+        const result = await beamSdk.oneTimeTransaction.create({
             payers: [],
             merchant: product.value.merchant,
             amounts: [amount],

@@ -9,7 +9,7 @@ export class BeamClient {
   constructor(options: BeamSDKOptions) {
     this.paymentURL = options.paymentURL
       ? options.paymentURL
-      : Endpoints.BASE_PAYMENT_URL[options.network];
+      : Endpoints.BASE_TRANSACTION_URL[options.network];
 
     this.graphClient = axios.create({
       baseURL: options.graphURL
@@ -18,7 +18,7 @@ export class BeamClient {
     });
   }
 
-  getPaymentURL(): string {
+  getTransactionURL(): string {
     return this.paymentURL;
   }
 

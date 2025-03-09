@@ -10,13 +10,13 @@ library Errors {
     string public constant INSUFFICIENT_BALANCE = "5";
     string public constant OPERATION_FAILED = "6";
 
-    // Payment Errors
-    string public constant PAYMENT_FAILED = "100";
-    string public constant INVALID_PAYMENT_AMOUNT = "101";
+    // Transaction Errors
+    string public constant TRANSACTION_FAILED = "100";
+    string public constant INVALID_TRANSACTION_AMOUNT = "101";
     string public constant TOKEN_NOT_SUPPORTED = "102";
-    string public constant PAYMENT_NOT_ACTIVE = "103";
-    string public constant PAYMENT_INVALID_PAYER = "104";
-    string public constant PAYMENT_NOT_PENDING = "105";
+    string public constant TRANSACTION_NOT_ACTIVE = "103";
+    string public constant TRANSACTION_INVALID_PAYER = "104";
+    string public constant TRANSACTION_NOT_PENDING = "105";
 
     // Subscription Errors
     string public constant SUBSCRIPTION_NOT_FOUND = "200";
@@ -24,9 +24,9 @@ library Errors {
     string public constant GRACE_PERIOD_EXPIRED = "202";
 
     // Recurrent Payment Errors
-    string public constant PAYMENT_ID_NOT_FOUND = "300";
-    string public constant PAYMENT_ALREADY_COMPLETED = "301";
-    string public constant RECURRING_PAYMENT_EXPIRED = "302";
+    string public constant TRANSACTION_ID_NOT_FOUND = "300";
+    string public constant TRANSACTION_ALREADY_COMPLETED = "301";
+    string public constant RECURRING_TRANSACTION_EXPIRED = "302";
 
     // Swap and Loan Errors
     string public constant INVALID_SWAP_PARAMETERS = "400";
@@ -50,7 +50,7 @@ library Errors {
     string public constant HOOK_ALREADY_REGISTERED = "700";
     string public constant HOOK_NOT_FOUND = "701";
 
-    // Wallet Errord
+    // Wallet Errors
     string public constant MIN_SIGNER_MUST_BE_GRT_ONE = "800";
     string public constant INSUFFICIENT_APPROVALS = "801";
 }

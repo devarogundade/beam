@@ -71,7 +71,7 @@ contract HookManager is Ownable, IHookManager {
 
         if (_hookConfigs[hook].onAfterPayment) {
             IHook(hook).onAfterPayment(
-                params.paymentId,
+                params.transactionId,
                 params.payer,
                 params.token,
                 params.amount,

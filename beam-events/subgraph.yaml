@@ -20,12 +20,12 @@ dataSources:
         - HookUnRegistered
         - MerchantCreated
         - MerchantMetadataUpdated
-        - OneTimePaymentCreated
-        - OneTimePaymentFulfilled
-        - PaymentReceived
-        - RecurrentPaymentCancelled
-        - RecurrentPaymentCreated
-        - RecurrentPaymentFulfilled
+        - OneTimeTransactionCreated
+        - OneTimeTransactionFulfilled
+        - TransactionReceived
+        - RecurrentTransactionCancelled
+        - RecurrentTransactionCreated
+        - RecurrentTransactionFulfilled
         - SignersUpdated
         - SubsciptionDeleted
         - SubscriptionCreated
@@ -46,18 +46,18 @@ dataSources:
           handler: handleMerchantCreated
         - event: MerchantMetadataUpdated(indexed address,(uint8,string))
           handler: handleMerchantMetadataUpdated
-        - event: OneTimePaymentCreated(bytes32,address,address[],address,address,uint256[],address,uint256,uint256,string,(uint8,string),uint8)
-          handler: handleOneTimePaymentCreated
-        - event: OneTimePaymentFulfilled(bytes32,address,address,address,uint256,address,uint256,uint256,uint8)
-          handler: handleOneTimePaymentFulfilled
-        - event: PaymentReceived(indexed address,address,address,uint256,bytes32)
-          handler: handlePaymentReceived
-        - event: RecurrentPaymentCancelled(bytes32)
-          handler: handleRecurrentPaymentCancelled
-        - event: RecurrentPaymentCreated(bytes32,address,address,uint256,address,uint256,address,uint256,uint256,string,(uint8,string),uint8)
-          handler: handleRecurrentPaymentCreated
-        - event: RecurrentPaymentFulfilled(bytes32,address,address,uint256,address,uint256,address,uint256,uint256,uint8)
-          handler: handleRecurrentPaymentFulfilled
+        - event: OneTimeTransactionCreated(bytes32,address,address[],address,address,uint256[],address,uint256,uint256,string,(uint8,string),uint8)
+          handler: handleOneTimeTransactionCreated
+        - event: OneTimeTransactionFulfilled(bytes32,address,address,address,uint256,address,uint256,uint256,uint8)
+          handler: handleOneTimeTransactionFulfilled
+        - event: TransactionReceived(indexed address,address,address,uint256,bytes32)
+          handler: handleTransactionReceived
+        - event: RecurrentTransactionCancelled(bytes32)
+          handler: handleRecurrentTransactionCancelled
+        - event: RecurrentTransactionCreated(bytes32,address,address,uint256,address,uint256,address,uint256,uint256,string,(uint8,string),uint8)
+          handler: handleRecurrentTransactionCreated
+        - event: RecurrentTransactionFulfilled(bytes32,address,address,uint256,address,uint256,address,uint256,uint256,uint8)
+          handler: handleRecurrentTransactionFulfilled
         - event: SignersUpdated(indexed address,address[],uint256)
           handler: handleSignersUpdated
         - event: SubsciptionDeleted(indexed bytes32)

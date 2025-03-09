@@ -5,18 +5,25 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 import SimpleReceiptModule from "./SimpleReceipt";
 
-const OneTimePaymentModule = buildModule("OneTimePaymentModule", (m) => {
-  const { simpleReceipt } = m.useModule(SimpleReceiptModule);
+const OneTimeTransactionModule = buildModule(
+  "OneTimeTransactionModule",
+  (m) => {
+    const { simpleReceipt } = m.useModule(SimpleReceiptModule);
 
-  const hashLib = m.library("HashLib");
+    const hashLib = m.library("HashLib");
 
-  const oneTimePayment = m.contract("OneTimePayment", [simpleReceipt], {
-    libraries: {
-      HashLib: hashLib,
-    },
-  });
+    const oneTimeTransaction = m.contract(
+      "OneTimeTransaction",
+      [simpleReceipt],
+      {
+        libraries: {
+          HashLib: hashLib,
+        },
+      }
+    );
 
-  return { oneTimePayment };
-});
+    return { oneTimeTransaction };
+  }
+);
 
-export default OneTimePaymentModule;
+export default OneTimeTransactionModule;

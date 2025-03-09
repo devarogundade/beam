@@ -49,7 +49,7 @@ abstract contract BaseHook is IHook {
     ) internal virtual {}
 
     function onAfterPayment(
-        bytes32 paymentId,
+        bytes32 transactionId,
         address payer,
         address token,
         uint256 amount,
@@ -57,7 +57,7 @@ abstract contract BaseHook is IHook {
         uint256 adjustedAmount
     ) external virtual override onlyManager {
         _onAfterPayment(
-            paymentId,
+            transactionId,
             payer,
             token,
             amount,
@@ -67,7 +67,7 @@ abstract contract BaseHook is IHook {
     }
 
     function _onAfterPayment(
-        bytes32 paymentId,
+        bytes32 transactionId,
         address payer,
         address token,
         uint256 amount,

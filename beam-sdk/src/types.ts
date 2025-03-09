@@ -1,12 +1,12 @@
 import { Hex } from "viem";
-import { Network, PaymentStatus, PaymentType } from "./enums";
+import { Network, TransactionStatus, TransactionType } from "./enums";
 
 export type Metadata = {
   schemaVersion: number;
   value: string;
 };
 
-export type CreateOneTimePayment = {
+export type CreateOneTimeTransaction = {
   payers: Hex[];
   merchant: Hex;
   amounts: bigint[];
@@ -16,20 +16,20 @@ export type CreateOneTimePayment = {
   mintReceipt: boolean;
 };
 
-export type FulfillOneTimePayment = {
-  paymentId: Hex;
+export type FulfillOneTimeTransaction = {
+  transactionId: Hex;
   mintReceipt: boolean;
 };
 
-export type CreateOneTimePaymentCallback = Payment & {
+export type CreateOneTimeTransactionCallback = Transaction & {
   session: string;
 };
 
-export type FulfillOneTimePaymentCallback = Payment & {
+export type FulfillOneTimeTransactionCallback = Transaction & {
   session: string;
 };
 
-export type CreateRecurrentPayment = {
+export type CreateRecurrentTransaction = {
   merchant: Hex;
   subscriptionId: Hex;
   description: string;
@@ -37,26 +37,26 @@ export type CreateRecurrentPayment = {
   mintReceipt: boolean;
 };
 
-export type FulfillRecurrentPayment = {
-  paymentId: Hex;
+export type FulfillRecurrentTransaction = {
+  transactionId: Hex;
   subscriptionId: Hex;
   mintReceipt: boolean;
 };
 
-export type CancelRecurrentPayment = {
-  paymentId: Hex;
+export type CancelRecurrentTransaction = {
+  transactionId: Hex;
   subscriptionId: Hex;
 };
 
-export type CreateRecurrentPaymentCallback = Payment & {
+export type CreateRecurrentTransactionCallback = Transaction & {
   session: string;
 };
 
-export type FulfillRecurrentPaymentCallback = Payment & {
+export type FulfillRecurrentTransactionCallback = Transaction & {
   session: string;
 };
 
-export type CancelRecurrentPaymentCallback = Payment & {
+export type CancelRecurrentTransactionCallback = Transaction & {
   session: string;
 };
 
@@ -71,10 +71,10 @@ export type GetSubscriptions = {
 };
 
 export type GetPayment = {
-  paymentId: Hex;
+  transactionId: Hex;
 };
 
-export type GetPayments = {
+export type GetTransactions = {
   merchant: Hex;
   page: number;
   limit: number;
@@ -83,7 +83,7 @@ export type GetPayments = {
   amountMax?: number;
   timestampMin?: number;
   timestampMax?: number;
-  status?: PaymentStatus;
+  status?: TransactionStatus;
 };
 
 export type GetMerchant = {
@@ -113,9 +113,9 @@ export type Merchant = {
   transactionHash: Hex;
 };
 
-export type Payment = {
+export type Transaction = {
   id: Hex;
-  paymentId: Hex;
+  transactionId: Hex;
   payer: Hex;
   payers: Hex[];
   fulfilleds: Hex[];
@@ -130,16 +130,16 @@ export type Payment = {
   description: string;
   metadata_schemaVersion: number;
   metadata_value: string;
-  status: PaymentStatus;
-  type: PaymentType;
+  status: TransactionStatus;
+  type: TransactionType;
   blockNumber: number;
   blockTimestamp: number;
   transactionHash: Hex;
 };
 
-export type Transaction = {
+export type Confirmation = {
   id: Hex;
-  paymentId: Hex;
+  transactionId: Hex;
   from: Hex;
   recipient: Hex;
   token: Hex;

@@ -2,20 +2,20 @@
 pragma solidity ^0.8.28;
 
 library Enums {
-    enum PaymentStatus {
+    enum TransactionStatus {
         Pending,
         Active,
         Completed,
         Cancelled
     }
 
-    enum PaymentRoute {
+    enum TransactionRoute {
         None,
         Uniswap,
         Aave
     }
 
-    enum PaymentType {
+    enum TransactionType {
         OneTime,
         Recurrent
     }

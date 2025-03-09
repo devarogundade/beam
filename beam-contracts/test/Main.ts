@@ -147,8 +147,8 @@ describe("Signature", function () {
 //       },
 //     });
 
-//     const oneTimePayment = await hre.viem.deployContract(
-//       "OneTimePayment",
+//     const oneTimeTransaction = await hre.viem.deployContract(
+//       "OneTimeTransaction",
 //       [receipt.address],
 //       {
 //         libraries: {
@@ -158,8 +158,8 @@ describe("Signature", function () {
 //       }
 //     );
 
-//     const recurrentPayment = await hre.viem.deployContract(
-//       "RecurrentPayment",
+//     const recurrentTransaction = await hre.viem.deployContract(
+//       "RecurrentTransaction",
 //       [receipt.address, merchant.address],
 //       {
 //         libraries: {
@@ -168,8 +168,8 @@ describe("Signature", function () {
 //       }
 //     );
 
-//     const oneTimePayment = await hre.viem.deployContract(
-//       "OneTimePayment",
+//     const oneTimeTransaction = await hre.viem.deployContract(
+//       "OneTimeTransaction",
 //       [receipt.address],
 //       {
 //         libraries: {
@@ -192,9 +192,9 @@ describe("Signature", function () {
 //       "Beam",
 //       [
 //         merchant.address,
-//         oneTimePayment.address,
-//         oneTimePayment.address,
-//         recurrentPayment.address,
+//         oneTimeTransaction.address,
+//         oneTimeTransaction.address,
+//         recurrentTransaction.address,
 //         aaveV3.address,
 //         uniswapV3.address,
 //       ],
@@ -211,9 +211,9 @@ describe("Signature", function () {
 //     return {
 //       beam,
 //       merchant,
-//       oneTimePayment,
-//       oneTimePayment,
-//       recurrentPayment,
+//       oneTimeTransaction,
+//       oneTimeTransaction,
+//       recurrentTransaction,
 //       aaveV3,
 //       uniswapV3,
 //       owner,
@@ -224,22 +224,22 @@ describe("Signature", function () {
 
 //   describe("Initialization", function () {
 //     it("Set admins", async function () {
-//       const { beam, oneTimePayment, oneTimePayment, recurrentPayment } =
+//       const { beam, oneTimeTransaction, oneTimeTransaction, recurrentTransaction } =
 //         await loadFixture(deployMainFixture);
 
-//       await oneTimePayment.write.transferOwnership([getAddress(beam.address)]);
-//       await oneTimePayment.write.transferOwnership([getAddress(beam.address)]);
-//       await recurrentPayment.write.transferOwnership([
+//       await oneTimeTransaction.write.transferOwnership([getAddress(beam.address)]);
+//       await oneTimeTransaction.write.transferOwnership([getAddress(beam.address)]);
+//       await recurrentTransaction.write.transferOwnership([
 //         getAddress(beam.address),
 //       ]);
 
-//       expect(await oneTimePayment.read.owner()).to.equal(
+//       expect(await oneTimeTransaction.read.owner()).to.equal(
 //         getAddress(beam.address)
 //       );
-//       expect(await oneTimePayment.read.owner()).to.equal(
+//       expect(await oneTimeTransaction.read.owner()).to.equal(
 //         getAddress(beam.address)
 //       );
-//       expect(await recurrentPayment.read.owner()).to.equal(
+//       expect(await recurrentTransaction.read.owner()).to.equal(
 //         getAddress(beam.address)
 //       );
 //     });

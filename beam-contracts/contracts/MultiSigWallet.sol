@@ -43,7 +43,7 @@ contract MultiSigWallet is Ownable, IWallet {
     function deposit(
         address token,
         uint256 amount,
-        bytes32 paymentId
+        bytes32 transactionId
     ) external payable override {
         require(isTokenAllowed(token), Errors.TOKEN_NOT_SUPPORTED);
         require(amount > 0, Errors.INVALID_INPUT);
@@ -54,7 +54,13 @@ contract MultiSigWallet is Ownable, IWallet {
             IERC20(token).transferFrom(msg.sender, address(this), amount);
         }
 
-        _events.paymentReceived(owner(), token, msg.sender, amount, paymentId);
+        _events.paymentReceived(
+            owner(),
+            token,
+            msg.sender,
+            amount,
+            transactionId
+        );
     }
 
     function requestWithdraw(

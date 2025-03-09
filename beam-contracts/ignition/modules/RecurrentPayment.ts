@@ -6,23 +6,26 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import SimpleReceiptModule from "./SimpleReceipt";
 import MerchantModule from "./Merchant";
 
-const RecurrentPaymentModule = buildModule("RecurrentPaymentModule", (m) => {
-  const { simpleReceipt } = m.useModule(SimpleReceiptModule);
-  const { merchant } = m.useModule(MerchantModule);
+const RecurrentTransactionModule = buildModule(
+  "RecurrentTransactionModule",
+  (m) => {
+    const { simpleReceipt } = m.useModule(SimpleReceiptModule);
+    const { merchant } = m.useModule(MerchantModule);
 
-  const hashLib = m.library("HashLib");
+    const hashLib = m.library("HashLib");
 
-  const recurrentPayment = m.contract(
-    "RecurrentPayment",
-    [simpleReceipt, merchant],
-    {
-      libraries: {
-        HashLib: hashLib,
-      },
-    }
-  );
+    const recurrentTransaction = m.contract(
+      "RecurrentTransaction",
+      [simpleReceipt, merchant],
+      {
+        libraries: {
+          HashLib: hashLib,
+        },
+      }
+    );
 
-  return { recurrentPayment };
-});
+    return { recurrentTransaction };
+  }
+);
 
-export default RecurrentPaymentModule;
+export default RecurrentTransactionModule;

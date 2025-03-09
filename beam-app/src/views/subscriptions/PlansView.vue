@@ -19,7 +19,7 @@ const getSubscriptions = async (page: number, load: boolean = true) => {
     if (!walletStore.address) return;
     progress.value = load;
 
-    plans.value = await beamSdk.recurrentPayment.getSubscriptions({
+    plans.value = await beamSdk.recurrentTransaction.getSubscriptions({
         merchant: walletStore.address, page, limit: 20
     });
 
