@@ -8,7 +8,7 @@ import TrashIcon from './icons/TrashIcon.vue';
 import { onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
-    plan: { type: Number, required: true }
+    plan: { type: Object, required: true }
 });
 
 const emit = defineEmits(['close']);

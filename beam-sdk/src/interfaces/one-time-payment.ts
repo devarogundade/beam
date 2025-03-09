@@ -5,15 +5,19 @@ import {
   FulfillOneTimePaymentCallback,
   GetPayment,
   GetPayments,
-  OneTimePaymentResult,
+  Payment,
 } from "../types";
 
 export interface IOneTimePayment {
   create(params: CreateOneTimePayment): Promise<CreateOneTimePaymentCallback>;
 
-  fulfill(params: FulfillOneTimePayment): Promise<FulfillOneTimePaymentCallback>;
+  fulfill(
+    params: FulfillOneTimePayment
+  ): Promise<FulfillOneTimePaymentCallback>;
 
-  getPayment(params: GetPayment): Promise<OneTimePaymentResult | null>;
+  getPayment(params: GetPayment): Promise<Payment | null>;
 
-  getPayments(params: GetPayments): Promise<OneTimePaymentResult[]>;
+  getPayments(params: GetPayments): Promise<Payment[]>;
+
+  getOneTimePayments(params: GetPayments): Promise<Payment[]>;
 }

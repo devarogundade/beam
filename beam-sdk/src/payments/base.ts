@@ -1,12 +1,19 @@
-import { HexString } from "../types";
+import { BeamClient } from "../client";
+import { GetPayment, GetPayments, Payment } from "../types";
+import { Graph } from "../utils/graph";
 import { v4 as uuidv4 } from "uuid";
+import { Hex } from "viem";
 
 export abstract class BasePayment {
   private currentTab: Window | null;
+  protected readonly graph: Graph;
+  protected readonly paymentURL: string;
   protected readonly basePath: string = "/";
 
-  constructor() {
+  constructor(client: BeamClient) {
     this.currentTab = null;
+    this.graph = new Graph(client);
+    this.paymentURL = client.getPaymentURL();
   }
 
   protected createSession(): string {
@@ -14,10 +21,9 @@ export abstract class BasePayment {
   }
 
   protected buildUrl(
-    baseUrl: string,
-    params: Record<string, HexString | string | number | boolean | undefined>
+    params: Record<string, Hex | string | number | boolean | undefined>
   ): string {
-    const url = new URL(baseUrl);
+    const url = new URL(this.paymentURL);
 
     // Add search parameters
     Object.entries(params).forEach(([key, value]) => {
@@ -31,7 +37,7 @@ export abstract class BasePayment {
 
   protected async launchTabAndAwaitResult(
     url: string,
-    { data, target }: { data: any; target: string; },
+    data: any,
     callback: (data: any) => void
   ) {
     if (this.currentTab) {
@@ -67,9 +73,9 @@ export abstract class BasePayment {
         throw new Error("Payment tab failed.");
       }
 
-      console.log('Data posted');
+      console.log("Data posted");
 
-      this.currentTab.postMessage(data, target);
+      this.currentTab.postMessage(data, this.paymentURL);
     };
   }
 
@@ -97,5 +103,23 @@ export abstract class BasePayment {
       this.currentTab.close();
       this.currentTab = null;
     }
+  }
+
+  getPayment(params: GetPayment): Promise<Payment | null> {
+    return this.graph.getPayment(params.paymentId);
+  }
+
+  getPayments(params: GetPayments): Promise<Payment[]> {
+    return this.graph.getPayments(
+      params.merchant,
+      params.page,
+      params.limit,
+      params.payer,
+      params.amountMin,
+      params.amountMax,
+      params.timestampMin,
+      params.timestampMax,
+      params.status
+    );
   }
 }

@@ -6,6 +6,10 @@ import { ref, watch, type Component } from 'vue';
 
 import TreasuryIcon from './icons/TreasuryIcon.vue';
 import PaymentsIcon from './icons/PaymentsIcon.vue';
+import { useWalletStore } from '@/stores/wallet';
+import { Connection } from '@/scripts/types';
+import Converter from '@/scripts/converter';
+import EyeIcon from './icons/EyeIcon.vue';
 
 interface Props {
     parent?: string;
@@ -14,6 +18,8 @@ interface Props {
 }
 
 const route = useRoute();
+const walletStore = useWalletStore();
+
 const props = ref<Props>({
     title: 'Treasury',
     icon: TreasuryIcon
@@ -60,8 +66,10 @@ watch(route, (newValue) => {
             </div>
 
             <button>
-                <MetamaskIcon />
-                <p>0xdd....ahs4</p>
+                <WalletIcon v-if="!walletStore.address" />
+                <MetamaskIcon v-else-if="walletStore.connection == Connection.Wallet" />
+                <EyeIcon v-else="walletStore.connection == Connection.Guest" />
+                <p>{{ walletStore.address ? Converter.fineAddress(walletStore.address, 5) : 'Connect Wallet' }}</p>
             </button>
         </div>
     </header>
@@ -127,7 +135,6 @@ header {
 
 .actions button {
     gap: 12px;
-    width: 155px;
     height: 40px;
     display: flex;
     align-items: center;

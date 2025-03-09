@@ -1,138 +1,183 @@
-import { Network, PaymentStatus } from "./enums";
+import { Hex } from "viem";
+import { Network, PaymentStatus, PaymentType } from "./enums";
 
-export type HexString = `0x${string}`;
-
-export interface Metadata {
+export type Metadata = {
   schemaVersion: number;
   value: string;
-}
+};
 
-export interface CreateOneTimePayment {
-  payers: HexString[];
-  merchant: HexString;
+export type CreateOneTimePayment = {
+  payers: Hex[];
+  merchant: Hex;
   amounts: bigint[];
-  token: HexString;
+  token: Hex;
   description: string;
   metadata: Metadata;
   mintReceipt: boolean;
-}
+};
 
-export interface FulfillOneTimePayment {
-  paymentId: HexString;
+export type FulfillOneTimePayment = {
+  paymentId: Hex;
   mintReceipt: boolean;
-}
+};
 
-export interface OneTimePaymentResult {
-  paymentId: HexString;
-  payers: HexString[];
-  amounts: bigint[];
-  fulfillments: boolean[];
-  status: PaymentStatus;
-  token: HexString;
-  timestamps: (number | null)[];
-  transactionHashes: (HexString | null)[];
-  blockNumbers: (number | null)[];
-}
-
-export interface CreateOneTimePaymentCallback extends OneTimePaymentResult {
+export type CreateOneTimePaymentCallback = Payment & {
   session: string;
-}
+};
 
-export interface FulfillOneTimePaymentCallback extends OneTimePaymentResult {
+export type FulfillOneTimePaymentCallback = Payment & {
   session: string;
-}
+};
 
-export interface CreateRecurrentPayment {
-  merchant: HexString;
-  subscriptionId: HexString;
+export type CreateRecurrentPayment = {
+  merchant: Hex;
+  subscriptionId: Hex;
   description: string;
   metadata: Metadata;
   mintReceipt: boolean;
-}
+};
 
-export interface FulfillRecurrentPayment {
-  paymentId: HexString;
-  subscriptionId: HexString;
+export type FulfillRecurrentPayment = {
+  paymentId: Hex;
+  subscriptionId: Hex;
   mintReceipt: boolean;
-}
+};
 
-export interface CancelRecurrentPayment {
-  paymentId: HexString;
-  subscriptionId: HexString;
-}
+export type CancelRecurrentPayment = {
+  paymentId: Hex;
+  subscriptionId: Hex;
+};
 
-export interface RecurrentPaymentResult {
-  paymentId: HexString;
-  subscriptionId: HexString;
-  payer: HexString;
-  status: PaymentStatus;
-  amount: bigint;
-  dueDate: bigint;
-  token: HexString;
-  timestamp: number;
-  transactionHash: HexString;
-  blockNumber: number;
-}
-
-export interface CreateRecurrentPaymentCallback extends RecurrentPaymentResult {
+export type CreateRecurrentPaymentCallback = Payment & {
   session: string;
-}
+};
 
-export interface FulfillRecurrentPaymentCallback
-  extends RecurrentPaymentResult {
+export type FulfillRecurrentPaymentCallback = Payment & {
   session: string;
-}
+};
 
-export interface CancelRecurrentPaymentCallback extends RecurrentPaymentResult {
+export type CancelRecurrentPaymentCallback = Payment & {
   session: string;
-}
+};
 
-export interface SubscriptionResult {
-  subscriptionId: HexString;
-  merchant: HexString;
-  amount: bigint;
-  token: HexString;
-  description: string;
-  interval: bigint;
-  gracePeriod: bigint;
-  timestamp: number;
-}
+export type GetSubscription = {
+  subscriptionId: Hex;
+};
 
-export interface GetSubscription {
-  subscriptionId: HexString;
-}
-
-export interface GetSubscriptions {
-  merchant: HexString;
+export type GetSubscriptions = {
+  merchant: Hex;
   page: number;
   limit: number;
-}
+};
 
-export interface GetPayment {
-  paymentId: HexString;
-}
+export type GetPayment = {
+  paymentId: Hex;
+};
 
-export interface GetPayments {
-  merchant: HexString;
+export type GetPayments = {
+  merchant: Hex;
   page: number;
   limit: number;
-  payer?: HexString;
+  payer?: Hex;
   amountMin?: number;
   amountMax?: number;
   timestampMin?: number;
   timestampMax?: number;
   status?: PaymentStatus;
-}
+};
 
-export interface MerchantResult { }
+export type GetMerchant = {
+  merchant: Hex;
+};
 
-export interface GetMerchant {
-  merchant: HexString;
-}
-
-export interface BeamSDKOptions {
+export type BeamSDKOptions = {
   network: Network;
+  oracle?: Hex;
   timeout?: number;
   graphURL?: string;
   paymentURL?: string;
-}
+};
+
+export type Merchant = {
+  id: Hex;
+  merchant: Hex;
+  metadata_schemaVersion: number;
+  metadata_value: string;
+  wallet: Hex;
+  tokens: Hex[];
+  hook: Hex;
+  signers: Hex[];
+  minSigners: number;
+  blockNumber: number;
+  blockTimestamp: number;
+  transactionHash: Hex;
+};
+
+export type Payment = {
+  id: Hex;
+  paymentId: Hex;
+  payer: Hex;
+  payers: Hex[];
+  fulfilleds: Hex[];
+  merchant: Hex;
+  token: Hex;
+  amounts: bigint[];
+  adjustedToken: Hex;
+  adjustedAmount: bigint;
+  dueDate: bigint;
+  amount: bigint;
+  timestamp: bigint;
+  description: string;
+  metadata_schemaVersion: number;
+  metadata_value: string;
+  status: PaymentStatus;
+  type: PaymentType;
+  blockNumber: number;
+  blockTimestamp: number;
+  transactionHash: Hex;
+};
+
+export type Transaction = {
+  id: Hex;
+  paymentId: Hex;
+  from: Hex;
+  recipient: Hex;
+  token: Hex;
+  amount: bigint;
+  adjustedToken: Hex;
+  adjustedAmount: bigint;
+  description: string;
+  type: number;
+  blockNumber: number;
+  blockTimestamp: number;
+  transactionHash: Hex;
+};
+
+export type Subscription = {
+  id: Hex;
+  subsciptionId: Hex;
+  merchant: Hex;
+  interval: number;
+  amount: bigint;
+  gracePeriod: number;
+  description: string;
+  trashed: boolean;
+  blockNumber: number;
+  blockTimestamp: number;
+  transactionHash: Hex;
+};
+
+export type WithdrawRequest = {
+  id: Hex;
+  merchant: Hex;
+  requestId: number;
+  token: Hex;
+  amount: bigint;
+  recipient: Hex;
+  signers: Hex[];
+  fulfilleds: Hex[];
+  executed: boolean;
+  blockNumber: number;
+  blockTimestamp: number;
+  transactionHash: Hex;
+};

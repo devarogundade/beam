@@ -58,7 +58,7 @@ const addingProduct = ref(false);
                 </RouterLink>
 
                 <RouterLink to="/payments/checkouts/sales">
-                    <button :class="route.name == 'payments-checkouts-sales' ? 'tab tab_active' : 'tab'">Sales</button>
+                    <button :class="route.name == 'payments-checkouts-sales' ? 'tab tab_active' : 'tab'">Sale</button>
                 </RouterLink>
             </div>
 

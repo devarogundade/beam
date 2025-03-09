@@ -1,11 +1,38 @@
 <script setup lang="ts">
 import ChevronRightIcon from '@/components/icons/ChevronRightIcon.vue';
+import CompletedIcon from '@/components/icons/CompletedIcon.vue';
 import OutIcon from '@/components/icons/OutIcon.vue';
 import PendingIcon from '@/components/icons/PendingIcon.vue';
+import ProgressBox from '@/components/ProgressBox.vue';
+import { Client } from '@/scripts/client';
+import Converter from '@/scripts/converter';
+import { SaleStatus, type Sale } from '@/scripts/types';
+import { useWalletStore } from '@/stores/wallet';
+import { onMounted, ref } from 'vue';
+
+const VITE_EXPLORER_URL = import.meta.env.VITE_EXPLORER_URL;
+
+const walletStore = useWalletStore();
+const progress = ref<boolean>(false);
+const sales = ref<Sale[]>([]);
+
+const getSales = async (load: boolean = true) => {
+    if (!walletStore.address) return;
+    progress.value = load;
+    sales.value = await Client.getSales(
+        walletStore.address
+    );
+    progress.value = false;
+};
+
+onMounted(() => {
+    getSales();
+});
 </script>
 
 <template>
-    <div class="sales">
+    <ProgressBox v-if="progress" />
+    <div class="sales" v-else>
         <table>
             <thead>
                 <tr>
@@ -19,14 +46,14 @@ import PendingIcon from '@/components/icons/PendingIcon.vue';
             </thead>
 
             <tbody>
-                <tr v-for="sale in 20" :key="sale">
+                <tr v-for="sale, index in sales" :key="index">
                     <td>
                         <div class="product">
-                            <img src="/images/image_1.png" alt="">
+                            <img :src="sale.product?.images[0]" :alt="sale.product?.name">
 
                             <div class="product_info">
-                                <p>Rabbit R1 Device</p>
-                                <p><span>Qty:</span> 3</p>
+                                <p>{{ sale.product?.name }}</p>
+                                <p><span>Qty:</span> {{ sale.quantity }}</p>
                             </div>
                         </div>
                     </td>
@@ -39,10 +66,14 @@ import PendingIcon from '@/components/icons/PendingIcon.vue';
                     </td>
 
                     <td>
-                        <div class="status">
+                        <div class="status" v-if="sale.status == SaleStatus.Pending">
                             <PendingIcon />
-
                             <p>Pending</p>
+                        </div>
+
+                        <div class="status" v-else-if="sale.status == SaleStatus.Completed">
+                            <CompletedIcon />
+                            <p>Completed</p>
                         </div>
                     </td>
 
@@ -53,10 +84,12 @@ import PendingIcon from '@/components/icons/PendingIcon.vue';
                             <div class="buyer_info">
                                 <p>Berry Parker</p>
 
-                                <div class="buyer_address">
-                                    <p>0xd2d....ahsu4</p>
-                                    <OutIcon />
-                                </div>
+                                <a :href="`${VITE_EXPLORER_URL}/address/${sale.buyer}`">
+                                    <div class="buyer_address">
+                                        <p>{{ Converter.fineAddress(sale.buyer, 5) }}</p>
+                                        <OutIcon />
+                                    </div>
+                                </a>
                             </div>
                         </div>
                     </td>

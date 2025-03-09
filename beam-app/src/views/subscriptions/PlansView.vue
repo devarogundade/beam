@@ -1,13 +1,39 @@
 <script setup lang="ts">
 import PlanDetails from '@/components/PlanDetails.vue';
-import { ref } from 'vue';
+import { useWalletStore } from '@/stores/wallet';
+import { onMounted, ref } from 'vue';
+import BeamSDK from "../../../../beam-sdk/src/index";
+import { Network } from "../../../../beam-sdk/src/enums";
+import type { Subscription } from "../../../../beam-sdk/src/types";
 
-const selectedPlan = ref<number | null>(null);
+const beamSdk = new BeamSDK({
+    network: Network.Testnet
+});
+
+const walletStore = useWalletStore();
+const progress = ref<boolean>(false);
+const plans = ref<Subscription[]>([]);
+const selectedPlan = ref<Subscription | null>(null);
+
+const getSubscriptions = async (page: number, load: boolean = true) => {
+    if (!walletStore.address) return;
+    progress.value = load;
+
+    plans.value = await beamSdk.recurrentPayment.getSubscriptions({
+        merchant: walletStore.address, page, limit: 20
+    });
+
+    progress.value = false;
+};
+
+onMounted(() => {
+    getSubscriptions(1);
+});
 </script>
 
 <template>
     <div class="plans">
-        <div class="plan" v-for="plan in 20" :key="plan" @click="selectedPlan = plan">
+        <div class="plan" v-for="plan, index in plans" :key="index" @click="selectedPlan = plan">
             <img src="/images/image_1.png" alt="">
 
             <div class="plan_info">
@@ -17,7 +43,7 @@ const selectedPlan = ref<number | null>(null);
 
                 <div class="plan_type">
                     <div class="duration">
-                        <p>Duration: <span>30d</span></p>
+                        <p>Duration: <span>{{ plan.interval }}</span></p>
                         <p>Active</p>
                     </div>
 

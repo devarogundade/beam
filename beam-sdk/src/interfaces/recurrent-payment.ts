@@ -4,11 +4,11 @@ import {
   CreateRecurrentPaymentCallback,
   FulfillRecurrentPayment,
   FulfillRecurrentPaymentCallback,
-  RecurrentPaymentResult,
+  Payment,
   CancelRecurrentPaymentCallback,
   GetPayments,
   GetPayment,
-  SubscriptionResult,
+  Subscription,
   GetSubscription,
   GetSubscriptions,
 } from "../types";
@@ -26,11 +26,13 @@ export interface IRecurrentPayment {
     params: CancelRecurrentPayment
   ): Promise<CancelRecurrentPaymentCallback>;
 
-  getSubscription(params: GetSubscription): Promise<SubscriptionResult | null>;
+  getSubscription(params: GetSubscription): Promise<Subscription | null>;
 
-  getSubscriptions(params: GetSubscriptions): Promise<SubscriptionResult[]>;
+  getSubscriptions(params: GetSubscriptions): Promise<Subscription[]>;
 
-  getPayment(params: GetPayment): Promise<RecurrentPaymentResult | null>;
+  getPayment(params: GetPayment): Promise<Payment | null>;
 
-  getPayments(params: GetPayments): Promise<RecurrentPaymentResult[]>;
+  getPayments(params: GetPayments): Promise<Payment[]>;
+
+  getRecurrentPayments(params: GetPayments): Promise<Payment[]>;
 }

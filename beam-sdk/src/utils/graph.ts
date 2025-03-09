@@ -1,0 +1,351 @@
+import axios from "axios";
+import type {
+  Merchant,
+  Payment,
+  Transaction,
+  Subscription,
+  WithdrawRequest,
+} from "../types";
+import type { Hex } from "viem";
+import { Endpoints } from "./endpoints";
+import { PaymentStatus, PaymentType } from "src/enums";
+import { BeamClient } from "src/client";
+
+export class Graph {
+  private client: BeamClient;
+
+  constructor(client: BeamClient) {
+    this.client = client;
+  }
+
+  async getMerchant(merchant: Hex): Promise<Merchant | null> {
+    try {
+      const data = await this.client.graphCall<any>({
+        query: `{
+            merchant(where: {merchant: "${merchant}"}) {
+                id
+                merchant
+                metadata_schemaVersion
+                metadata_value
+                wallet
+                tokens
+                hook
+                signers
+                minSigners
+                blockNumber
+                blockTimestamp
+                transactionHash
+            }
+        }`,
+      });
+
+      return data.data.merchant;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getPayment(paymentId: Hex): Promise<Payment | null> {
+    try {
+      const data = await this.client.graphCall<any>({
+        query: `{
+            payment(where: {paymentId: "${paymentId}"}) {
+                id
+                paymentId
+                payer
+                payers
+                fulfilleds
+                merchant
+                token
+                amounts
+                adjustedToken
+                adjustedAmount
+                dueDate
+                amount
+                timestamp
+                description
+                metadata_schemaVersion
+                metadata_value
+                status
+                type
+                blockNumber
+                blockTimestamp
+                transactionHash
+            }
+        }`,
+      });
+
+      return data.data.payment;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getPayments(
+    merchant: Hex,
+    page: number,
+    limit: number,
+    payer?: Hex,
+    amountMin?: number,
+    amountMax?: number,
+    timestampMin?: number,
+    timestampMax?: number,
+    status?: PaymentStatus,
+    type?: PaymentType
+  ): Promise<Payment[]> {
+    try {
+      let filters = `merchant: "${merchant}"`;
+
+      if (payer) filters += `, payer: "${payer}"`;
+      if (amountMin) filters += `, amount_gte: ${amountMin}`;
+      if (amountMax) filters += `, amount_lte: ${amountMax}`;
+      if (timestampMin) filters += `, timestamp_gte: ${timestampMin}`;
+      if (timestampMax) filters += `, timestamp_lte: ${timestampMax}`;
+      if (status) filters += `, status: "${status}"`;
+      if (status) filters += `, type: "${type}"`;
+
+      const data = await this.client.graphCall<any>({
+        query: `{
+        payments(
+          where: { ${filters} }
+          first: ${limit}
+          skip: ${(page - 1) * limit}
+          orderBy: timestamp
+          orderDirection: desc
+        ) {
+          id
+          paymentId
+          payer
+          payers
+          fulfilleds
+          merchant
+          token
+          amounts
+          adjustedToken
+          adjustedAmount
+          dueDate
+          amount
+          timestamp
+          description
+          metadata_schemaVersion
+          metadata_value
+          status
+          type
+          blockNumber
+          blockTimestamp
+          transactionHash
+        }
+      }`,
+      });
+
+      return data?.data?.payments ?? [];
+    } catch (error) {
+      console.error("Error fetching payments:", error);
+      return [];
+    }
+  }
+
+  async getTransaction(id: Hex): Promise<Transaction | null> {
+    try {
+      const data = await this.client.graphCall<any>({
+        query: `{
+            transaction(where: {id: "${id}"}) {
+                id
+                paymentId
+                from
+                recipient
+                token
+                amount
+                adjustedToken
+                adjustedAmount
+                description
+                type
+                blockNumber
+                blockTimestamp
+                transactionHash
+            }
+        }`,
+      });
+
+      return data.data.transaction;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getPaymentTransactions(paymentId: Hex): Promise<Transaction[]> {
+    try {
+      const data = await this.client.graphCall<any>({
+        query: `{
+            transactions(where: {paymentId: "${paymentId}"}) {
+                id
+                paymentId
+                from
+                recipient
+                token
+                amount
+                adjustedToken
+                adjustedAmount
+                description
+                type
+                blockNumber
+                blockTimestamp
+                transactionHash
+            }
+        }`,
+      });
+
+      return data.data.transactions;
+    } catch (error) {
+      return [];
+    }
+  }
+
+  async getTransactions(account: Hex): Promise<Transaction[]> {
+    try {
+      const data = await this.client.graphCall<any>({
+        query: `{
+            transactions(where: {recipient: "${account}"}) {
+                id
+                paymentId
+                from
+                recipient
+                token
+                amount
+                adjustedToken
+                adjustedAmount
+                description
+                type
+                blockNumber
+                blockTimestamp
+                transactionHash
+            }
+        }`,
+      });
+
+      return data.data.transactions;
+    } catch (error) {
+      return [];
+    }
+  }
+
+  async getSubscription(subsciptionId: Hex): Promise<Subscription | null> {
+    try {
+      const data = await this.client.graphCall<any>({
+        query: `{
+            subscription(where: {subsciptionId: "${subsciptionId}"}) {
+                id
+                subsciptionId
+                merchant
+                interval
+                amount
+                gracePeriod
+                description
+                trashed
+                blockNumber
+                blockTimestamp
+                transactionHash
+            }
+        }`,
+      });
+
+      return data.data.subscription;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getSubscriptions(
+    merchant: Hex,
+    page: number,
+    limit: number
+  ): Promise<Subscription[]> {
+    try {
+      const skip = (page - 1) * limit;
+
+      const data = await this.client.graphCall<any>({
+        query: `{
+        subscriptions(
+          where: {merchant: "${merchant}"},
+          first: ${limit},
+          skip: ${skip},
+          orderBy: blockTimestamp,
+          orderDirection: desc
+        ) {
+          id
+          subscriptionId
+          merchant
+          interval
+          amount
+          gracePeriod
+          description
+          trashed
+          blockNumber
+          blockTimestamp
+          transactionHash
+        }
+      }`,
+      });
+
+      return data?.data?.subscriptions ?? [];
+    } catch (error) {
+      console.error("Error fetching subscriptions:", error);
+      return [];
+    }
+  }
+
+  async getWithdrawRequest(
+    merchant: Hex,
+    requestId: number
+  ): Promise<WithdrawRequest | null> {
+    try {
+      const data = await this.client.graphCall<any>({
+        query: `{
+            withdrawRequest(where: {merchant: "${merchant}", requestId: "${requestId}"}) {
+                id
+                subsciptionId
+                merchant
+                interval
+                amount
+                gracePeriod
+                description
+                trashed
+                blockNumber
+                blockTimestamp
+                transactionHash
+            }
+        }`,
+      });
+
+      return data.data.withdrawRequest;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getWithdrawRequests(merchant: Hex): Promise<WithdrawRequest[]> {
+    try {
+      const data = await this.client.graphCall<any>({
+        query: `{
+            withdrawRequests(where: {merchant: "${merchant}"}) {
+                id
+                subsciptionId
+                merchant
+                interval
+                amount
+                gracePeriod
+                description
+                trashed
+                blockNumber
+                blockTimestamp
+                transactionHash
+            }
+        }`,
+      });
+
+      return data.data.withdrawRequests;
+    } catch (error) {
+      return [];
+    }
+  }
+}

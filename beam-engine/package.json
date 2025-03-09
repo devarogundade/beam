@@ -31,6 +31,7 @@
     "axios": "^1.7.9",
     "bullmq": "^5.39.1",
     "mongoose": "^8.9.6",
+    "openai": "^4.86.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "viem": "^2.22.17"

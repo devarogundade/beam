@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import ChevronDownIcon from '@/components/icons/ChevronDownIcon.vue';
 import FilterIcon from '@/components/icons/FilterIcon.vue';
-import PlusIcon from '@/components/icons/PlusIcon.vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();

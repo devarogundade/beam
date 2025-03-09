@@ -1,5 +1,4 @@
 import { Endpoints } from "./../utils/endpoints";
-import { BeamClient } from "../client";
 import {
   CancelRecurrentPayment,
   CancelRecurrentPaymentCallback,
@@ -7,30 +6,17 @@ import {
   CreateRecurrentPaymentCallback,
   FulfillRecurrentPayment,
   FulfillRecurrentPaymentCallback,
-  GetPayment,
   GetPayments,
   GetSubscription,
   GetSubscriptions,
-  RecurrentPaymentResult,
-  SubscriptionResult,
+  Payment,
+  Subscription,
 } from "../types";
 import { BasePayment } from "./base";
-import {
-  recurrentPaymentQuery,
-  recurrentPaymentsQuery,
-  subscriptionQuery,
-  subscriptionsQuery,
-} from "../utils/queries";
 import { IRecurrentPayment } from "../interfaces/recurrent-payment";
+import { PaymentType } from "../enums";
 
 export class RecurrentPayment extends BasePayment implements IRecurrentPayment {
-  private readonly client: BeamClient;
-
-  constructor(client: BeamClient) {
-    super();
-    this.client = client;
-  }
-
   async create(
     params: CreateRecurrentPayment
   ): Promise<CreateRecurrentPaymentCallback> {
@@ -38,7 +24,7 @@ export class RecurrentPayment extends BasePayment implements IRecurrentPayment {
       const paymentURL = Endpoints.BASE_PAYMENT_URL;
 
       const session = this.createSession();
-      const sessionedPaymentURL = this.buildUrl(paymentURL, { session });
+      const sessionedPaymentURL = this.buildUrl({ session });
 
       try {
         this.launchTabAndAwaitResult(
@@ -66,7 +52,7 @@ export class RecurrentPayment extends BasePayment implements IRecurrentPayment {
       const paymentURL = Endpoints.BASE_PAYMENT_URL;
 
       const session = this.createSession();
-      const sessionedPaymentURL = this.buildUrl(paymentURL, { session });
+      const sessionedPaymentURL = this.buildUrl({ session });
 
       try {
         this.launchTabAndAwaitResult(
@@ -94,7 +80,7 @@ export class RecurrentPayment extends BasePayment implements IRecurrentPayment {
       const paymentURL = Endpoints.BASE_PAYMENT_URL;
 
       const session = this.createSession();
-      const sessionedPaymentURL = this.buildUrl(paymentURL, { session });
+      const sessionedPaymentURL = this.buildUrl({ session });
 
       try {
         this.launchTabAndAwaitResult(
@@ -115,35 +101,30 @@ export class RecurrentPayment extends BasePayment implements IRecurrentPayment {
     });
   }
 
-  getSubscription(params: GetSubscription): Promise<SubscriptionResult | null> {
-    return this.client.request(
-      "POST",
-      this.basePath,
-      subscriptionQuery(params)
+  getSubscription(params: GetSubscription): Promise<Subscription | null> {
+    return this.graph.getSubscription(params.subscriptionId);
+  }
+
+  getSubscriptions(params: GetSubscriptions): Promise<Subscription[]> {
+    return this.graph.getSubscriptions(
+      params.merchant,
+      params.page,
+      params.limit
     );
   }
 
-  getSubscriptions(params: GetSubscriptions): Promise<SubscriptionResult[]> {
-    return this.client.request(
-      "POST",
-      this.basePath,
-      subscriptionsQuery(params)
-    );
-  }
-
-  getPayment(params: GetPayment): Promise<RecurrentPaymentResult | null> {
-    return this.client.request(
-      "POST",
-      this.basePath,
-      recurrentPaymentQuery(params)
-    );
-  }
-
-  getPayments(params: GetPayments): Promise<RecurrentPaymentResult[]> {
-    return this.client.request(
-      "POST",
-      this.basePath,
-      recurrentPaymentsQuery(params)
+  getRecurrentPayments(params: GetPayments): Promise<Payment[]> {
+    return this.graph.getPayments(
+      params.merchant,
+      params.page,
+      params.limit,
+      params.payer,
+      params.amountMin,
+      params.amountMax,
+      params.timestampMin,
+      params.timestampMax,
+      params.status,
+      PaymentType.Recurrent
     );
   }
 }

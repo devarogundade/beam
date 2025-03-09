@@ -1,6 +1,6 @@
+import { scrollSepolia } from "viem/chains";
 import { walletConnect } from "@wagmi/connectors";
 import { defaultWagmiConfig } from "@web3modal/wagmi";
-import { scrollSepolia } from "viem/chains";
 
 const metadata = {
   name: "Beam App",

@@ -8,12 +8,17 @@ import TreasuryIcon from '@/components/icons/TreasuryIcon.vue';
 
 import { useRoute } from 'vue-router';
 import ChevronRightIcon from './icons/ChevronRightIcon.vue';
+import { useWalletStore } from '@/stores/wallet';
+import { Connection } from '@/scripts/types';
+import Converter from '@/scripts/converter';
+import AIIcon from './icons/AIIcon.vue';
 
 const route = useRoute();
+const walletStore = useWalletStore();
 </script>
 
 <template>
-    <div class="sidebar">
+    <div class="sidebar" v-if="walletStore.address">
         <RouterLink to="/">
             <header>
                 <BeamLogo />
@@ -36,7 +41,16 @@ const route = useRoute();
                 </RouterLink>
 
 
-                <RouterLink to="/payments">
+                <div :class="route.name?.toString().startsWith('overview') ? 'option option_selected' : 'option'">
+                    <div class="selector"></div>
+
+                    <button>
+                        <OverviewIcon />
+                        <p>Overview</p>
+                    </button>
+                </div>
+
+                <RouterLink to="/payments" v-if="walletStore.connection == Connection.Wallet">
                     <div :class="route.name?.toString().startsWith('payments') ? 'option option_selected' : 'option'">
                         <div class="selector"></div>
 
@@ -47,7 +61,7 @@ const route = useRoute();
                     </div>
                 </RouterLink>
 
-                <div class="option_children">
+                <div class="option_children" v-if="walletStore.connection == Connection.Wallet">
                     <RouterLink to="/payments">
                         <button
                             :class="route.name?.toString().startsWith('payments-checkouts') ? 'option_child option_child_selected' : 'option_child'">
@@ -63,20 +77,21 @@ const route = useRoute();
                     </RouterLink>
                 </div>
 
-                <div :class="route.name?.toString().startsWith('overview') ? 'option option_selected' : 'option'">
-                    <div class="selector"></div>
+                <RouterLink to="/chat" v-if="walletStore.connection == Connection.Wallet">
+                    <div :class="route.name?.toString().startsWith('ai') ? 'option option_selected' : 'option'">
+                        <div class="selector"></div>
 
-                    <button>
-                        <OverviewIcon />
-                        <p>BeamAI</p>
-                    </button>
-                </div>
-
+                        <button>
+                            <AIIcon />
+                            <p>BeamAI</p>
+                        </button>
+                    </div>
+                </RouterLink>
             </div>
         </main>
 
         <footer>
-            <button class="settings">
+            <button class="settings" v-if="walletStore.connection == Connection.Wallet">
                 <SettingsIcon />
                 <p>Settings</p>
             </button>
@@ -87,7 +102,7 @@ const route = useRoute();
                     <div class="account_name">
                         <p>Reflexed.eth</p>
                         <div>
-                            <p>0xd2d....ahsu4</p>
+                            <p>{{ Converter.fineAddress(walletStore.address, 5) }}</p>
                             <CopyIcon />
                         </div>
                     </div>
@@ -211,6 +226,15 @@ main {
     color: var(--tx-normal);
 }
 
+footer {
+    width: 100%;
+    height: 180px;
+    display: sticky;
+    bottom: 0;
+    display: flex;
+    align-items: flex-end;
+}
+
 .settings {
     width: 100%;
     height: 44px;
@@ -232,6 +256,7 @@ main {
 }
 
 .account {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;

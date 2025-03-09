@@ -1,42 +1,28 @@
 import { Endpoints } from "../utils/endpoints";
-import { BeamClient } from "../client";
 import { IOneTimePayment } from "../interfaces/one-time-payment";
 import {
   CreateOneTimePayment,
   CreateOneTimePaymentCallback,
   FulfillOneTimePayment,
   FulfillOneTimePaymentCallback,
-  GetPayment,
   GetPayments,
-  OneTimePaymentResult,
+  Payment,
 } from "../types";
 import { BasePayment } from "./base";
-import { oneTimePaymentQuery, oneTimePaymentsQuery } from "../utils/queries";
+import { PaymentType } from "../enums";
 
 export class OneTimePayment extends BasePayment implements IOneTimePayment {
-  private readonly client: BeamClient;
-
-  constructor(client: BeamClient) {
-    super();
-    this.client = client;
-  }
-
   async create(
     params: CreateOneTimePayment
   ): Promise<CreateOneTimePaymentCallback> {
     return new Promise((resolve, reject) => {
-      const paymentURL = Endpoints.BASE_PAYMENT_URL;
-
       const session = this.createSession();
-      const sessionedPaymentURL = this.buildUrl(paymentURL, { session });
+      const sessionedPaymentURL = this.buildUrl({ session });
 
       try {
         this.launchTabAndAwaitResult(
           sessionedPaymentURL,
-          {
-            data: params,
-            target: paymentURL,
-          },
+          params,
           (data: CreateOneTimePaymentCallback) => {
             if (data.session == session) {
               resolve(data);
@@ -56,7 +42,7 @@ export class OneTimePayment extends BasePayment implements IOneTimePayment {
       const paymentURL = Endpoints.BASE_PAYMENT_URL;
 
       const session = this.createSession();
-      const sessionedPaymentURL = this.buildUrl(paymentURL, { session });
+      const sessionedPaymentURL = this.buildUrl({ session });
 
       try {
         this.launchTabAndAwaitResult(
@@ -77,19 +63,18 @@ export class OneTimePayment extends BasePayment implements IOneTimePayment {
     });
   }
 
-  getPayment(params: GetPayment): Promise<OneTimePaymentResult | null> {
-    return this.client.request(
-      "POST",
-      this.basePath,
-      oneTimePaymentQuery(params)
-    );
-  }
-
-  getPayments(params: GetPayments): Promise<OneTimePaymentResult[]> {
-    return this.client.request(
-      "POST",
-      this.basePath,
-      oneTimePaymentsQuery(params)
+  getOneTimePayments(params: GetPayments): Promise<Payment[]> {
+    return this.graph.getPayments(
+      params.merchant,
+      params.page,
+      params.limit,
+      params.payer,
+      params.amountMin,
+      params.amountMax,
+      params.timestampMin,
+      params.timestampMax,
+      params.status,
+      PaymentType.OneTime
     );
   }
 }

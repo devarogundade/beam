@@ -9,18 +9,21 @@ import ForwardIcon from './icons/ForwardIcon.vue';
 import EditIcon from './icons/EditIcon.vue';
 import EraserIcon from './icons/EraserIcon.vue';
 import TrashIcon from './icons/TrashIcon.vue';
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
+import Converter from '@/scripts/converter';
 
 const modules = [Pagination];
+const productLink = ref<string>('');
 
 const props = defineProps({
-    product: { type: Number, required: true }
+    product: { type: Object, required: true }
 });
 
 const emit = defineEmits(['close']);
 
 onMounted(() => {
     document.body.style.overflowY = 'hidden';
+    productLink.value = `https://beam-checkout.netlify.app/products/${props.product._id}`;
 });
 
 onUnmounted(() => {
@@ -45,38 +48,37 @@ onUnmounted(() => {
                         clickable: true,
                         dynamicBullets: true,
                     }" :modules="modules">
-                        <SwiperSlide v-for="image in 2" :key="image">
-                            <img :src="`/images/image_${image}.png`" alt="">
+                        <SwiperSlide v-for="image in props.product.images" :key="image">
+                            <img :src="image" :alt="props.product.name">
                         </SwiperSlide>
                     </swiper>
                 </div>
 
                 <div class="info">
-                    <p class="name">Rabbit R1 Device</p>
+                    <p class="name">{{ props.product.name }}</p>
 
                     <div class="type">
                         <div class="category">
-                            <p>Technology</p>
-                            <p>Qty: 25</p>
+                            <p>{{ props.product.category }}</p>
+                            <p>Qty: {{ props.product.quantity }}</p>
                         </div>
 
-                        <div class="price">$199.99</div>
+                        <div class="price">${{ Converter.toMoney(props.product.amountInUsd) }}</div>
                     </div>
                 </div>
 
                 <div class="description">
                     <p class="head">Description</p>
-                    <p class="body">Lorem ipsum dolor sit amet consectetur. Scelerisque eu augue sed sagittis enim
-                        dignissim. Lorem non nisl nulla tristique ornare est. Congue mi dictum faucibus pulvinar
-                        volutpat
-                        nisl sapien. </p>
+                    <p class="body">
+                        {{ props.product.description }}
+                    </p>
                 </div>
 
                 <div class="link">
                     <p class="head">Payment Link</p>
                     <div class="body">
                         <div class="field">
-                            <p>beampay.com/reflex...</p>
+                            <p>{{ productLink }}</p>
                             <div class="icon">
                                 <CopyIcon />
                             </div>

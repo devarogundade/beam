@@ -1,15 +1,12 @@
 import { BeamClient } from "./client";
-import { OneTimePayment } from "./payments/OneTime-payment";
 import { OneTimePayment } from "./payments/one-time-payment";
 import { RecurrentPayment } from "./payments/recurrent-payment";
 import { IMerchant } from "./interfaces/merchant";
 import { Merchant } from "./merchant/index";
 import { IRecurrentPayment } from "./interfaces/recurrent-payment";
 import { IOneTimePayment } from "./interfaces/one-time-payment";
-import { IOneTimePayment } from "./interfaces/OneTime-payment";
 import { BeamSDKOptions } from "./types";
-
-export class BeamSDK {
+class BeamSDK {
   private readonly options: BeamSDKOptions;
 
   public merchant: IMerchant;
@@ -28,3 +25,5 @@ export class BeamSDK {
     this.recurrentPayment = new RecurrentPayment(client);
   }
 }
+
+export default BeamSDK;

@@ -3,37 +3,57 @@ import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import ProductDetails from '@/components/ProductDetails.vue';
+import type { Product } from '@/scripts/types';
+import { Client } from '@/scripts/client';
+import Converter from '@/scripts/converter';
+import { useWalletStore } from '@/stores/wallet';
+import ProgressBox from '@/components/ProgressBox.vue';
 
 const modules = [Pagination];
+const walletStore = useWalletStore();
+const progress = ref<boolean>(false);
+const products = ref<Product[]>([]);
+const selectedProduct = ref<Product | null>(null);
 
-const selectedProduct = ref<number | null>(null);
+const getProducts = async (load: boolean = true) => {
+    if (!walletStore.address) return;
+    progress.value = load;
+    products.value = await Client.getProducts(
+        walletStore.address
+    );
+    progress.value = false;
+};
 
+onMounted(() => {
+    getProducts();
+});
 </script>
 
 <template>
-    <div class="products">
-        <div class="product" v-for="product in 24" :key="product" @click="selectedProduct = product">
+    <ProgressBox v-if="progress" />
+    <div class="products" v-else>
+        <div class="product" v-for="product, index in products" :key="index" @click="selectedProduct = product">
             <swiper :pagination="{
                 clickable: true,
                 dynamicBullets: true,
             }" :modules="modules">
-                <SwiperSlide v-for="image in 2" :key="image">
-                    <img :src="`/images/image_${image}.png`" alt="">
+                <SwiperSlide v-for="image in product.images" :key="image">
+                    <img :src="image" :alt="product.name">
                 </SwiperSlide>
             </swiper>
 
             <div class="product_info">
-                <h3 class="name">Rabbit R1 Device</h3>
+                <h3 class="name">{{ product.name }}</h3>
 
                 <div class="product_type">
                     <div class="category">
-                        <p>Technology</p>
-                        <p>Qty: 25</p>
+                        <p>{{ product.category }}</p>
+                        <p>Qty: {{ product.quantity }}</p>
                     </div>
 
-                    <div class="price">$199.99</div>
+                    <div class="price">${{ Converter.toMoney(product.amountInUsd) }}</div>
                 </div>
             </div>
         </div>

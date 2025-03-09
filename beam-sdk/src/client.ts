@@ -3,19 +3,30 @@ import { Endpoints } from "./utils/endpoints";
 import axios, { AxiosInstance } from "axios";
 
 export class BeamClient {
-  private client: AxiosInstance;
+  private paymentURL: string;
+  private graphClient: AxiosInstance;
 
   constructor(options: BeamSDKOptions) {
-    this.client = axios.create({
-      baseURL: options.graphURL ? options.graphURL : Endpoints.BASE_GRAPH_URL,
+    this.paymentURL = options.paymentURL
+      ? options.paymentURL
+      : Endpoints.BASE_PAYMENT_URL[options.network];
+
+    this.graphClient = axios.create({
+      baseURL: options.graphURL
+        ? options.graphURL
+        : Endpoints.BASE_GRAPH_URL[options.network],
     });
   }
 
-  async request<T>(method: string, url: string, data?: any): Promise<T> {
+  getPaymentURL(): string {
+    return this.paymentURL;
+  }
+
+  async graphCall<T>(data?: any): Promise<T> {
     try {
-      const response = await this.client.request<T>({
-        method,
-        url,
+      const response = await this.graphClient.request<T>({
+        method: "POST",
+        url: "/",
         data,
       });
       return response.data;

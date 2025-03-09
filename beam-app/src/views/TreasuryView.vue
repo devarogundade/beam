@@ -8,6 +8,36 @@ import ReceiveIcon from '@/components/icons/ReceiveIcon.vue';
 import SendIcon from '@/components/icons/SendIcon.vue';
 import SwapIcon from '@/components/icons/SwapIcon.vue';
 import UsersIcon from '@/components/icons/UsersIcon.vue';
+import { useWalletStore } from '@/stores/wallet';
+import { onMounted, ref } from 'vue';
+import BeamSDK from "../../../beam-sdk/src/index";
+import { Network } from "../../../beam-sdk/src/enums";
+import type { Payment } from "../../../beam-sdk/src/types";
+
+const beamSdk = new BeamSDK({
+  network: Network.Testnet
+});
+const walletStore = useWalletStore();
+const progress = ref<boolean>(false);
+
+const payments = ref<Payment[]>([]);
+
+const getPayments = async (load: boolean = true) => {
+  if (!walletStore.address) return;
+  progress.value = load;
+
+  payments.value = await beamSdk.oneTimePayment.getPayments({
+    merchant: walletStore.address,
+    page: 1,
+    limit: 50
+  });
+
+  progress.value = false;
+};
+
+onMounted(() => {
+  getPayments();
+});
 </script>
 
 <template>
