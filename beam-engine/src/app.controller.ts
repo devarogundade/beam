@@ -4,6 +4,7 @@ import { Body, Controller, Get, Post, Param, Query, Put } from '@nestjs/common';
 import { AppService } from './app.service';
 import {
   CreateChat,
+  CreateMerchant,
   CreateProduct,
   CreateSale,
   UpdateProduct,
@@ -14,6 +15,7 @@ import { Product } from './database/schemas/product';
 import { UpdateResult } from 'mongoose';
 import { Hex } from 'viem';
 import { Chat } from './database/schemas/chat';
+import { Merchant } from './database/schemas/merchant';
 
 @Controller()
 export class AppController {
@@ -29,14 +31,24 @@ export class AppController {
     return this.appService.chats(merchant);
   }
 
-  @Post('/update-webhooks')
-  updateWebhooks(@Body() params: UpdateWebhooks) {
-    return this.appService.updateWebhooks(params);
+  @Get('/merchants/:merchant')
+  getMerchant(@Param('merchant') merchant: Hex): Promise<Merchant | null> {
+    return this.appService.getMerchant(merchant);
   }
 
-  @Get('/get-webhooks/:merchant')
-  getWebhooks(@Param('merchant') merchant: Hex): Promise<string[]> {
-    return this.appService.getWebhooks(merchant);
+  @Get('/products/:product')
+  getProduct(@Param('product') id: string): Promise<Product | null> {
+    return this.appService.getProduct(id);
+  }
+
+  @Post('/merchants/create')
+  createMerchant(@Body() params: CreateMerchant): Promise<Merchant> {
+    return this.appService.createMerchant(params);
+  }
+
+  @Post('/merchants/update-webhooks')
+  updateWebhooks(@Body() params: UpdateWebhooks) {
+    return this.appService.updateWebhooks(params);
   }
 
   @Post('/products/create')

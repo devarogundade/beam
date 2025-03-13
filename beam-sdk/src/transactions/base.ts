@@ -32,6 +32,8 @@ export abstract class BaseTransaction {
       }
     });
 
+    url.searchParams.append("initiator", window.location.origin);
+
     return url.toString();
   }
 
@@ -46,6 +48,18 @@ export abstract class BaseTransaction {
 
     this.currentTab = window.open(url, "_blank");
 
+    setTimeout(() => {
+      if (!this.currentTab) {
+        throw new Error("Payment tab failed.");
+      }
+
+      if (!this.currentTab) {
+        throw new Error("Payment tab failed.");
+      }
+
+      this.currentTab.postMessage(data, this.paymentURL);
+    }, 2000);
+
     window.addEventListener("message", (event) => {
       this.messageHandler(event, callback);
     });
@@ -55,28 +69,16 @@ export abstract class BaseTransaction {
       if (!this.currentTab) {
         throw new Error("Payment tab failed.");
       }
+
       if (this.currentTab.closed) {
         clearInterval(interval);
         window.removeEventListener("message", (event) => {
           this.messageHandler(event, callback);
         });
+        this.currentTab = null;
         throw new Error("The new tab was closed without returning data.");
       }
     }, 500);
-
-    if (!this.currentTab) {
-      throw new Error("Payment tab failed.");
-    }
-
-    this.currentTab.onload = () => {
-      if (!this.currentTab) {
-        throw new Error("Payment tab failed.");
-      }
-
-      console.log("Data posted");
-
-      this.currentTab.postMessage(data, this.paymentURL);
-    };
   }
 
   // Event listener for messages from the new tab
@@ -107,6 +109,10 @@ export abstract class BaseTransaction {
 
   getTransaction(params: GetPayment): Promise<Transaction | null> {
     return this.graph.getTransaction(params.transactionId);
+  }
+
+  getTransactionsFromHash(params: GetPayment): Promise<Transaction[]> {
+    return this.graph.getTransactionsFromHash(params.transactionId);
   }
 
   getTransactions(params: GetTransactions): Promise<Transaction[]> {

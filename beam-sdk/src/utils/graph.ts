@@ -20,7 +20,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            merchant(where: {merchant: "${merchant}"}) {
+            merchant(id: "${merchant}") {
                 id
                 merchant
                 metadata_schemaVersion
@@ -47,7 +47,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            transaction(where: {transactionId: "${transactionId}"}) {
+            transaction(id: "${transactionId}") {
                 id
                 transactionId
                 payer
@@ -69,6 +69,7 @@ export class Graph {
                 blockNumber
                 blockTimestamp
                 transactionHash
+                confirmations
             }
         }`,
       });
@@ -76,6 +77,43 @@ export class Graph {
       return data.data.transaction;
     } catch (error) {
       return null;
+    }
+  }
+
+  async getTransactionsFromHash(transactionHash: Hex): Promise<Transaction[]> {
+    try {
+      const data = await this.client.graphCall<any>({
+        query: `{
+            transactions(where: {transactionHash: "${transactionHash}") {
+                id
+                transactionId
+                payer
+                payers
+                fulfilleds
+                merchant
+                token
+                amounts
+                adjustedToken
+                adjustedAmount
+                dueDate
+                amount
+                timestamp
+                description
+                metadata_schemaVersion
+                metadata_value
+                status
+                type
+                blockNumber
+                blockTimestamp
+                transactionHash
+                confirmations
+            }
+        }`,
+      });
+
+      return data.data.transactions;
+    } catch (error) {
+      return [];
     }
   }
 
@@ -132,6 +170,7 @@ export class Graph {
           blockNumber
           blockTimestamp
           transactionHash
+          confirmations
         }
       }`,
       });
@@ -147,7 +186,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            confirmation(where: {id: "${id}"}) {
+            confirmation(id: "${id}") {
                 id
                 transactionId
                 from
@@ -233,7 +272,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            subscription(where: {subsciptionId: "${subsciptionId}"}) {
+            subscriptionPlan(id: "${subsciptionId}") {
                 id
                 subsciptionId
                 merchant
@@ -265,7 +304,7 @@ export class Graph {
 
       const data = await this.client.graphCall<any>({
         query: `{
-        subscriptions(
+        subscriptionPlans(
           where: {merchant: "${merchant}"},
           first: ${limit},
           skip: ${skip},
@@ -301,7 +340,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            withdrawRequest(where: {merchant: "${merchant}", requestId: "${requestId}"}) {
+            withdrawRequest(id: "${merchant}${requestId}") {
                 id
                 subsciptionId
                 merchant
@@ -313,6 +352,7 @@ export class Graph {
                 blockNumber
                 blockTimestamp
                 transactionHash
+                confirmations
             }
         }`,
       });
@@ -339,6 +379,7 @@ export class Graph {
                 blockNumber
                 blockTimestamp
                 transactionHash
+                confirmations
             }
         }`,
       });

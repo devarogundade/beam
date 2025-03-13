@@ -21,5 +21,7 @@ export interface IOneTimeTransaction {
 
   getTransactions(params: GetTransactions): Promise<Transaction[]>;
 
+  getTransactionsFromHash(params: GetPayment): Promise<Transaction[]>;
+
   getOneTimeTransactions(params: GetTransactions): Promise<Transaction[]>;
 }

@@ -3,6 +3,7 @@ pragma solidity ^0.8.28;
 
 import {Enums} from "./libs/Enums.sol";
 import {Params} from "./libs/Params.sol";
+import {Errors} from "./libs/Errors.sol";
 
 import {IAaveV3} from "./interfaces/IAaveV3.sol";
 import {IUniswap} from "./interfaces/IUniswap.sol";
@@ -28,8 +29,30 @@ abstract contract TransactionRouter {
         }
 
         if (payerBalance >= params.amount) {
-            _afterRoute(params.token, params.amount, params.wallet);
-            return;
+            if (params.token == address(0)) {
+                require(
+                    msg.value >= params.amount,
+                    Errors.INSUFFICIENT_BALANCE
+                );
+            } else {
+                IERC20(params.token).transferFrom(
+                    msg.sender,
+                    address(this),
+                    params.amount
+                );
+            }
+
+            return _afterRoute(params.token, params.amount, params.wallet);
+        }
+
+        if (params.token == address(0)) {
+            require(msg.value >= payerBalance, Errors.INSUFFICIENT_BALANCE);
+        } else {
+            IERC20(params.token).transferFrom(
+                msg.sender,
+                address(this),
+                payerBalance
+            );
         }
 
         uint256 amountLeft = params.amount - payerBalance;

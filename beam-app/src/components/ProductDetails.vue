@@ -23,7 +23,7 @@ const emit = defineEmits(['close']);
 
 onMounted(() => {
     document.body.style.overflowY = 'hidden';
-    productLink.value = `https://beam-checkout.netlify.app/products/${props.product._id}`;
+    productLink.value = `https://beam-checkout.netlify.app?${props.product._id}`;
 });
 
 onUnmounted(() => {

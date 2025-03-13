@@ -1,21 +1,60 @@
 <script setup lang="ts">
 import SideBar from '@/components/SideBar.vue';
 import AppHeader from './components/AppHeader.vue';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useWalletStore } from './stores/wallet';
+import BeamSDK from '../../beam-sdk/src';
+import { Network } from '../../beam-sdk/src/enums';
+import type { Merchant } from '../../beam-sdk/src/types';
+import ProgressBox from './components/ProgressBox.vue';
+import { Client } from './scripts/client';
 
 const router = useRouter();
 const walletStore = useWalletStore();
+const loading = ref<boolean>(true);
+const merchant = ref<Merchant | null>(null);
+
+const beamSdk = new BeamSDK({
+  network: Network.Testnet
+});
+
+const getMerchant = async () => {
+  if (!walletStore.address) return;
+
+  merchant.value = await beamSdk.merchant.getMerchant({
+    merchant: walletStore.address
+  });
+
+  if (!merchant.value) {
+    // notify user that merchant account is not found
+    return router.push('/onboarding');
+  }
+
+  walletStore.merchant = merchant.value;
+
+  loading.value = false;
+
+  const clientMerchant = await Client.getMerchant(walletStore.address);
+
+  walletStore.setClientMerchant(clientMerchant);
+};
 
 onMounted(() => {
-  if (!walletStore.address) router.push('/onboarding');
+  loading.value = true;
+
+  if (!walletStore.address) {
+    return router.push('/onboarding');
+  }
+
+  getMerchant();
 });
 </script>
 
 <template>
   <section>
-    <main>
+    <ProgressBox v-if="loading" />
+    <main v-else-if="merchant">
       <SideBar />
       <div></div>
       <div>

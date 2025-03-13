@@ -18,6 +18,11 @@ export type ReceiptOptions = {
   transactionHash: Hex;
 };
 
+export type CreateMerchant = {
+  merchant: Hex;
+  webhooks: string[];
+};
+
 export type UpdateWebhooks = {
   merchant: Hex;
   webhooks: string[];

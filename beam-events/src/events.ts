@@ -21,7 +21,7 @@ import {
 import {
   Merchant,
   Transaction,
-  Subscription,
+  SubscriptionPlan,
   WithdrawRequest,
   Confirmation,
 } from "../generated/schema";
@@ -53,6 +53,7 @@ export function handleMerchantCreated(event: MerchantCreatedEvent): void {
   merchant.metadata_value = event.params.metadata.value;
   merchant.wallet = event.params.wallet;
   merchant.tokens = Value.fromAddressArray(event.params.tokens).toBytesArray();
+  merchant.hook = Bytes.empty();
   merchant.signers = Value.fromAddressArray(
     event.params.signers
   ).toBytesArray();
@@ -135,29 +136,33 @@ export function handleOneTimeTransactionFulfilled(
   confirmation.blockTimestamp = event.block.timestamp;
   confirmation.transactionHash = event.transaction.hash;
 
-  confirmation.save();
-}
-
-export function handleTransactionReceived(
-  event: TransactionReceivedEvent
-): void {
-  let confirmation = new Confirmation(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-
-  confirmation.transactionId = event.params.transactionId;
-  confirmation.from = event.params.payer;
-  confirmation.recipient = event.params.merchant;
-  confirmation.token = event.params.token;
-  confirmation.amount = event.params.amount;
-  confirmation.type = 1;
-
-  confirmation.blockNumber = event.block.number;
-  confirmation.blockTimestamp = event.block.timestamp;
-  confirmation.transactionHash = event.transaction.hash;
+  confirmation.transaction = event.params.transactionId;
 
   confirmation.save();
 }
+
+// export function handleTransactionReceived(
+//   event: TransactionReceivedEvent
+// ): void {
+//   let confirmation = new Confirmation(
+//     event.transaction.hash.concatI32(event.logIndex.toI32())
+//   );
+
+//   confirmation.transactionId = event.params.transactionId;
+//   confirmation.from = event.params.payer;
+//   confirmation.recipient = event.params.merchant;
+//   confirmation.token = event.params.token;
+//   confirmation.amount = event.params.amount;
+//   confirmation.type = 1;
+
+//   confirmation.blockNumber = event.block.number;
+//   confirmation.blockTimestamp = event.block.timestamp;
+//   confirmation.transactionHash = event.transaction.hash;
+
+//   confirmation.transaction = event.params.transactionId;
+
+//   confirmation.save();
+// }
 
 export function handleRecurrentTransactionCancelled(
   event: RecurrentTransactionCancelledEvent
@@ -225,6 +230,8 @@ export function handleRecurrentTransactionFulfilled(
   confirmation.blockTimestamp = event.block.timestamp;
   confirmation.transactionHash = event.transaction.hash;
 
+  confirmation.transaction = event.params.transactionId;
+
   confirmation.save();
 }
 
@@ -241,7 +248,7 @@ export function handleSignersUpdated(event: SignersUpdatedEvent): void {
 }
 
 export function handleSubsciptionDeleted(event: SubsciptionDeletedEvent): void {
-  let subscription = Subscription.load(event.params.subsciptionId);
+  let subscription = SubscriptionPlan.load(event.params.subsciptionId);
   if (!subscription) return;
 
   subscription.trashed = true;
@@ -252,7 +259,7 @@ export function handleSubsciptionDeleted(event: SubsciptionDeletedEvent): void {
 export function handleSubscriptionCreated(
   event: SubscriptionCreatedEvent
 ): void {
-  let subscription = new Subscription(event.params.subsciptionId);
+  let subscription = new SubscriptionPlan(event.params.subsciptionId);
 
   subscription.subsciptionId = event.params.subsciptionId;
   subscription.merchant = event.params.merchant;
@@ -272,7 +279,7 @@ export function handleSubscriptionCreated(
 export function handleSubscriptionUpdated(
   event: SubscriptionUpdatedEvent
 ): void {
-  let subscription = Subscription.load(event.params.subsciptionId);
+  let subscription = SubscriptionPlan.load(event.params.subsciptionId);
   if (!subscription) return;
 
   subscription.amount = event.params.amount;
@@ -351,6 +358,10 @@ export function handleWithdrawRequestExecuted(
   confirmation.blockNumber = event.block.number;
   confirmation.blockTimestamp = event.block.timestamp;
   confirmation.transactionHash = event.transaction.hash;
+
+  confirmation.withdrawRequest = event.params.merchant.concatI32(
+    event.params.requestId.toI32()
+  );
 
   confirmation.save();
 }

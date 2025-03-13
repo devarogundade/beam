@@ -5,11 +5,17 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 import EventsModule from "./Events";
 
 const HookManagerModule = buildModule("HookManagerModule", (m) => {
-    const { events } = m.useModule(EventsModule);
+  const { events } = m.useModule(EventsModule);
 
-    const hookManager = m.contract("HookManager", [events]);
+  const addressLib = m.library("AddressLib");
 
-    return { hookManager };
+  const hookManager = m.contract("HookManager", [events], {
+    libraries: {
+      AddressLib: addressLib,
+    },
+  });
+
+  return { hookManager };
 });
 
 export default HookManagerModule;

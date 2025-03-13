@@ -10,6 +10,7 @@ import {
   CreateSale,
   UpdateProduct,
   UpdateWebhooks,
+  CreateMerchant,
 } from './types';
 import { Merchant } from './database/schemas/merchant';
 import { Model, UpdateResult } from 'mongoose';
@@ -29,7 +30,6 @@ import { Chat } from './database/schemas/chat';
 import { AppEvents } from './app.events';
 import { Hex, zeroAddress } from 'viem';
 import OpenAI from 'openai';
-// import { tools } from './app.tools';
 
 @Injectable()
 export class AppService {
@@ -105,88 +105,27 @@ export class AppService {
     }
   }
 
-  // async chat(params: CreateChat) {
-  //   await this.chatModel.create({
-  //     from: params.merchant,
-  //     to: zeroAddress,
-  //     text: params.message,
-  //     createdAt: new Date(),
-  //   });
-
-  //   const openai = new OpenAI({
-  //     apiKey: process.env.OPENAI_API_KEY,
-  //   });
-
-  //   const completion = await openai.chat.completions.create({
-  //     messages: [
-  //       { role: 'user', content: params.message },
-  //       { role: 'user', content: `My merchant address is ${params.merchant}.` },
-  //       { role: 'system', content: BEAM_AI_KNOWLEDGE_BASE },
-  //     ],
-  //     tools: tools,
-  //     model: 'gpt-4o-mini',
-  //   });
-
-  //   const tool_calls = completion.choices[0].message.tool_calls;
-
-  //   if (!tool_calls || tool_calls?.length == 0) {
-  //     await this.chatModel.create({
-  //       from: zeroAddress,
-  //       to: params.merchant,
-  //       text: completion.choices[0].message.content,
-  //       createdAt: new Date(),
-  //     });
-  //     return;
-  //   }
-
-  //   let data: string = '';
-  //   const tool_call = tool_calls[0];
-
-  //   const args = JSON.parse(tool_call.function.arguments);
-
-  //   switch (tool_call.function.name) {
-  //     case 'getSales':
-  //       data = JSON.stringify(
-  //         await this.getSales(
-  //           args.merchant,
-  //           args.type,
-  //           args.fromDate,
-  //           args.toDate,
-  //         ),
-  //       );
-  //       break;
-
-  //     case 'getProducts':
-  //       data = JSON.stringify(await this.getProducts(args.merchant));
-  //       break;
-
-  //     default:
-  //       data = JSON.stringify({ message: 'No data' });
-  //       break;
-  //   }
-
-  //   const completion2 = await openai.chat.completions.create({
-  //     messages: [
-  //       { role: 'user', content: params.message },
-  //       { role: 'user', content: data },
-  //       {
-  //         role: 'system',
-  //         content: BEAM_AI_REPORT_KNOWLEDGE_BASE,
-  //       },
-  //     ],
-  //     model: 'gpt-4o-mini',
-  //   });
-
-  //   await this.chatModel.create({
-  //     from: zeroAddress,
-  //     to: params.merchant,
-  //     text: completion2.choices[0].message.content,
-  //     createdAt: new Date(),
-  //   });
-  // }
-
   async chats(merchant: string): Promise<Chat[]> {
     return this.chatModel.find({ $or: [{ from: merchant }, { to: merchant }] });
+  }
+
+  async createMerchant(params: CreateMerchant): Promise<Merchant> {
+    return this.merchantModel.create({
+      address: params.merchant,
+      webhooks: params.webhooks,
+    });
+  }
+
+  async getProduct(id: string): Promise<Product | null> {
+    return this.productModel.findOne({
+      _id: id,
+    });
+  }
+
+  async getMerchant(merchant: Hex): Promise<Merchant | null> {
+    return this.merchantModel.findOne({
+      address: merchant,
+    });
   }
 
   async updateWebhooks(params: UpdateWebhooks): Promise<any> {
@@ -200,14 +139,6 @@ export class AppService {
         upsert: true,
       },
     );
-  }
-
-  async getWebhooks(merchant: Hex): Promise<string[]> {
-    const data = await this.merchantModel.findOne({
-      address: merchant,
-    });
-
-    return data ? data.webhooks : [];
   }
 
   async createProduct(params: CreateProduct): Promise<Product> {

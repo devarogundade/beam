@@ -5,6 +5,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import { onMounted, ref } from 'vue';
 import ProductDetails from '@/components/ProductDetails.vue';
+import AddProduct from '@/components/AddProduct.vue';
 import type { Product } from '@/scripts/types';
 import { Client } from '@/scripts/client';
 import Converter from '@/scripts/converter';
@@ -16,6 +17,12 @@ const walletStore = useWalletStore();
 const progress = ref<boolean>(false);
 const products = ref<Product[]>([]);
 const selectedProduct = ref<Product | null>(null);
+
+const emit = defineEmits(['close-adding-product']);
+
+const props = defineProps({
+    addingProduct: { type: Boolean }
+});
 
 const getProducts = async (load: boolean = true) => {
     if (!walletStore.address) return;
@@ -58,6 +65,8 @@ onMounted(() => {
             </div>
         </div>
     </div>
+
+    <AddProduct v-if="props.addingProduct" @refresh="getProducts(false)" @close="emit('close-adding-product')" />
 
     <ProductDetails v-if="selectedProduct" :product="selectedProduct" @close="selectedProduct = null" />
 </template>

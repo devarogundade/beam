@@ -31,8 +31,8 @@ contract MultiSigWallet is Ownable, IWallet {
         address[] memory signers_,
         uint256 minSigners_
     ) payable Ownable(merchant_) {
-        require(_minSigners > 0, Errors.MIN_SIGNER_MUST_BE_GRT_ONE);
-        require(_minSigners <= _signers.length, Errors.OPERATION_FAILED);
+        require(minSigners_ > 0, Errors.MIN_SIGNER_MUST_BE_GRT_ONE);
+        require(minSigners_ <= signers_.length, Errors.OPERATION_FAILED);
 
         _events = events_;
         _tokens = tokens_;
@@ -151,7 +151,7 @@ contract MultiSigWallet is Ownable, IWallet {
     }
 
     function updateTokens(address[] memory tokens) external override onlyOwner {
-        require(_tokens.length > 0, Errors.INVALID_INPUT);
+        require(tokens.length > 0, Errors.INVALID_INPUT);
 
         _tokens = tokens;
 
@@ -170,4 +170,6 @@ contract MultiSigWallet is Ownable, IWallet {
 
         _events.signersUpdated(msg.sender, signers, minSigners);
     }
+
+    receive() external payable {}
 }

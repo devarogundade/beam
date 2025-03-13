@@ -1,3 +1,23 @@
 {
-  "AaveV3Module#AaveV3": "0x40239FB364B9ad470348F96Ea4026ac3ac96B9C0"
+  "AaveV3Module#AaveV3": "0x9Ec20A1a63f25F7fC6A06460D24A8205b92dC258",
+  "BeamModule#AddressLib": "0x61108ccd85e5b0E0C14fD2B3E8F7b8F0f746B89E",
+  "BeamModule#IntegerLib": "0xAC110dcd11667ec78e38d3F6961BAe880096d5e7",
+  "EventsModule#Events": "0x8DA8cf3A8ED3911Da6cA04817B742ECdD8EB9C82",
+  "HookManagerModule#AddressLib": "0xE0BAD47548D60f0a273f09187B055e417d4d5b3b",
+  "MerchantModule#HashLib": "0x51CeE1Ea0EBDD94ff217e276DE324d9D24c94D7F",
+  "OneTimeTransactionModule#BoolLib": "0x512a0650e24d9e9AfEf54D83290B1394D9566957",
+  "OneTimeTransactionModule#HashLib": "0x2785B46Eb8F08bBEfd090F19BC746CEF048ABa0b",
+  "ReceiptModule#Receipt": "0x1f6aca0f3519460d1aa8f76A815308B17514357b",
+  "RecurrentTransactionModule#HashLib": "0x8580f6f936694C17A5ff388b5970ED10bE98d576",
+  "UniswapV2Module#UniswapV2": "0xa65A3A30bF512EBB2d75556b938d60E39Fa735D5",
+  "HookManagerModule#HookManager": "0x81D37dd40afc38b124bE180FEe81Ef7E13198722",
+  "MerchantModule#Merchant": "0x5629A11542f5582A466d281f3Ce8Aa5309f42837",
+  "OneTimeTransactionModule#OneTimeTransaction": "0xa73d10452311E05471B1093Ea0DB54520F7b0ba0",
+  "RecurrentTransactionModule#RecurrentTransaction": "0xa2B9b58AE1625ce78D6c428ea7572B9bd58dd919",
+  "BeamModule#Beam": "0x757fAA071120411a3a1AFB454F162ad93269E6f6",
+  "BeamOracleModule#Chainlink": "0x767876036d5439DE889316bC4c11fc46bD6F4b19",
+  "BeamOracleModule#BeamOracle": "0xa319d230048aAE3c681d7898d71800d92605C80e",
+  "Beam2Module#AddressLib": "0x1D33c1AB462b09602936B1a60fE6Fc6fdCE865A6",
+  "Beam2Module#IntegerLib": "0x99eeA51E1eB1034DFe9f8a29aa31f85Eb29c73C8",
+  "Beam2Module#Beam": "0xE229A3bC3FFBAf5c2ad02fd3f459E3D52ce32CEA"
 }

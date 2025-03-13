@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import CheckoutPrompt from '@/components/CheckoutPrompt.vue';
-import { ref } from 'vue';
+import { useWalletStore } from '@/stores/wallet';
 
-const hasCheckout = ref<boolean>(false);
+const walletStore = useWalletStore();
 </script>
 
 <template>
-    <CheckoutPrompt v-if="!hasCheckout" />
+    <CheckoutPrompt v-if="!walletStore.clientMerchant" />
     <RouterView v-else />
 </template>

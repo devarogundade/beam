@@ -1,11 +1,91 @@
 <script setup lang="ts">
+import { useWalletStore } from '@/stores/wallet';
 import CheckIcon from './icons/CheckIcon.vue';
 import CloseIcon from './icons/CloseIcon.vue';
 import EraserIcon from './icons/EraserIcon.vue';
 import UploadIcon from './icons/UploadIcon.vue';
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
+import { Client } from '@/scripts/client';
+import Storage from '@/scripts/storage';
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'refresh']);
+const walletStore = useWalletStore();
+
+const creating = ref<boolean>(false);
+const selectedImage = ref<number>(0);
+
+const images = ref<(File | null)[]>([null, null, null]);
+const selectedImageURLs = ref<(string | null)[]>([null, null, null]);
+
+const form = ref({
+    name: '',
+    description: '',
+    images: [] as string[],
+    category: '',
+    quantity: 0,
+    amountInUsd: 0
+});
+
+const onImageSelected = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    if (target.files) {
+        images.value[selectedImage.value] = target.files[0];
+        selectedImageURLs.value[selectedImage.value] = URL.createObjectURL(target.files[0]);
+    }
+};
+
+const create = async () => {
+    if (creating.value) return;
+    if (!walletStore.address) return;
+
+    if (form.value.name.length < 3) {
+        return;
+    }
+
+    if (form.value.description.length < 3) {
+        return;
+    }
+
+    if (form.value.category.length < 3) {
+        return;
+    }
+
+    if (form.value.quantity == 0) {
+        return;
+    }
+
+    if (form.value.amountInUsd == 0) {
+        return;
+    }
+
+    creating.value = true;
+
+    for (const image of images.value) {
+        if (image) {
+            const imageURL = await Storage.awaitUpload(image, image.name);
+            form.value.images.push(imageURL);
+        }
+    }
+
+    const created = await Client.createProduct({
+        merchant: walletStore.address,
+        name: form.value.name,
+        description: form.value.description,
+        images: form.value.images,
+        category: form.value.category,
+        quantity: form.value.quantity,
+        amountInUsd: form.value.amountInUsd
+    });
+
+    if (created) {
+        emit('refresh');
+        emit('close');
+    } else {
+
+    }
+
+    creating.value = false;
+};
 
 onMounted(() => {
     document.body.style.overflowY = 'hidden';
@@ -35,16 +115,19 @@ onUnmounted(() => {
 
                     <div class="file">
                         <div class="upload">
-                            <img src="/images/placeholder.png" alt="">
+                            <img :src="selectedImageURLs[selectedImage] ? selectedImageURLs[selectedImage] : `/images/placeholder.png`"
+                                alt="">
 
                             <div class="tabs">
-                                <div class="tab" v-for="image in 3" :key="image">
-                                    <img src="/images/placeholder.png" alt="">
+                                <div v-for="imageURL, index in selectedImageURLs" @click="selectedImage = index"
+                                    :class="selectedImage == index ? 'tab tab_active' : 'tab'" :key="index">
+                                    <img :src="imageURL ? imageURL : `/images/placeholder.png`" alt="">
                                 </div>
                             </div>
                         </div>
 
                         <div class="upload_text">
+                            <input type="file" accept="image/*" @change="onImageSelected">
                             <p>
                                 Click below to upload a JPG or PNG file type, <span>100 x 100px recommended.</span>
                             </p>
@@ -66,7 +149,7 @@ onUnmounted(() => {
                             <p>16<span>/24</span></p>
                         </div>
 
-                        <input type="text">
+                        <input type="text" v-model="form.name">
                     </div>
 
                     <div class="inputs">
@@ -75,7 +158,8 @@ onUnmounted(() => {
                             <p>150<span>/400</span></p>
                         </div>
 
-                        <textarea rows="3" placeholder="Shortly describe the product"></textarea>
+                        <textarea rows="3" v-model="form.description"
+                            placeholder="Shortly describe the product"></textarea>
                     </div>
 
                     <div class="inputs_grid">
@@ -86,7 +170,7 @@ onUnmounted(() => {
 
                             <div class="input_grid">
                                 <p>$</p>
-                                <input type="number" placeholder="0.00">
+                                <input type="number" v-model="form.amountInUsd" placeholder="0.00">
                             </div>
                         </div>
 
@@ -95,7 +179,7 @@ onUnmounted(() => {
                                 <p>Quantity</p>
                             </div>
 
-                            <input type="number" placeholder="0">
+                            <input type="number" v-model="form.quantity" placeholder="0">
                         </div>
                     </div>
 
@@ -105,7 +189,7 @@ onUnmounted(() => {
                             <p>9<span>/18</span></p>
                         </div>
 
-                        <input type="text">
+                        <input type="text" v-model="form.category">
                     </div>
                 </div>
             </div>
@@ -117,9 +201,9 @@ onUnmounted(() => {
                         <p>Cancel</p>
                     </button>
 
-                    <button>
+                    <button @click="create">
                         <CheckIcon />
-                        <p>Save</p>
+                        <p>{{ creating ? 'Saving' : 'Save' }}</p>
                     </button>
                 </div>
             </div>
@@ -193,7 +277,8 @@ onUnmounted(() => {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    gap: 16px;
+    cursor: pointer;
 }
 
 .tab img {
@@ -235,6 +320,18 @@ onUnmounted(() => {
     justify-content: flex-end;
     border-left: 1px solid var(--bg-lightest);
     gap: 70px;
+    position: relative;
+}
+
+.upload_text input {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+    z-index: 1;
+    opacity: 0;
+    cursor: pointer;
 }
 
 .upload_text>p {

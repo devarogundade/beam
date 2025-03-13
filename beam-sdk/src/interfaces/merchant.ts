@@ -1,5 +1,5 @@
-import { GetMerchant, MerchantResult } from "../types";
+import { GetMerchant, Merchant } from "../types";
 
 export interface IMerchant {
-  getMerchant(params: GetMerchant): Promise<MerchantResult>;
+  getMerchant(params: GetMerchant): Promise<Merchant | null>;
 }

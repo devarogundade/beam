@@ -1,8 +1,8 @@
 {
   "scroll-sepolia": {
     "Events": {
-      "address": "0x5EBd3AD5132C09D3ce4264583E55CC757e6b0043",
-      "startBlock": 0
+      "address": "0x8DA8cf3A8ED3911Da6cA04817B742ECdD8EB9C82",
+      "startBlock": 8444000
     }
   }
 }

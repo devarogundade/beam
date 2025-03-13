@@ -1,6 +1,33 @@
 <script setup lang="ts">
+import { Client } from '@/scripts/client';
 import PaymentsIcon from './icons/PaymentsIcon.vue';
+import { useWalletStore } from '@/stores/wallet';
+import { ref } from 'vue';
 
+const walletStore = useWalletStore();
+const creating = ref<boolean>(false);
+
+const createClientMerchant = async () => {
+    if (creating.value) return;
+    if (!walletStore.address) return;
+
+    creating.value = true;
+
+    const created = await Client.createMerchant({
+        merchant: walletStore.address,
+        webhooks: []
+    });
+
+    if (created) {
+        const clientMerchant = await Client.getMerchant(walletStore.address);
+
+        walletStore.setClientMerchant(clientMerchant);
+    } else {
+        // notify failed api call
+    }
+
+    creating.value = false;
+};
 </script>
 
 <template>
@@ -15,7 +42,7 @@ import PaymentsIcon from './icons/PaymentsIcon.vue';
                 creating wide range of products for your customers
                 powered by BeamPay.</p>
 
-            <button>Continue</button>
+            <button @click="createClientMerchant">{{ creating ? "Creating" : "Continue" }}</button>
         </div>
     </div>
 </template>

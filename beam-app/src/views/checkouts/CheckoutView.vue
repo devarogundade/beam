@@ -1,13 +1,11 @@
 <script lang="ts" setup>
 import FilterIcon from '@/components/icons/FilterIcon.vue';
 import PlusIcon from '@/components/icons/PlusIcon.vue';
-import AddProduct from '@/components/AddProduct.vue';
-import { useRoute } from 'vue-router';
 import { ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 const route = useRoute();
-
-const addingProduct = ref(false);
+const addingProduct = ref<boolean>(false);
 </script>
 
 <template>
@@ -74,10 +72,8 @@ const addingProduct = ref(false);
             </div>
         </div>
 
-        <RouterView />
+        <RouterView :adding-product="addingProduct" @close-adding-product="addingProduct = false" />
     </div>
-
-    <AddProduct v-if="addingProduct" @close="addingProduct = false" />
 </template>
 
 <style scoped>

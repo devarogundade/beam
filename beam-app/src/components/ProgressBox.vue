@@ -1,12 +1,21 @@
 <template>
-    <div class="lds-facebook">
-        <div></div>
-        <div></div>
-        <div></div>
+    <div class="loader">
+        <div class="lds-facebook">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
     </div>
 </template>
 
 <style scoped>
+.loader {
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .lds-facebook {
     display: inline-block;
     position: relative;

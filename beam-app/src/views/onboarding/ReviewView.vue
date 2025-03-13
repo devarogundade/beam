@@ -14,34 +14,58 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const walletStore = useWalletStore();
 
+const creating = ref<boolean>(false);
+const imageURL = ref<string | null>(null);
+
 const create = async () => {
     if (!walletStore.merchant) return;
 
-    if (walletStore.merchant.image) {
-        walletStore.merchant.imageURL = await Storage.awaitUpload(
-            walletStore.merchant.image,
-            `merchant_image_${walletStore.merchant.name}`
+    creating.value = true;
+
+    if (walletStore.image) {
+        imageURL.value = await Storage.awaitUpload(
+            walletStore.image,
+            `merchant_image_${walletStore.address}`
         );
     }
 
+    let metadata_value = JSON.parse(walletStore.merchant.metadata_value);
+    metadata_value = {
+        ...metadata_value,
+        imageURL: imageURL.value
+    };
+
+    walletStore.merchant = {
+        ...walletStore.merchant,
+        metadata_value: JSON.stringify(metadata_value)
+    };
+
     const txHash = await MerchantContract.create({
         metadata: {
-            schemaVersion: 1,
-            value: JSON.stringify(walletStore.merchant)
+            schemaVersion: walletStore.merchant.metadata_schemaVersion,
+            value: walletStore.merchant.metadata_value
         },
         tokens: getTokens.map(token => token.address),
-        signers: walletStore.merchant.signers.map(signer => signer.address),
-        minSigners: walletStore.merchant.threshold
+        signers: walletStore.merchant.signers,
+        minSigners: walletStore.merchant.minSigners
     });
 
     if (txHash) {
 
         router.push('/');
-    } else { }
+    } else {
+
+    }
+
+    creating.value = false;
 };
 
 onMounted(() => {
     if (!walletStore.address) router.push('/onboarding');
+
+    if (walletStore.image) {
+        imageURL.value = URL.createObjectURL(walletStore.image);
+    }
 });
 </script>
 
@@ -71,7 +95,7 @@ onMounted(() => {
 
                     <button class="next_active next" @click="create">
                         <CheckIcon />
-                        <p>Create</p>
+                        <p>{{ creating ? 'Creating' : 'Create' }}</p>
                     </button>
                 </div>
 
@@ -80,17 +104,17 @@ onMounted(() => {
                         <div class="item">
                             <p>Merchant Name</p>
                             <div>
-                                <img :src="walletStore.merchant.imageURL || '/images/placeholder.png'" alt="">
-                                <p>{{ walletStore.merchant.name }}</p>
+                                <img :src="imageURL || '/images/placeholder.png'" alt="">
+                                <p>{{ JSON.parse(walletStore.merchant.metadata_value)?.name }}</p>
                             </div>
                         </div>
 
                         <div class="item" v-for="signer, index in walletStore.merchant.signers">
                             <p>Signer {{ index + 1 }}</p>
-                            <a :href="`/address/${signer.address}`" target="_blank">
+                            <a :href="`/address/${signer}`" target="_blank">
                                 <div>
                                     <img src="/images/colors.png" alt="">
-                                    <p>{{ Converter.fineAddress(signer.address, 10) }}</p>
+                                    <p>{{ Converter.fineAddress(signer, 10) }}</p>
                                     <OutIcon />
                                 </div>
                             </a>
@@ -100,7 +124,7 @@ onMounted(() => {
                             <p>Threshold</p>
                             <div>
                                 <UsersIcon />
-                                <p>{{ walletStore.merchant.threshold }} <span>of {{ walletStore.merchant.signers.length
+                                <p>{{ walletStore.merchant.minSigners }} <span>of {{ walletStore.merchant.signers.length
                                         }}</span></p>
                             </div>
                         </div>

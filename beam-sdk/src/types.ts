@@ -135,6 +135,7 @@ export type Transaction = {
   blockNumber: number;
   blockTimestamp: number;
   transactionHash: Hex;
+  confirmations: Confirmation[];
 };
 
 export type Confirmation = {
@@ -180,4 +181,5 @@ export type WithdrawRequest = {
   blockNumber: number;
   blockTimestamp: number;
   transactionHash: Hex;
+  confirmations: Confirmation[];
 };

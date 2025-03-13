@@ -18,7 +18,7 @@ const walletStore = useWalletStore();
 </script>
 
 <template>
-    <div class="sidebar" v-if="walletStore.address">
+    <div class="sidebar" v-if="walletStore.address && walletStore.merchant">
         <RouterLink to="/">
             <header>
                 <BeamLogo />
@@ -98,9 +98,10 @@ const walletStore = useWalletStore();
 
             <div class="account">
                 <div class="account_info">
-                    <img src="/images/user.png" alt="account">
+                    <img :src="JSON.parse(walletStore.merchant.metadata_value)?.imageURL ? JSON.parse(walletStore.merchant.metadata_value)?.imageURL : '/images/user.png'"
+                        alt="account">
                     <div class="account_name">
-                        <p>Reflexed.eth</p>
+                        <p>{{ JSON.parse(walletStore.merchant.metadata_value)?.name }}</p>
                         <div>
                             <p>{{ Converter.fineAddress(walletStore.address, 5) }}</p>
                             <CopyIcon />

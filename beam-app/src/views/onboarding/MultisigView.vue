@@ -11,21 +11,26 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 const isValid = ref<boolean>(false);
 const walletStore = useWalletStore();
+const threshold = ref<number>(1);
 
 const next = () => {
+    if (!walletStore.merchant) return;
     if (!isValid.value) {
         return;
     }
 
+    let metadata_value = JSON.parse(walletStore.merchant.metadata_value);
+    metadata_value = {
+        ...metadata_value,
+        signers: signers.value.filter(s => s.address != null).map(signer => signer.name),
+    };
+
+
     walletStore.merchant = {
-        name: walletStore.merchant!.name,
-        image: walletStore.merchant!.image,
-        imageURL: walletStore.merchant!.imageURL,
-        signers: signers.value.filter(s => s.address != null).map(signer => ({
-            name: signer.name,
-            address: signer.address!
-        })),
-        threshold: threshold.value
+        ...walletStore.merchant,
+        metadata_value: JSON.stringify(metadata_value),
+        signers: signers.value.filter(s => s.address != null).map(signer => signer.address!),
+        minSigners: threshold.value
     };
 
     router.push('/onboarding/review');
@@ -40,8 +45,6 @@ interface Signer {
 const signers = ref<Signer[]>([
     { name: 'My Main Wallet', address: walletStore.address, disabled: true }
 ]);
-
-const threshold = ref<number>(1);
 
 const addSigner = () => {
     signers.value.push({ name: '', address: null, disabled: false });

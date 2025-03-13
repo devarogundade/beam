@@ -8,9 +8,9 @@ dataSources:
     name: Events
     network: scroll-sepolia
     source:
-      address: "0x5EBd3AD5132C09D3ce4264583E55CC757e6b0043"
+      address: "0x8DA8cf3A8ED3911Da6cA04817B742ECdD8EB9C82"
       abi: Events
-      startBlock: 0
+      startBlock: 8444000
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -50,8 +50,8 @@ dataSources:
           handler: handleOneTimeTransactionCreated
         - event: OneTimeTransactionFulfilled(bytes32,address,address,address,uint256,address,uint256,uint256,uint8)
           handler: handleOneTimeTransactionFulfilled
-        - event: TransactionReceived(indexed address,address,address,uint256,bytes32)
-          handler: handleTransactionReceived
+        # - event: TransactionReceived(indexed address,address,address,uint256,bytes32)
+        #   handler: handleTransactionReceived
         - event: RecurrentTransactionCancelled(bytes32)
           handler: handleRecurrentTransactionCancelled
         - event: RecurrentTransactionCreated(bytes32,address,address,uint256,address,uint256,address,uint256,uint256,string,(uint8,string),uint8)

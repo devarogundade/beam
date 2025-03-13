@@ -4,10 +4,10 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 const EventsModule = buildModule("EventsModule", (m) => {
-    const controller = m.getParameter("CONTROLLER", m.getAccount(0));
-    const events = m.contract("Events", [controller]);
+  const controller = m.getParameter("CONTROLLER", m.getAccount(0));
+  const events = m.contract("Events", [controller]);
 
-    return { events };
+  return { events };
 });
 
 export default EventsModule;

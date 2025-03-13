@@ -4,7 +4,7 @@ import {
   CreateRecurrentTransactionCallback,
   FulfillRecurrentTransaction,
   FulfillRecurrentTransactionCallback,
-  Payment,
+  Transaction,
   CancelRecurrentTransactionCallback,
   GetTransactions,
   GetPayment,
@@ -30,9 +30,11 @@ export interface IRecurrentTransaction {
 
   getSubscriptions(params: GetSubscriptions): Promise<Subscription[]>;
 
-  getTransaction(params: GetPayment): Promise<Payment | null>;
+  getTransaction(params: GetPayment): Promise<Transaction | null>;
 
-  getTransactions(params: GetTransactions): Promise<Payment[]>;
+  getTransactions(params: GetTransactions): Promise<Transaction[]>;
 
-  getRecurrentTransactions(params: GetTransactions): Promise<Payment[]>;
+  getTransactionsFromHash(params: GetPayment): Promise<Transaction[]>;
+
+  getRecurrentTransactions(params: GetTransactions): Promise<Transaction[]>;
 }

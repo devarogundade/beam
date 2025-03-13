@@ -3,13 +3,15 @@ import ChevronLeftIcon from '@/components/icons/ChevronLeftIcon.vue';
 import ChevronRightIcon from '@/components/icons/ChevronRightIcon.vue';
 import UploadIcon from '@/components/icons/UploadIcon.vue';
 import { useWalletStore } from '@/stores/wallet';
-import { ref } from 'vue';
+import { zeroAddress } from 'viem';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const walletStore = useWalletStore();
 const name = ref<string | null>(null);
 const image = ref<File | null>(null);
+
 const imageURL = ref<string | null>(null);
 
 const onImageSelected = (event: Event) => {
@@ -23,6 +25,8 @@ const onImageSelected = (event: Event) => {
 };
 
 const next = () => {
+    if (!walletStore.address) return;
+
     if (!name.value) {
         return;
     }
@@ -31,16 +35,40 @@ const next = () => {
         return;
     }
 
+    walletStore.setImage(image.value);
+
     walletStore.merchant = {
-        name: name.value,
-        image: image.value,
-        imageURL: imageURL.value,
+        id: zeroAddress,
+        merchant: walletStore.address,
+        metadata_schemaVersion: 1,
+        metadata_value: JSON.stringify({
+            name: name.value
+        }),
+        wallet: zeroAddress,
+        tokens: [],
+        hook: zeroAddress,
         signers: [],
-        threshold: 0
+        minSigners: 0,
+        blockNumber: 0,
+        blockTimestamp: 0,
+        transactionHash: zeroAddress
     };
 
     router.push('/onboarding/multisig');
 };
+
+onMounted(() => {
+    if (!walletStore.address) router.push('/onboarding');
+
+    if (walletStore.merchant) {
+        name.value = JSON.parse(walletStore.merchant.metadata_value)?.name;
+    }
+
+    if (walletStore.image) {
+        image.value = walletStore.image;
+        imageURL.value = URL.createObjectURL(walletStore.image);
+    }
+});
 </script>
 
 <template>
