@@ -1,62 +1,21 @@
 import { Hex } from "viem";
 import { Network, TransactionStatus, TransactionType } from "./enums";
 
+export type Token = {
+  name: string;
+  symbol: string;
+  address: Hex;
+  image: string;
+  decimals: number;
+  aToken: Hex;
+};
+
 export type Metadata = {
   schemaVersion: number;
   value: string;
 };
 
-export type CreateOneTimeTransaction = {
-  payers: Hex[];
-  merchant: Hex;
-  amounts: bigint[];
-  token: Hex;
-  description: string;
-  metadata: Metadata;
-  mintReceipt: boolean;
-};
-
-export type FulfillOneTimeTransaction = {
-  transactionId: Hex;
-  mintReceipt: boolean;
-};
-
-export type CreateOneTimeTransactionCallback = Transaction & {
-  session: string;
-};
-
-export type FulfillOneTimeTransactionCallback = Transaction & {
-  session: string;
-};
-
-export type CreateRecurrentTransaction = {
-  merchant: Hex;
-  subscriptionId: Hex;
-  description: string;
-  metadata: Metadata;
-  mintReceipt: boolean;
-};
-
-export type FulfillRecurrentTransaction = {
-  transactionId: Hex;
-  subscriptionId: Hex;
-  mintReceipt: boolean;
-};
-
-export type CancelRecurrentTransaction = {
-  transactionId: Hex;
-  subscriptionId: Hex;
-};
-
-export type CreateRecurrentTransactionCallback = Transaction & {
-  session: string;
-};
-
-export type FulfillRecurrentTransactionCallback = Transaction & {
-  session: string;
-};
-
-export type CancelRecurrentTransactionCallback = Transaction & {
+export type TransactionCallback = Transaction & {
   session: string;
 };
 

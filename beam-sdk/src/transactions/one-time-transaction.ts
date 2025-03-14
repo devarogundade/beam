@@ -1,23 +1,34 @@
 import { Endpoints } from "../utils/endpoints";
 import { IOneTimeTransaction } from "../interfaces/one-time-transaction";
 import {
-  CreateOneTimeTransaction,
-  CreateOneTimeTransactionCallback,
-  FulfillOneTimeTransaction,
-  FulfillOneTimeTransactionCallback,
+  TransactionCallback,
   GetTransactions,
   Transaction,
+  Metadata,
 } from "../types";
 import { BaseTransaction } from "./base";
 import { TransactionType } from "../enums";
+import { Hex } from "viem";
 
+type CreateOneTimeTransaction = {
+  payers: Hex[];
+  merchant: Hex;
+  amounts: bigint[];
+  token: Hex;
+  description: string;
+  metadata: Metadata;
+  mintReceipt: boolean;
+};
+
+type FulfillOneTimeTransaction = {
+  transactionId: Hex;
+  mintReceipt: boolean;
+};
 export class OneTimeTransaction
   extends BaseTransaction
   implements IOneTimeTransaction
 {
-  async create(
-    params: CreateOneTimeTransaction
-  ): Promise<CreateOneTimeTransactionCallback> {
+  async create(params: CreateOneTimeTransaction): Promise<TransactionCallback> {
     return new Promise((resolve, reject) => {
       const session = this.createSession();
       const sessionedPaymentURL = this.buildUrl({ session });
@@ -26,7 +37,7 @@ export class OneTimeTransaction
         this.launchTabAndAwaitResult(
           sessionedPaymentURL,
           params,
-          (data: CreateOneTimeTransactionCallback) => {
+          (data: TransactionCallback) => {
             if (data.session == session) {
               resolve(data);
             }
@@ -40,7 +51,7 @@ export class OneTimeTransaction
 
   async fulfill(
     params: FulfillOneTimeTransaction
-  ): Promise<FulfillOneTimeTransactionCallback> {
+  ): Promise<TransactionCallback> {
     return new Promise((resolve, reject) => {
       const paymentURL = Endpoints.BASE_TRANSACTION_URL;
 
@@ -54,7 +65,7 @@ export class OneTimeTransaction
             data: params,
             target: paymentURL,
           },
-          (data: FulfillOneTimeTransactionCallback) => {
+          (data: TransactionCallback) => {
             if (data.session == session) {
               resolve(data);
             }

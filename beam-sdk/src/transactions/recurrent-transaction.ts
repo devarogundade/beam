@@ -1,20 +1,36 @@
 import { Endpoints } from "../utils/endpoints";
 import {
-  CancelRecurrentTransaction,
-  CancelRecurrentTransactionCallback,
-  CreateRecurrentTransaction,
-  CreateRecurrentTransactionCallback,
-  FulfillRecurrentTransaction,
-  FulfillRecurrentTransactionCallback,
+  TransactionCallback,
   GetTransactions,
   GetSubscription,
   GetSubscriptions,
   Transaction,
   Subscription,
+  Metadata,
 } from "../types";
 import { BaseTransaction } from "./base";
 import { IRecurrentTransaction } from "../interfaces/recurrent-transaction";
 import { TransactionType } from "../enums";
+import { Hex } from "viem";
+
+export type CreateRecurrentTransaction = {
+  merchant: Hex;
+  subscriptionId: Hex;
+  description: string;
+  metadata: Metadata;
+  mintReceipt: boolean;
+};
+
+export type FulfillRecurrentTransaction = {
+  transactionId: Hex;
+  subscriptionId: Hex;
+  mintReceipt: boolean;
+};
+
+export type CancelRecurrentTransaction = {
+  transactionId: Hex;
+  subscriptionId: Hex;
+};
 
 export class RecurrentTransaction
   extends BaseTransaction
@@ -22,7 +38,7 @@ export class RecurrentTransaction
 {
   async create(
     params: CreateRecurrentTransaction
-  ): Promise<CreateRecurrentTransactionCallback> {
+  ): Promise<TransactionCallback> {
     return new Promise((resolve, reject) => {
       const paymentURL = Endpoints.BASE_TRANSACTION_URL;
 
@@ -36,7 +52,7 @@ export class RecurrentTransaction
             data: params,
             target: paymentURL,
           },
-          (data: CreateRecurrentTransactionCallback) => {
+          (data: TransactionCallback) => {
             if (data.session == session) {
               resolve(data);
             }
@@ -50,7 +66,7 @@ export class RecurrentTransaction
 
   async fulfill(
     params: FulfillRecurrentTransaction
-  ): Promise<FulfillRecurrentTransactionCallback> {
+  ): Promise<TransactionCallback> {
     return new Promise((resolve, reject) => {
       const paymentURL = Endpoints.BASE_TRANSACTION_URL;
 
@@ -64,7 +80,7 @@ export class RecurrentTransaction
             data: params,
             target: paymentURL,
           },
-          (data: FulfillRecurrentTransactionCallback) => {
+          (data: TransactionCallback) => {
             if (data.session == session) {
               resolve(data);
             }
@@ -76,9 +92,7 @@ export class RecurrentTransaction
     });
   }
 
-  cancel(
-    params: CancelRecurrentTransaction
-  ): Promise<CancelRecurrentTransactionCallback> {
+  cancel(params: CancelRecurrentTransaction): Promise<TransactionCallback> {
     return new Promise((resolve, reject) => {
       const paymentURL = Endpoints.BASE_TRANSACTION_URL;
 
@@ -92,7 +106,7 @@ export class RecurrentTransaction
             data: params,
             target: paymentURL,
           },
-          (data: FulfillRecurrentTransactionCallback) => {
+          (data: TransactionCallback) => {
             if (data.session == session) {
               resolve(data);
             }

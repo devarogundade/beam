@@ -14,3 +14,35 @@
   --accent-green: rgba(25, 176, 99, 1);
   --accent-red: rgba(245, 59, 81, 1);
 }
+
+:root {
+  --slider-bg: rgba(33, 33, 33, 1);
+  --slider-connect-bg: rgba(245, 95, 20, 1);
+  --slider-connect-bg-disabled: rgba(33, 33, 33, 1);
+  --slider-height: 10px;
+  --slider-vertical-height: 300px;
+  --slider-radius: 4px;
+
+  --slider-handle-bg: rgba(33, 33, 33, 1);
+  --slider-handle-border: 0;
+  --slider-handle-width: 25px;
+  --slider-handle-height: 25px;
+  --slider-handle-radius: 6px;
+  --slider-handle-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0);
+  --slider-handle-shadow-active: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0);
+  --slider-handle-ring-width: 5px;
+  --slider-handle-ring-color: rgba(245, 137, 83, 1);
+
+  --slider-tooltip-font-size: 0.875rem;
+  --slider-tooltip-line-height: 1.25rem;
+  --slider-tooltip-font-weight: 400;
+  --slider-tooltip-min-width: 40px;
+  --slider-tooltip-bg: rgba(245, 95, 20, 1);
+  --slider-tooltip-bg-disabled: rgba(33, 33, 33, 1);
+  --slider-tooltip-color: #eef1f8;
+  --slider-tooltip-radius: 5px;
+  --slider-tooltip-py: 2px;
+  --slider-tooltip-px: 6px;
+  --slider-tooltip-arrow-size: 6px;
+  --slider-tooltip-distance: 6px;
+}

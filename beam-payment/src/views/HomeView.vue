@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import { getTokens, getToken, sleep } from '@/scripts/constants';
-import { BeamContract, BeamOracleContract } from '@/scripts/contract';
-import { TransactionRoute } from '@/scripts/params';
-import type { Token } from '@/scripts/types';
+import { BeamContract } from '@/scripts/contract';
 import { useDataStore } from '@/stores/data';
 import { useWalletStore } from '@/stores/wallet';
-import { formatEther, formatUnits, parseUnits, zeroAddress, zeroHash } from 'viem';
+import { formatEther, formatUnits, parseUnits, zeroAddress, zeroHash, type Hex } from 'viem';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import BeamSDK from "../../../beam-sdk/src/index";
-import { Network } from '../../../beam-sdk/src/enums';
-import type { Transaction } from '../../../beam-sdk/src/types';
+import { Network, TransactionType } from '../../../beam-sdk/src/enums';
+import type { Token, Transaction, TransactionCallback } from '../../../beam-sdk/src/types';
+import { getToken, sleep } from '../../../beam-sdk/src/utils/constants';
 import { TokenContract } from '@/scripts/erc20';
 import Converter from '@/scripts/converter';
+import { TransactionRoute } from '../../../beam-sdk/src/params';
 
 const router = useRouter();
 
@@ -36,28 +35,21 @@ const onTypeChanged = (e: any) => {
     type.value = e.target.value;
 };
 
-const getAmount = async () => {
+const getAmount = () => {
     if (!dataStore.data) return;
-    if (!dataStore.data.token) return;
+    if (!walletStore.address) return;
 
     const index = dataStore.data.payers.length <= 1 ? 0 : dataStore.data.payers.findIndex(p =>
         p.toLowerCase() == walletStore.address?.toLowerCase()
     );
 
-    amount.value = 0;
-
     if (index < 0) return;
 
-    const value = formatEther(dataStore.data.amounts[index]);
+    const amounts = dataStore.data.amounts.map((amount) => {
+        return formatEther(amount);
+    });
 
-    const decimals = token.value?.decimals || 18;
-
-    const result = await BeamOracleContract.getAmountFromUsd(
-        dataStore.data.token,
-        parseUnits(value, decimals)
-    );
-
-    amount.value = Number(formatUnits(result, decimals));
+    amount.value = Number(amounts[index]);
 };
 
 const getBalance = async () => {
@@ -151,8 +143,8 @@ const proceed = async () => {
 const makePayment = async () => {
     if (paying.value) return;
     if (!dataStore.data) return;
-    if (!dataStore.data.token) return;
     if (!walletStore.address) return;
+    if (!token.value) return;
 
     const params = new URLSearchParams(window.location.search);
     const session = params.get("session");
@@ -161,52 +153,80 @@ const makePayment = async () => {
 
     paying.value = true;
 
-    const txHash = await BeamContract.oneTimeTransaction(
-        {
-            payers: [walletStore.address],
-            merchant: dataStore.data.merchant,
-            amounts: dataStore.data.amounts.map((amount) => {
-                const value = formatEther(amount);
-                const decimals = token.value?.decimals || 18;
-                return parseUnits(value, decimals);
-            }),
-            token: dataStore.data.token,
-            tokenB: zeroAddress,
-            description: dataStore.data.description ? dataStore.data.description : '',
-            metadata: {
-                schemaVersion: 1,
-                value: JSON.stringify(dataStore.data.metadata)
-            },
-            mintReceipt: false,
-            healthFactorMultiplier: BigInt(0),
-            route: TransactionRoute.None,
-            signature: {
-                deadline: 0,
-                v: 0,
-                r: zeroHash,
-                s: zeroHash
+    let txHash: Hex | null = null;
+
+    if (dataStore.data.type == TransactionType.OneTime) {
+        txHash = await BeamContract.oneTimeTransaction(
+            {
+                payers: [walletStore.address],
+                merchant: dataStore.data.merchant,
+                amounts: dataStore.data.amounts.map((amount) => {
+                    const value = formatEther(amount);
+                    const decimals = token.value?.decimals || 18;
+                    return parseUnits(value, decimals);
+                }),
+                token: token.value.address,
+                tokenB: zeroAddress,
+                description: dataStore.data.description ? dataStore.data.description : '',
+                metadata: {
+                    schemaVersion: 1,
+                    value: JSON.stringify(dataStore.data.metadata)
+                },
+                mintReceipt: false,
+                healthFactorMultiplier: BigInt(0),
+                route: TransactionRoute.None,
+                signature: {
+                    deadline: 0,
+                    v: BigInt(0),
+                    r: zeroHash,
+                    s: zeroHash
+                }
             }
-        }
-    );
+        );
+    } else if (dataStore.data.subscriptionId) {
+        txHash = await BeamContract.recurrentTransaction(
+            {
+                merchant: dataStore.data.merchant,
+                tokenB: zeroAddress,
+                subscriptionId: dataStore.data.subscriptionId,
+                description: dataStore.data.description ? dataStore.data.description : '',
+                metadata: {
+                    schemaVersion: 1,
+                    value: JSON.stringify(dataStore.data.metadata)
+                },
+                mintReceipt: false,
+                healthFactorMultiplier: BigInt(0),
+                route: TransactionRoute.None,
+                signature: {
+                    deadline: 0,
+                    v: BigInt(0),
+                    r: zeroHash,
+                    s: zeroHash
+                }
+            }
+        );
+    } else { }
 
     if (txHash) {
         let tries: number = 0;
-        let trx: Transaction[] = [];
+        let trxs: Transaction[] = [];
 
         do {
-            trx = await beamSdk.oneTimeTransaction.getTransactionsFromHash({
+            trxs = await beamSdk.oneTimeTransaction.getTransactionsFromHash({
                 transactionId: txHash
             });
 
             tries += 1;
 
             await sleep(1_000);
-        } while (trx.length == 0 && tries < 5);
+        } while (trxs.length == 0 && tries < 5);
 
-        window.opener.postMessage({ ...trx, session });
-    } else {
+        const result: TransactionCallback = {
+            session, ...trxs[0]
+        };
 
-    };
+        window.opener.postMessage(result);
+    } else { };
 
     paying.value = false;
 };
@@ -219,6 +239,7 @@ watch(dataStore, () => {
 }, { deep: true });
 
 watch(walletStore, () => {
+    getAmount();
     getBalance();
     getAllowance();
 }, { deep: true });
@@ -241,16 +262,8 @@ onMounted(() => {
 
                         <div class="amount">
                             <p>You'll Pay</p>
-                            <h3>
-                                {{ Intl.NumberFormat('en-US', {
-                                    currency: 'USD'
-                                }).format(Number(formatEther(dataStore.data.amounts[0])))
-                                }}
-                            </h3>
-                            <span v-if="dataStore.data?.token">
-                                ⁓ {{ Converter.toMoney(amount) }}
-                                {{ token?.symbol }}
-                            </span>
+                            <h3>{{ amount }}</h3>
+                            <span>{{ token?.symbol }}</span>
                         </div>
 
                         <div class="asset">
@@ -259,9 +272,7 @@ onMounted(() => {
                                 <p v-if="dataStore.data?.token">Bal:
                                     <span>
                                         {{ Converter.toMoney(balance) }}
-                                        {{
-                                            token?.symbol
-                                        }}
+                                        {{ token?.symbol }}
                                     </span>
                                 </p>
                             </div>
@@ -293,13 +304,13 @@ onMounted(() => {
 
                     <div class="action">
                         <button v-if="type != 'default'" @click="proceed">Proceed</button>
+                        <button disabled v-else-if="balance < amount">
+                            Insufficient Bal
+                        </button>
                         <button v-else-if="allowance < amount" @click="approve">
                             {{ approving ? 'Approving' : 'Approve ' +
                                 token?.symbol
                             }}
-                        </button>
-                        <button disabled v-else-if="balance < amount">
-                            Insufficient Bal
                         </button>
                         <button v-else @click="makePayment">
                             {{ paying ? 'Paying' : 'Make Payment' }}

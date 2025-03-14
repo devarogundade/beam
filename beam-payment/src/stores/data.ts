@@ -1,6 +1,7 @@
 import { type Hex } from "viem";
 import { defineStore } from "pinia";
-import type { Metadata } from "@/scripts/types";
+import type { Metadata } from "../../../beam-sdk/src/types";
+import type { TransactionType } from "../../../beam-sdk/src/enums";
 
 interface PayData {
   merchant: Hex;
@@ -10,6 +11,8 @@ interface PayData {
   description?: string;
   metadata?: Metadata;
   mintReceipt?: false;
+  subscriptionId?: Hex;
+  type: TransactionType;
 }
 
 interface Initiator {

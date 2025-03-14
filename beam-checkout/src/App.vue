@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import BeamSDK from "../../beam-sdk/src";
 import { Network } from "../../beam-sdk/src/enums";
-import type { Merchant } from "../../beam-sdk/src/types";
+import type { Merchant, Token } from "../../beam-sdk/src/types";
 import type { Product } from "./scripts/types";
-import { zeroAddress, parseEther } from "viem";
+import { parseUnits, formatUnits, parseEther } from "viem";
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
@@ -14,6 +14,7 @@ import PlusIcon from "@/components/icons/PlusIcon.vue";
 import ProgressBox from "@/components/ProgressBox.vue";
 import { Client } from "@/scripts/client";
 import AppHeader from "@/components/AppHeader.vue";
+import { BeamOracleContract } from "./scripts/contract";
 
 type PayData = {
     quantity: number,
@@ -26,6 +27,8 @@ const beamSdk = new BeamSDK({
 });
 
 const modules = [Pagination];
+const amount = ref<number>(0);
+const token = ref<Token | null>(null);
 const product = ref<Product | null>(null);
 const merchant = ref<Merchant | null>(null);
 
@@ -40,6 +43,23 @@ const form = ref<PayData>({
     },
 });
 
+const getAmount = async () => {
+    if (!token.value) return;
+    if (!product.value) return;
+
+    amount.value = 0;
+
+    const amountInUsd = product.value.amountInUsd * form.value.quantity;
+    const decimals = token.value?.decimals || 18;
+
+    const result = await BeamOracleContract.getAmountInUsd(
+        token.value.address,
+        parseUnits(amountInUsd.toString(), decimals)
+    );
+
+    amount.value = Number(formatUnits(result, decimals));
+};
+
 const getProduct = async (id: string) => {
     product.value = await Client.getProduct(id);
 
@@ -53,7 +73,6 @@ const getProduct = async (id: string) => {
 const proceed = async () => {
     if (!product.value) return;
     if (!merchant.value) return;
-
 
     if (form.value.metadata.buyer.length < 3) {
         return;
@@ -80,6 +99,10 @@ const proceed = async () => {
 
     }
 };
+
+watch(token, () => {
+    getAmount();
+}, { deep: true });
 
 onMounted(() => {
     const productId = new URL(window.location.href)

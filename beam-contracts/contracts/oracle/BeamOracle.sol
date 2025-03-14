@@ -8,6 +8,8 @@ contract BeamOracle is IOracle {
     address internal immutable _usd;
     IChainlink internal immutable _chainlink;
 
+    uint16 internal K = 1_000;
+
     constructor(address usd, IChainlink chainlink) {
         _usd = usd;
         _chainlink = chainlink;
@@ -17,19 +19,15 @@ contract BeamOracle is IOracle {
         address token,
         uint256 amountIn
     ) external view returns (uint256 amountInUsd) {
-        (uint256 basePrice, ) = _chainlink.getPrice(token);
-        (uint256 quotePrice, ) = _chainlink.getPrice(_usd);
-
-        return (basePrice * amountIn) / quotePrice;
+        (uint256 price, ) = _chainlink.getPrice(token);
+        amountInUsd = (price * amountIn);
     }
 
     function getAmountFromUsd(
         address token,
         uint256 amountInUsd
     ) external view returns (uint256 amountOut) {
-        (uint256 basePrice, ) = _chainlink.getPrice(_usd);
-        (uint256 quotePrice, ) = _chainlink.getPrice(token);
-
-        return (basePrice * amountInUsd) / quotePrice;
+        (uint256 price, ) = _chainlink.getPrice(token);
+        amountOut = (amountInUsd * K) / price;
     }
 }

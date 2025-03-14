@@ -11,6 +11,7 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
+    "@vueform/slider": "^2.1.10",
     "@wagmi/connectors": "^5.7.9",
     "@wagmi/core": "^2.16.5",
     "@web3modal/wagmi": "^5.1.11",

@@ -43,6 +43,16 @@ abstract contract TransactionRouter {
             }
 
             return _afterRoute(params.token, params.amount, params.wallet);
+        } else {
+            if (params.token == address(0)) {
+                require(msg.value <= payerBalance, Errors.INSUFFICIENT_BALANCE);
+            } else {
+                IERC20(params.token).transferFrom(
+                    msg.sender,
+                    address(this),
+                    payerBalance
+                );
+            }
         }
 
         if (params.token == address(0)) {
