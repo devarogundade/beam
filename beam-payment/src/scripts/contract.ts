@@ -21,7 +21,7 @@ import type {
   RequiredAmountIn,
   Signature,
 } from "beam-ts/src/params";
-import { buildDelegationWithSigParams } from "./beam-ts/src/utils/helpers";
+import { buildDelegationWithSigParams } from "beam-ts/src/utils/helpers";
 import { EIP712_REVISION } from "beam-ts/src/utils/constants";
 
 const DelegationContract = {
