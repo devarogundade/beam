@@ -1,5 +1,10 @@
 import { BeamClient } from "../client";
-import { GetPayment, GetTransactions, Transaction } from "../types";
+import {
+  GetPayment,
+  GetPaymentHash,
+  GetTransactions,
+  Transaction,
+} from "../types";
 import { Graph } from "../utils/graph";
 import { v4 as uuidv4 } from "uuid";
 import { Hex } from "viem";
@@ -57,17 +62,13 @@ export abstract class BaseTransaction {
         throw new Error("Payment tab failed.");
       }
 
-      this.currentTab.postMessage(data, this.paymentURL);
-    }, 2000);
-
-    window.addEventListener("message", (event) => {
-      this.messageHandler(event, callback);
-    });
+      this.currentTab.postMessage(JSON.stringify(data), this.paymentURL);
+    }, 3000);
 
     // Check if the tab was closed without a result
     const interval = setInterval(() => {
       if (!this.currentTab) {
-        throw new Error("Payment tab failed.");
+        return clearInterval(interval);
       }
 
       if (this.currentTab.closed) {
@@ -79,6 +80,15 @@ export abstract class BaseTransaction {
         throw new Error("The new tab was closed without returning data.");
       }
     }, 500);
+
+    window.addEventListener("message", (event) => {
+      if (!this.currentTab) {
+        clearInterval(interval);
+        throw new Error("Payment tab failed.");
+      }
+
+      this.messageHandler(event, callback);
+    });
   }
 
   // Event listener for messages from the new tab
@@ -87,7 +97,7 @@ export abstract class BaseTransaction {
       throw new Error("Payment tab failed.");
     }
 
-    if (event.origin !== window.location.origin) {
+    if (event.origin !== this.paymentURL) {
       console.warn("Received message from untrusted origin:", event.origin);
       return;
     }
@@ -111,8 +121,8 @@ export abstract class BaseTransaction {
     return this.graph.getTransaction(params.transactionId);
   }
 
-  getTransactionsFromHash(params: GetPayment): Promise<Transaction[]> {
-    return this.graph.getTransactionsFromHash(params.transactionId);
+  getTransactionsFromHash(params: GetPaymentHash): Promise<Transaction[]> {
+    return this.graph.getTransactionsFromHash(params.transactionHash);
   }
 
   getTransactions(params: GetTransactions): Promise<Transaction[]> {

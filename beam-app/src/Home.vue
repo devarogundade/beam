@@ -23,12 +23,10 @@ const getMerchant = async () => {
         merchant: walletStore.address
     });
 
-    console.log(merchant.value);
-
-    walletStore.merchant = merchant.value;
-
     if (route.name?.toString().startsWith('onboarding')) {
         if (merchant.value) router.push('/');
+    } else {
+        walletStore.setMerchant(merchant.value);
     }
 };
 

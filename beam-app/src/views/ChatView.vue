@@ -1,19 +1,98 @@
 <script setup lang="ts">
 import AIIcon from '@/components/icons/AIIcon.vue';
 import BulbIcon from '@/components/icons/BulbIcon.vue';
+import CloseIcon from '@/components/icons/CloseIcon.vue';
 import SendIcon from '@/components/icons/SendIcon.vue';
+import ProgressBox from '@/components/ProgressBox.vue';
+import { Client } from '@/scripts/client';
+import type { Chat } from '@/scripts/types';
+import { useWalletStore } from '@/stores/wallet';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 const faqs = [
     "How much have I earned in sales from the last 7 days until now?",
     "Which of my listed products do I need to restock?",
     "Which of my listed Subscription Plan has the highest recurring customers?"
 ];
+
+const walletStore = useWalletStore();
+
+const text = ref<string>('');
+const chats = ref<Chat[]>([]);
+const showing = ref<boolean>(true);
+const sending = ref<boolean>(false);
+const progress = ref<boolean>(false);
+const scrollContainer = ref<HTMLElement | null>(null);
+
+const getChats = async (load: boolean = true) => {
+    if (!walletStore.address) return;
+    progress.value = load;
+    chats.value = await Client.getChats(walletStore.address);
+    progress.value = false;
+
+    setTimeout(() => {
+        if (scrollContainer.value) {
+            scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
+        }
+    }, 400);
+};
+
+const sendText = async () => {
+    if (sending.value) return;
+    if (!walletStore.address) return;
+    if (text.value == '') return;
+
+    sending.value = true;
+
+    showing.value = false;
+    const message = text.value;
+
+    chats.value.push({
+        _id: 'text',
+        from: walletStore.address,
+        text: message,
+        to: '0x',
+        createdAt: new Date()
+    });
+
+    chats.value.push({
+        _id: 'reply',
+        from: '0x',
+        text: 'Thinking...',
+        to: walletStore.address,
+        createdAt: new Date()
+    });
+
+    setTimeout(() => {
+        if (scrollContainer.value) {
+            scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
+        }
+    }, 400);
+
+    text.value = '';
+    await Client.sendChat(walletStore.address, message);
+
+    sending.value = false;
+    getChats(false);
+};
+
+onMounted(() => {
+    getChats();
+    document.body.style.overflowY = 'hidden';
+
+});
+
+onUnmounted(() => {
+    document.body.style.overflowY = 'auto';
+});
 </script>
 
 <template>
-    <div class="container">
-        <div class="messages">
-            <div class="no_message">
+    <ProgressBox v-if="progress" />
+
+    <div class="container" v-else>
+        <div class="messages" ref="scrollContainer">
+            <div class="no_message" v-if="chats.length == 0">
                 <div class="icon">
                     <AIIcon />
                 </div>
@@ -21,22 +100,30 @@ const faqs = [
                 <h3>What can I help you with?</h3>
                 <p>Your payments and sales AI Assistant.</p>
             </div>
+
+            <div v-for="chat in chats" :class="chat.from == walletStore.address ? 'message message_user' : 'message'">
+                <img v-if="chat.from == walletStore.address" src="/images/colors.png" alt="">
+                <img v-else src="/images/ai.png" alt="">
+                <div class="text" v-html="chat.text?.replace('```html', '').replace('```', '')"></div>
+            </div>
         </div>
         <div class="form">
-            <div class="faq">
+            <div class="faq" v-if="showing">
                 <div class="title">
                     <BulbIcon />
                     <p>FAQs</p>
                 </div>
-
+                <div class="close" @click="showing = false">
+                    <CloseIcon />
+                </div>
                 <div class="items">
-                    <div class="item" v-for="text in faqs">{{ text }}</div>
+                    <div class="item" v-for="faq in faqs" @click="text = faq">{{ faq }}</div>
                 </div>
             </div>
 
             <div class="input">
-                <input type="text" placeholder="Ask a question">
-                <button>
+                <input type="text" v-model="text" placeholder="Ask a question">
+                <button @click="sendText">
                     <SendIcon />
                     <p>Send</p>
                 </button>
@@ -47,13 +134,53 @@ const faqs = [
 
 <style scoped>
 .container {
-    min-height: calc(100vh - 90px);
+    height: calc(100vh - 90px);
     position: relative;
 }
 
 .messages {
-    padding: 40px 50px;
+    padding: 0 50px;
+    max-height: calc(100vh - 180px);
+    overflow: auto;
 }
+
+.messages::-webkit-scrollbar {
+    display: none;
+}
+
+.message {
+    padding: 30px 40px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 30px;
+    font-size: 14px;
+    color: var(--tx-normal);
+    align-items: flex-end;
+}
+
+.message div {
+    margin-bottom: 10px;
+}
+
+.message_user,
+.message_user * {
+    background: var(--bg-light) !important;
+}
+
+.message img {
+    height: 40px;
+    width: 40px;
+    border-radius: 8px;
+}
+
+.text * {
+    margin-bottom: 4px;
+    font-weight: 400;
+    color: var(--tx-normal);
+    background: var(--bg);
+    border-color: var(--bg-lightest);
+}
+
 
 .no_message {
     display: flex;
@@ -89,15 +216,32 @@ const faqs = [
 .form {
     position: absolute;
     bottom: 0;
+    left: 0;
     width: 100%;
-    padding: 30px 50px;
+    padding: 30px 40px;
     z-index: 10;
+    background: rgba(23, 23, 23, 0.8);
 }
 
 .faq .title {
     display: flex;
     align-items: center;
     gap: 12px;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    right: 40px;
+    top: 40px;
+    width: 36px;
+    height: 30px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--bg-lightest);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .faq .title p {
@@ -119,6 +263,7 @@ const faqs = [
     border-radius: 8px;
     border: 1px solid var(--bg-lighter);
     color: var(--tx-normal);
+    background: var(--bg);
     font-size: 14px;
     line-height: 26px;
     cursor: pointer;

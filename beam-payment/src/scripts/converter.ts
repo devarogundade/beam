@@ -27,7 +27,7 @@ const Converter = {
     }
   },
 
-  toMoney: function (amount: number, max = null) {
+  toMoney: function (amount: number, max: number | null = null) {
     let maxF = max ? max : 6;
 
     if (amount > 1) {

@@ -13,20 +13,18 @@
 
   --accent-green: rgba(25, 176, 99, 1);
   --accent-red: rgba(245, 59, 81, 1);
-}
 
-:root {
   --slider-bg: rgba(33, 33, 33, 1);
   --slider-connect-bg: rgba(245, 95, 20, 1);
   --slider-connect-bg-disabled: rgba(33, 33, 33, 1);
   --slider-height: 10px;
   --slider-vertical-height: 300px;
-  --slider-radius: 4px;
+  --slider-radius: 0;
 
   --slider-handle-bg: rgba(33, 33, 33, 1);
   --slider-handle-border: 0;
-  --slider-handle-width: 25px;
-  --slider-handle-height: 25px;
+  --slider-handle-width: 20px;
+  --slider-handle-height: 20px;
   --slider-handle-radius: 6px;
   --slider-handle-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0);
   --slider-handle-shadow-active: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0);

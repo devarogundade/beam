@@ -9,6 +9,7 @@ interface IOracle {
 
     function getAmountFromUsd(
         address token,
-        uint256 amountInUsd
+        uint256 amountInUsd,
+        uint256 multiplier
     ) external view returns (uint256 amountOut);
 }

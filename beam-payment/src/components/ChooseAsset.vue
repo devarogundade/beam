@@ -6,21 +6,13 @@ import Converter from '@/scripts/converter';
 import { useWalletStore } from '@/stores/wallet';
 import { formatUnits, parseUnits } from 'viem';
 import { TokenContract } from '@/scripts/erc20';
+import CloseIcon from './icons/CloseIcon.vue';
 
 const walletStore = useWalletStore();
 
 const emit = defineEmits(['close', 'change']);
 
 const search = ref<string>('');
-
-// dummy prices
-const prices = ref<{ [key: string]: number; }>({
-    '0x2c9678042d52b97d27f2bd2947f7111d93f3dd0d': 1,
-    '0x5ea79f3190ff37418d42f9b2618688494dbd9693': 80_000,
-    '0x9E8CEC4F2F4596141B62e88966D7167E9db555aD': 2_400,
-    '0x7984e363c38b590bb4ca35aed5133ef2c6619c40': 0.998,
-    '0x279cbf5b7e3651f03cb9b71a9e7a3c924b267801': 5,
-});
 
 const balances = ref<{ [key: string]: number; }>({
     '0x2c9678042d52b97d27f2bd2947f7111d93f3dd0d': 0,
@@ -74,8 +66,8 @@ onMounted(() => {
                 <div class="assets">
                     <div class="asset" v-for="token in getTokens.filter(t =>
                         search == '' ? true : t.name.toLowerCase().includes(search.toLowerCase())
-                    )">
-                        <div class="info">
+                    )" @click="emit('change', token)">
+                        <div class=" info">
                             <img :src="token.image" alt="">
                             <div class="name">
                                 <p>{{ token.name }}</p>
@@ -85,7 +77,7 @@ onMounted(() => {
 
                         <div class="amount">
                             <p>{{ Converter.toMoney(balances[token.address]) }}</p>
-                            <p>≈ {{ Converter.toMoney(prices[token.address] * balances[token.address]) }}</p>
+                            <p>≈ ${{ Converter.toMoney(token.price * balances[token.address]) }}</p>
                         </div>
                     </div>
                 </div>
@@ -142,8 +134,8 @@ onMounted(() => {
 }
 
 .scroll {
-    overflow-y: scroll;
-    max-height: calc(100vh - 340px);
+    overflow-y: auto;
+    height: calc(100vh - 480px);
 }
 
 .search {
@@ -157,6 +149,10 @@ onMounted(() => {
     display: grid;
     height: 44px;
     grid-template-columns: 44px 1fr;
+    width: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--bg-lightest);
 }
 
 .search .icon {
@@ -173,6 +169,11 @@ onMounted(() => {
     color: var(--tx-normal);
     font-size: 14px;
     padding: 0 14px;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--tx-normal);
+    font-size: 14px;
 }
 
 .assets {}
@@ -181,15 +182,12 @@ onMounted(() => {
     height: 100px;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     padding: 0 30px;
     border-top: 1px solid var(--bg-lightest);
-    border-bottom: 1px solid var(--bg-lightest);
+    cursor: pointer;
 }
 
-.asset:last-child {
-    border-bottom: none
-}
 
 .asset:hover {
     background: var(--bg-light);
@@ -212,7 +210,7 @@ onMounted(() => {
     font-size: 14px;
 }
 
-.name p:first-child {
+.name p:last-child {
     margin-top: 4px;
     color: var(--tx-semi);
     font-size: 14px;
@@ -227,7 +225,7 @@ onMounted(() => {
     font-size: 14px;
 }
 
-.amount p:first-child {
+.amount p:last-child {
     margin-top: 4px;
     color: var(--tx-semi);
     font-size: 14px;

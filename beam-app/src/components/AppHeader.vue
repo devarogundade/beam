@@ -45,6 +45,12 @@ watch(route, (newValue) => {
             icon: PaymentsIcon
         };
     }
+    else if (newValue.name?.toString().startsWith('chat')) {
+        props.value = {
+            title: 'Beam AI',
+            icon: PaymentsIcon
+        };
+    }
 });
 </script>
 

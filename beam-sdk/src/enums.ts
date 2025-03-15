@@ -1,18 +1,20 @@
 export enum TransactionStatus {
-  Pending = 0, // The payment has been created but not yet processed.
-  Active = 1, // The payment is currently in progress or being executed.
-  Completed = 2, // The payment has been successfully completed.
-  Cancelled = 3, // The payment was cancelled before completion.
+  Pending = 0,
+  Active = 1,
+  Completed = 2,
+  Cancelled = 3,
 }
 
-/**
- * @enum TransactionType
- * @dev Enum representing the type of payment.
- * @notice Categorizes payments based on their structure and recurrence.
- */
 export enum TransactionType {
-  OneTime = 0, // A single, non-recurring payment.
-  Recurrent = 1, // A recurring payment (e.g., subscriptions or periodic payments).
+  OneTime = 0,
+  Recurrent = 1,
+  Send = 2,
+}
+
+export enum TransactionRoute {
+  None = 0,
+  Uniswap = 1,
+  Aave = 2,
 }
 
 export enum Network {

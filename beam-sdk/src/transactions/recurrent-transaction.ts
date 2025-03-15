@@ -6,52 +6,33 @@ import {
   GetSubscriptions,
   Transaction,
   Subscription,
-  Metadata,
 } from "../types";
 import { BaseTransaction } from "./base";
 import { IRecurrentTransaction } from "../interfaces/recurrent-transaction";
 import { TransactionType } from "../enums";
-import { Hex } from "viem";
-
-export type CreateRecurrentTransaction = {
-  merchant: Hex;
-  subscriptionId: Hex;
-  description: string;
-  metadata: Metadata;
-  mintReceipt: boolean;
-};
-
-export type FulfillRecurrentTransaction = {
-  transactionId: Hex;
-  subscriptionId: Hex;
-  mintReceipt: boolean;
-};
-
-export type CancelRecurrentTransaction = {
-  transactionId: Hex;
-  subscriptionId: Hex;
-};
+import {
+  PrepareCancelRecurrentTransaction,
+  PrepareFulfillRecurrentTransaction,
+  PrepareRecurrentTransaction,
+} from "src/params";
 
 export class RecurrentTransaction
   extends BaseTransaction
   implements IRecurrentTransaction
 {
   async create(
-    params: CreateRecurrentTransaction
+    params: PrepareRecurrentTransaction
   ): Promise<TransactionCallback> {
     return new Promise((resolve, reject) => {
-      const paymentURL = Endpoints.BASE_TRANSACTION_URL;
-
       const session = this.createSession();
       const sessionedPaymentURL = this.buildUrl({ session });
+
+      const paymentParams = { ...params, type: TransactionType.Recurrent };
 
       try {
         this.launchTabAndAwaitResult(
           sessionedPaymentURL,
-          {
-            data: params,
-            target: paymentURL,
-          },
+          paymentParams,
           (data: TransactionCallback) => {
             if (data.session == session) {
               resolve(data);
@@ -65,21 +46,21 @@ export class RecurrentTransaction
   }
 
   async fulfill(
-    params: FulfillRecurrentTransaction
+    params: PrepareFulfillRecurrentTransaction
   ): Promise<TransactionCallback> {
     return new Promise((resolve, reject) => {
-      const paymentURL = Endpoints.BASE_TRANSACTION_URL;
-
       const session = this.createSession();
       const sessionedPaymentURL = this.buildUrl({ session });
+
+      const paymentParams = {
+        ...params,
+        type: TransactionType.Recurrent,
+      };
 
       try {
         this.launchTabAndAwaitResult(
           sessionedPaymentURL,
-          {
-            data: params,
-            target: paymentURL,
-          },
+          paymentParams,
           (data: TransactionCallback) => {
             if (data.session == session) {
               resolve(data);
@@ -92,20 +73,22 @@ export class RecurrentTransaction
     });
   }
 
-  cancel(params: CancelRecurrentTransaction): Promise<TransactionCallback> {
+  cancel(
+    params: PrepareCancelRecurrentTransaction
+  ): Promise<TransactionCallback> {
     return new Promise((resolve, reject) => {
-      const paymentURL = Endpoints.BASE_TRANSACTION_URL;
-
       const session = this.createSession();
       const sessionedPaymentURL = this.buildUrl({ session });
+
+      const paymentParams = {
+        ...params,
+        type: TransactionType.Recurrent,
+      };
 
       try {
         this.launchTabAndAwaitResult(
           sessionedPaymentURL,
-          {
-            data: params,
-            target: paymentURL,
-          },
+          paymentParams,
           (data: TransactionCallback) => {
             if (data.session == session) {
               resolve(data);

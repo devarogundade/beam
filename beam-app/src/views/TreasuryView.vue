@@ -11,22 +11,57 @@ import UsersIcon from '@/components/icons/UsersIcon.vue';
 import { useWalletStore } from '@/stores/wallet';
 import { onMounted, ref } from 'vue';
 import BeamSDK from "../../../beam-sdk/src/index";
-import { Network } from "../../../beam-sdk/src/enums";
-import type { Payment } from "../../../beam-sdk/src/types";
+import { Network, TransactionType } from "../../../beam-sdk/src/enums";
+import type { Token, Transaction } from "../../../beam-sdk/src/types";
+import { getToken, getTokens } from "../../../beam-sdk/src/utils/constants";
+import CompletedIcon from '@/components/icons/CompletedIcon.vue';
+import { formatUnits } from 'viem';
+import Converter from '@/scripts/converter';
+import PaymentsIcon from '@/components/icons/PaymentsIcon.vue';
+import ArrowDownIcon from '@/components/icons/ArrowDownIcon.vue';
+import ArrowUpIcon from '@/components/icons/ArrowUpIcon.vue';
+import { TokenContract } from '@/scripts/erc20';
+import AllAssets from '@/components/AllAssets.vue';
+import ProgressBox from '@/components/ProgressBox.vue';
 
 const beamSdk = new BeamSDK({
   network: Network.Testnet
 });
 const walletStore = useWalletStore();
 const progress = ref<boolean>(false);
+const balances = ref<{ [key: string]: number; }>({
+  '0x2c9678042d52b97d27f2bd2947f7111d93f3dd0d': 0,
+  '0x5ea79f3190ff37418d42f9b2618688494dbd9693': 0,
+  '0x9E8CEC4F2F4596141B62e88966D7167E9db555aD': 0,
+  '0x7984e363c38b590bb4ca35aed5133ef2c6619c40': 0,
+  '0x279cbf5b7e3651f03cb9b71a9e7a3c924b267801': 0,
+});
+const tokens = ref<Token[]>([]);
+const allAssets = ref<boolean>(false);
 
-const payments = ref<Payment[]>([]);
+const transactions = ref<Transaction[]>([]);
+
+const getTokenBalances = async () => {
+  if (!walletStore.merchant) return;
+
+  tokens.value = getTokens.filter(t => walletStore.merchant?.tokens.includes(t.address));
+
+  for (let index = 0; index < tokens.value.length; index++) {
+    const balance = await TokenContract.getTokenBalance(
+      tokens.value[index].address,
+      walletStore.merchant.wallet
+    );
+    balances.value[tokens.value[index].address] = Number(
+      formatUnits(balance, tokens.value[index].decimals)
+    );
+  }
+};
 
 const getTransactions = async (load: boolean = true) => {
   if (!walletStore.address) return;
   progress.value = load;
 
-  payments.value = await beamSdk.oneTimeTransaction.getTransactions({
+  transactions.value = await beamSdk.oneTimeTransaction.getTransactions({
     merchant: walletStore.address,
     page: 1,
     limit: 50
@@ -37,6 +72,7 @@ const getTransactions = async (load: boolean = true) => {
 
 onMounted(() => {
   getTransactions();
+  getTokenBalances();
 });
 </script>
 
@@ -57,30 +93,35 @@ onMounted(() => {
 
         <div class="assets_value">
           <div class="value_amount">
-            <p>$248,569 <span>+14%</span></p>
+            <p>$
+              {{
+                Converter.toMoney(
+                  tokens.reduce((a, b) => a + b.price * balances[b.address], 0) || 0
+                )
+              }}
+              <span>+0.00%</span>
+            </p>
 
             <div class="stats">
               <div class="stat">
                 <SendIcon />
-                <p>$69,145 <span>Outs</span></p>
+                <p>$0.00 <span>Outs</span></p>
               </div>
 
               <div class="stat">
                 <ReceiveIcon />
-                <p>$48,145 <span>Ins</span></p>
+                <p>$0.00 <span>Ins</span></p>
               </div>
             </div>
           </div>
 
           <div class="value_tokens">
             <div class="images">
-              <img src="/images/btc.png" alt="">
-              <img src="/images/eth.png" alt="">
-              <img src="/images/usdt.png" alt="">
+              <img v-for="token in tokens.slice(0, 3)" :src="token.image" alt="">
               <img src="/images/token.png" alt="">
             </div>
 
-            <p>7 <span>Assets</span></p>
+            <p>{{ tokens.length }} <span>Assets</span></p>
           </div>
         </div>
 
@@ -106,17 +147,42 @@ onMounted(() => {
         <div class="assets_head">
           <p>Top Assets</p>
 
-          <div class="dropdown">
+          <div class="dropdown" @click="allAssets = true">
             <div class="dropdown_item">
               <p>All</p>
               <ChevronRightIcon />
             </div>
           </div>
         </div>
+
+        <div class="top_asset" v-for="token, index in tokens.slice(0, 3)" :key="index">
+          <div class="info">
+            <img :src="token.image" alt="">
+            <p>{{ token.name }}</p>
+          </div>
+
+          <div class="balance">
+            <p>{{ Converter.toMoney(balances[token.address]) }} <span>{{ token.symbol }}</span></p>
+          </div>
+
+          <div class="price">
+            <p>${{ Converter.toMoney(token.price * balances[token.address]) }}</p>
+            <div v-if="index % 2 == 0">
+              <ArrowDownIcon />
+              <span>-0.0%</span>
+            </div>
+            <div v-else>
+              <ArrowUpIcon />
+              <span>+0.0%</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="transactions">
+    <ProgressBox v-if="progress" />
+
+    <div class="transactions" v-else>
       <div class="title">
         <div class="name">
           <p>Confirmations</p>
@@ -142,16 +208,20 @@ onMounted(() => {
         </thead>
 
         <tbody>
-          <tr v-for="sale in 20" :key="sale">
+          <tr v-for="transaction, index in transactions" :key="index">
             <td>
               <div class="product">
-                <ReceiveIcon />
+                <PaymentsIcon v-if="transaction.type == TransactionType.OneTime" />
+                <PaymentsIcon v-if="transaction.type == TransactionType.Recurrent" />
+                <ReceiveIcon v-if="transaction.type == TransactionType.Send" />
 
                 <div class="product_info">
-                  <p>Receive</p>
-                  <div>
-                    <p>Txn ID</p>
-                    <OutIcon />
+                  <p v-if="transaction.type == TransactionType.OneTime">One Time</p>
+                  <p v-if="transaction.type == TransactionType.Recurrent">Recurrent</p>
+                  <p v-if="transaction.type == TransactionType.Send">Send</p>
+
+                  <div v-if="transaction.type == TransactionType.OneTime">
+                    <p>{{ transaction.payers.length }} Txns</p>
                   </div>
                 </div>
               </div>
@@ -159,15 +229,37 @@ onMounted(() => {
 
             <td>
               <div class="time">
-                <p>14 Feb</p>
-                <p>03:10:12 PM</p>
+                <p>
+                  {{
+                    Intl.DateTimeFormat('en-US', {
+                      day: '2-digit',
+                      month: 'short',
+                    }).format(transaction.blockTimestamp * 1000)
+                  }}
+                </p>
+                <p>
+                  {{
+                    Intl.DateTimeFormat('en-US', {
+                      second: '2-digit',
+                      minute: '2-digit',
+                      hour: '2-digit'
+                    }).format(transaction.blockTimestamp * 1000)
+                  }}
+                </p>
               </div>
             </td>
 
             <td>
-              <div class="status">
+              <div class="status"
+                v-if="transaction.type == TransactionType.OneTime && transaction.payers.length < transaction.fulfilleds.length">
                 <PendingIcon />
                 <p>Pending</p>
+              </div>
+
+              <div class="status"
+                v-if="transaction.type == TransactionType.OneTime && transaction.payers.length == transaction.fulfilleds.length">
+                <CompletedIcon />
+                <p>Completed</p>
               </div>
             </td>
 
@@ -175,31 +267,50 @@ onMounted(() => {
               <div class="signers">
                 <div class="users">
                   <UsersIcon />
-                  <p>1 <span>of 2</span></p>
+                  <p v-if="transaction.type == TransactionType.OneTime">
+                    {{ transaction.fulfilleds.length }} <span>of {{ transaction.payers.length }}</span>
+                  </p>
                 </div>
 
-                <div class="progress">
-                  <div class="bar"></div>
+                <div class=" progress">
+                  <div v-if="transaction.type == TransactionType.OneTime" class="bar"
+                    :style="`width: ${(transaction.fulfilleds.length / transaction.payers.length) * 100}%`"></div>
                 </div>
               </div>
             </td>
 
             <td>
               <div class="amount">
-                <p>0.384 <span>BTC</span></p>
-                <p>≈ $39,680</p>
+                <p v-if="transaction.type == TransactionType.OneTime">
+                  {{
+                    Converter.toMoney(
+                      Number(formatUnits(transaction.amounts.reduce((a, b) => a + b, BigInt(0)),
+                        getToken(transaction.token)?.decimals || 18))
+                    )
+                  }}
+                  <span>{{ getToken(transaction.token)?.symbol }}</span>
+                </p>
+                <p>≈ ${{Converter.toMoney(
+                  (getToken(transaction.token)?.price || 0) * Number(formatUnits(transaction.amounts.reduce((a, b) => a
+                    + b, BigInt(0)),
+                    getToken(transaction.token)?.decimals || 18))
+
+                )}}
+                </p>
               </div>
             </td>
 
             <td>
               <div class="view">
-                <ChevronRightIcon />
+                <ChevronDownIcon />
               </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
+
+    <AllAssets v-if="allAssets" :balances="balances" :tokens="tokens" @close="allAssets = false" />
   </div>
 </template>
 
@@ -221,6 +332,70 @@ onMounted(() => {
 
 .top_assets {
   padding-left: 20px;
+}
+
+.top_asset {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 65px;
+  border-bottom: 1px solid var(--bg-lightest);
+}
+
+.top_asset .info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 150px;
+}
+
+.top_asset .info img {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+}
+
+.top_asset .info p {
+  color: var(--tx-normal);
+  font-size: 16px;
+}
+
+.top_asset .balance {
+  width: 150px;
+}
+
+.top_asset .balance p {
+  color: var(--tx-normal);
+  font-size: 14px;
+}
+
+.top_asset .balance p span {
+  color: var(--tx-semi);
+  font-size: 14px;
+}
+
+.top_asset .price {
+  width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.top_asset .price p {
+  color: var(--tx-normal);
+  font-size: 16px;
+}
+
+.top_asset .price span {
+  color: var(--tx-semi);
+  font-size: 16px;
+}
+
+.top_asset .price div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .assets_head {
@@ -247,7 +422,7 @@ onMounted(() => {
   gap: 8px;
   height: 32px;
   padding: 0 12px;
-
+  cursor: pointer;
 }
 
 .assets_head p {
@@ -256,7 +431,7 @@ onMounted(() => {
 }
 
 .assets_value {
-  padding: 20px 0 30px 0;
+  padding: 30px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -333,7 +508,7 @@ onMounted(() => {
   background: none;
   gap: 10px;
   width: 100%;
-  border: 1px dashed var(--bg-lightest);
+  border: 1px solid var(--bg-lightest);
   height: 40px;
   cursor: pointer;
 }
@@ -426,6 +601,10 @@ tbody tr {
   height: 94px;
   padding: 0 20px;
   border-bottom: 1px solid var(--bg-lighter);
+}
+
+tbody td {
+  cursor: pointer;
 }
 
 tbody tr:last-child {
@@ -527,7 +706,6 @@ tbody td:last-child {
 }
 
 .signers .bar {
-  width: 50%;
   height: 100%;
   background: var(--primary-light);
   border-radius: 10px;

@@ -17,43 +17,45 @@ type Transaction @entity(immutable: false) {
   id: Bytes!
   transactionId: Bytes! # bytes32
   payer: Bytes! # address
-  payers: [Bytes!]! # address[]
+  recipient: Bytes # address
+  payers: [Bytes!] # address[]
+  signers: [Bytes!]! # address[]
   fulfilleds: [Bytes!]! # address[]
   merchant: Bytes! # address
   token: Bytes! # address
-  amounts: [BigInt!]! # uint256[]
+  amounts: [BigInt!] # uint256[]
   adjustedToken: Bytes! # address
   adjustedAmount: BigInt! # uint256
-  dueDate: BigInt! # uint256
-  amount: BigInt! # uint256
-  timestamp: BigInt! # uint256
-  description: String! # string
+  dueDate: BigInt # uint256
+  amount: BigInt # uint256
+  timestamp: BigInt # uint256
+  description: String # string
   metadata_schemaVersion: Int! # uint8
   metadata_value: String! # string
-  status: Int! # uint8
+  status: Int # uint8
+  executed: Boolean # bool
   type: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-  confimations: [Confirmation!]! @derivedFrom(field: "transaction")
+  confirmations: [Confirmation!]! @derivedFrom(field: "transaction")
 }
 
 type Confirmation @entity(immutable: true) {
   id: Bytes!
   transactionId: Bytes! # bytes32
-  from: Bytes! # address
-  recipient: Bytes! # address
-  token: Bytes! # address
-  amount: BigInt! # uint256
-  adjustedToken: Bytes! # address
-  adjustedAmount: BigInt! # uint256
-  description: String! # string
+  from: Bytes # address
+  recipient: Bytes # address
+  token: Bytes # address
+  amount: BigInt # uint256
+  adjustedToken: Bytes # address
+  adjustedAmount: BigInt # uint256
+  description: String # string
   type: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
   transaction: Transaction!
-  withdrawRequest: WithdrawRequest!
 }
 
 type SubscriptionPlan @entity(immutable: false) {
@@ -68,20 +70,4 @@ type SubscriptionPlan @entity(immutable: false) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
-}
-
-type WithdrawRequest @entity(immutable: false) {
-  id: Bytes!
-  merchant: Bytes! # address
-  requestId: BigInt! # uint256
-  token: Bytes! # address
-  amount: BigInt! # uint256
-  recipient: Bytes! # address
-  signers: [Bytes!]! # address[]
-  fulfilleds: [Bytes!]! # address[]
-  executed: Boolean! # bool
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-  confimations: [Confirmation!]! @derivedFrom(field: "withdrawRequest")
 }

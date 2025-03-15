@@ -1,3 +1,7 @@
+import type {
+  TransactionStatus,
+  TransactionType,
+} from "../../../beam-sdk/src/enums";
 import type { Hex } from "viem";
 
 export enum Connection {
@@ -27,11 +31,12 @@ export type Product = {
 
 export type Sale = {
   _id: string;
+  transactionId: Hex;
   merchant: Hex;
   buyer: Hex;
   product: Product | null;
-  type: string;
-  status: SaleStatus;
+  type: TransactionType;
+  status: TransactionStatus;
   amount: number;
   token: Hex;
   amountInUsd: number;
@@ -39,11 +44,6 @@ export type Sale = {
   createdAt: Date;
   updatedAt: Date | null;
 };
-
-export enum SaleStatus {
-  Pending,
-  Completed,
-}
 
 export type CreateProduct = {
   merchant: Hex;
@@ -56,11 +56,12 @@ export type CreateProduct = {
 };
 
 export type CreateSale = {
+  transactionId: Hex;
   merchant: Hex;
   buyer: Hex;
   product: string;
-  type: string;
-  status: string;
+  type: TransactionType;
+  status: TransactionStatus;
   amount: number;
   token: Hex;
   amountInUsd: number;

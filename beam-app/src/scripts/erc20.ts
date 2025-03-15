@@ -5,11 +5,13 @@ import {
   writeContract,
   readContract,
 } from "@wagmi/core";
-import { erc20Abi, type Hex } from "viem";
+import { erc20Abi, parseEther, zeroAddress, zeroHash, type Hex } from "viem";
 
 const TokenContract = {
   async getAllowance(token: Hex, wallet: Hex, spender: Hex): Promise<bigint> {
     try {
+      if (token == zeroAddress)
+        return BigInt(parseEther(Number.MAX_VALUE.toString()));
       return await readContract(config, {
         abi: erc20Abi,
         address: token,
@@ -23,6 +25,8 @@ const TokenContract = {
 
   async approve(token: Hex, spender: Hex, amount: bigint): Promise<Hex | null> {
     try {
+      if (token == zeroAddress) return zeroHash;
+
       const result = await writeContract(config, {
         abi: erc20Abi,
         address: token,
@@ -38,9 +42,12 @@ const TokenContract = {
     }
   },
 
-  async getTokenBalance(token: Hex | undefined, address: Hex): Promise<bigint> {
+  async getTokenBalance(token: Hex, address: Hex): Promise<bigint> {
     try {
-      const { value } = await getBalance(config, { token, address });
+      const { value } = await getBalance(config, {
+        token: token == zeroAddress ? undefined : token,
+        address,
+      });
       return value;
     } catch (error) {
       return BigInt(0);

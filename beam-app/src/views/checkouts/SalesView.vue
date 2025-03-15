@@ -9,6 +9,7 @@ import Converter from '@/scripts/converter';
 import { SaleStatus, type Sale } from '@/scripts/types';
 import { useWalletStore } from '@/stores/wallet';
 import { onMounted, ref } from 'vue';
+import { getToken } from "../../../../beam-sdk/src/utils/constants";
 
 const VITE_EXPLORER_URL = import.meta.env.VITE_EXPLORER_URL;
 
@@ -60,8 +61,23 @@ onMounted(() => {
 
                     <td>
                         <div class="time">
-                            <p>14 Feb</p>
-                            <p>03:10:12 PM</p>
+                            <p>
+                            {{
+                                Intl.DateTimeFormat('en-US', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                }).format(new Date(sale.createdAt))
+                            }}
+                            </p>
+                            <p>
+                            {{
+                                Intl.DateTimeFormat('en-US', {
+                                    second: '2-digit',
+                                    minute: '2-digit',
+                                    hour: '2-digit'
+                                }).format(new Date(sale.createdAt))
+                            }}
+                            </p>
                         </div>
                     </td>
 
@@ -79,14 +95,14 @@ onMounted(() => {
 
                     <td>
                         <div class="buyer">
-                            <img src="/images/user.png" alt="">
+                            <img src="/images/colors.png" alt="">
 
                             <div class="buyer_info">
-                                <p>Berry Parker</p>
+                                <p>{{ sale.buyer }}</p>
 
                                 <a :href="`${VITE_EXPLORER_URL}/address/${sale.buyer}`">
                                     <div class="buyer_address">
-                                        <p>{{ Converter.fineAddress(sale.buyer, 5) }}</p>
+                                        <p>{{ Converter.fineAddress(sale.merchant, 5) }}</p>
                                         <OutIcon />
                                     </div>
                                 </a>
@@ -96,8 +112,8 @@ onMounted(() => {
 
                     <td>
                         <div class="amount">
-                            <p>0.384 <span>BTC</span></p>
-                            <p>≈ $39,680</p>
+                            <p>{{Converter.toMoney(sale.amount)}} <span>{{getToken(sale.token)?.symbol}}</span></p>
+                            <p>≈ ${{Converter.toMoney(sale.amountInUsd)}}</p>
                         </div>
                     </td>
 

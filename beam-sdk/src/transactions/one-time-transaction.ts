@@ -1,42 +1,30 @@
 import { Endpoints } from "../utils/endpoints";
 import { IOneTimeTransaction } from "../interfaces/one-time-transaction";
-import {
-  TransactionCallback,
-  GetTransactions,
-  Transaction,
-  Metadata,
-} from "../types";
+import { TransactionCallback, GetTransactions, Transaction } from "../types";
 import { BaseTransaction } from "./base";
 import { TransactionType } from "../enums";
-import { Hex } from "viem";
+import {
+  PrepareFulfillOneTimeTransaction,
+  PrepareOneTimeTransaction,
+} from "src/params";
 
-type CreateOneTimeTransaction = {
-  payers: Hex[];
-  merchant: Hex;
-  amounts: bigint[];
-  token: Hex;
-  description: string;
-  metadata: Metadata;
-  mintReceipt: boolean;
-};
-
-type FulfillOneTimeTransaction = {
-  transactionId: Hex;
-  mintReceipt: boolean;
-};
 export class OneTimeTransaction
   extends BaseTransaction
   implements IOneTimeTransaction
 {
-  async create(params: CreateOneTimeTransaction): Promise<TransactionCallback> {
+  async create(
+    params: PrepareOneTimeTransaction
+  ): Promise<TransactionCallback> {
     return new Promise((resolve, reject) => {
       const session = this.createSession();
       const sessionedPaymentURL = this.buildUrl({ session });
 
+      const paymentParams = { ...params, type: TransactionType.OneTime };
+
       try {
         this.launchTabAndAwaitResult(
           sessionedPaymentURL,
-          params,
+          paymentParams,
           (data: TransactionCallback) => {
             if (data.session == session) {
               resolve(data);
@@ -50,21 +38,18 @@ export class OneTimeTransaction
   }
 
   async fulfill(
-    params: FulfillOneTimeTransaction
+    params: PrepareFulfillOneTimeTransaction
   ): Promise<TransactionCallback> {
     return new Promise((resolve, reject) => {
-      const paymentURL = Endpoints.BASE_TRANSACTION_URL;
-
       const session = this.createSession();
       const sessionedPaymentURL = this.buildUrl({ session });
+
+      const paymentParams = { ...params, type: TransactionType.OneTime };
 
       try {
         this.launchTabAndAwaitResult(
           sessionedPaymentURL,
-          {
-            data: params,
-            target: paymentURL,
-          },
+          paymentParams,
           (data: TransactionCallback) => {
             if (data.session == session) {
               resolve(data);

@@ -8,15 +8,18 @@ import type { TransactionCallback, Token, Transaction } from '../../../beam-sdk/
 import { getToken, getTokens, sleep } from '../../../beam-sdk/src/utils/constants';
 import { useWalletStore } from '@/stores/wallet';
 import { TokenContract } from '@/scripts/erc20';
-import { formatEther, formatUnits, parseUnits, zeroAddress, zeroHash, type Hex } from 'viem';
-import { AaveV3Contract, BeamContract, UniswapContract } from '@/scripts/contract';
-import { Network, TransactionType } from '../../../beam-sdk/src/enums';
+import { formatEther, formatUnits, parseUnits, zeroAddress, type Hex } from 'viem';
+import { AaveV3Contract, BeamContract, DelegationContract } from '@/scripts/contract';
+import { Network, TransactionType, TransactionRoute } from '../../../beam-sdk/src/enums';
 import BeamSDK from '../../../beam-sdk/src';
-import { TransactionRoute, type Signature } from '../../../beam-sdk/src/params';
+import { type Signature } from '../../../beam-sdk/src/params';
 import Converter from '@/scripts/converter';
 import ChooseAsset from '@/components/ChooseAsset.vue';
-import Slider from '@vueform/slider/src/Slider.js';
+import Slider from '@vueform/slider';
 import { useRouter } from 'vue-router';
+import GoodHFIcon from '@/components/icons/GoodHFIcon.vue';
+import BadHFIcon from '@/components/icons/BadHFIcon.vue';
+import HFIcon from '@/components/icons/HFIcon.vue';
 
 const dataStore = useDataStore();
 const walletStore = useWalletStore();
@@ -32,7 +35,10 @@ const initiator = ref<string | null>(null);
 
 const chooseToken = ref<boolean>(false);
 const approving = ref<boolean>(false);
+const signing = ref<boolean>(false);
 const paying = ref<boolean>(false);
+const hf = ref<number>(0);
+const rate = ref<number>(0);
 const amount = ref<number>(0);
 const amountB = ref<number>(0);
 const balance = ref<number>(0);
@@ -40,17 +46,28 @@ const balanceB = ref<number>(0);
 const allowance = ref<number>(0);
 const allowanceB = ref<number>(0);
 const signature = ref<Signature | null>(null);
-const healthFactorMultiplier = ref<number>(1.2);
+const healthFactorMultiplier = ref<number>(160);
 const tokenB = ref<Token | null>(null);
 const token = ref<Token | undefined>(getToken(dataStore.data?.token));
 
 const setTokenB = (token: Token) => {
     tokenB.value = token;
+    chooseToken.value = false;
+};
+
+const getHFRate = async () => {
+    if (!walletStore.address) return;
+    if (!tokenB.value) return;
+
+    const hfResult = await AaveV3Contract.getHealthFactor(walletStore.address);
+    if (hfResult) hf.value = Number(formatEther(hfResult));
+
+    const rateResult = await AaveV3Contract.getCurrentLiquidityRate(tokenB.value.address);
+    if (rateResult) rate.value = Number(formatEther(rateResult)) / 10_000_000;
 };
 
 const getAmount = () => {
     if (!dataStore.data) return;
-    if (!walletStore.address) return;
 
     const index = dataStore.data.payers.length <= 1
         ? 0
@@ -73,8 +90,6 @@ const getAmountB = async () => {
     if (!walletStore.address) return;
     if (!token.value) return;
 
-    amountB.value = 0;
-
     const decimals = token.value?.decimals || 18;
 
     const resultB = await AaveV3Contract.requiredSupplyMin({
@@ -95,8 +110,6 @@ const getBalance = async () => {
     if (!token.value) return;
     if (!walletStore.address) return;
 
-    balance.value = 0;
-
     const result = await TokenContract.getTokenBalance(
         token.value.address,
         walletStore.address
@@ -105,6 +118,10 @@ const getBalance = async () => {
     const decimals = token.value?.decimals || 18;
 
     balance.value = Number(formatUnits(result, decimals));
+
+    if (amount.value <= balance.value) {
+        router.push(`/?session=${session.value}&initiator=${initiator.value}`);
+    }
 };
 
 const getBalanceB = async () => {
@@ -112,14 +129,12 @@ const getBalanceB = async () => {
     if (!tokenB.value) return;
     if (!walletStore.address) return;
 
-    balanceB.value = 0;
-
     const resultB = await TokenContract.getTokenBalance(
         tokenB.value.address,
         walletStore.address
     );
 
-    const decimalsB = token.value?.decimals || 18;
+    const decimalsB = tokenB.value?.decimals || 18;
 
     balanceB.value = Number(formatUnits(resultB, decimalsB));
 };
@@ -151,7 +166,7 @@ const getAllowanceB = async () => {
     if (!dataStore.data) return;
 
     if (tokenB.value.address == zeroAddress) {
-        allowance.value = Number.MAX_VALUE;
+        allowanceB.value = Number.MAX_VALUE;
         return;
     }
 
@@ -219,6 +234,33 @@ const approveB = async () => {
     approving.value = false;
 };
 
+const signBorrowAllowance = async () => {
+    if (signing.value) return;
+    if (!dataStore.data) return;
+    if (!walletStore.address) return;
+    if (!token.value) return;
+    if (!tokenB.value) return;
+
+    const debtToken = await AaveV3Contract.getVariableDebtTokenAddresses(token.value.address);
+    if (!debtToken) return;
+
+    const amounts = dataStore.data.amounts.map((amount) => {
+        const value = formatEther(amount);
+        const decimals = token.value?.decimals || 18;
+        return parseUnits(value, decimals);
+    });
+
+    const index = dataStore.data.payers.length <= 1 ? 0 : dataStore.data.payers.findIndex(p =>
+        p.toLowerCase() == walletStore.address?.toLowerCase()
+    );
+
+    signature.value = await DelegationContract.signBorrowAllowance(
+        walletStore.address,
+        debtToken,
+        amounts[index]
+    );
+};
+
 const makePayment = async () => {
     if (paying.value) return;
     if (!dataStore.data) return;
@@ -234,18 +276,24 @@ const makePayment = async () => {
 
     paying.value = true;
 
-    let txHash: Hex | null = null;
+    let transactionHash: Hex | null = null;
+
+    const amounts = dataStore.data.amounts.map((amount) => {
+        const value = formatEther(amount);
+        const decimals = token.value?.decimals || 18;
+        return parseUnits(value, decimals);
+    });
+
+    const index = dataStore.data.payers.length <= 1 ? 0 : dataStore.data.payers.findIndex(p =>
+        p.toLowerCase() == walletStore.address?.toLowerCase()
+    );
 
     if (dataStore.data.type == TransactionType.OneTime) {
-        txHash = await BeamContract.oneTimeTransaction(
+        transactionHash = await BeamContract.oneTimeTransaction(
             {
                 payers: [walletStore.address],
                 merchant: dataStore.data.merchant,
-                amounts: dataStore.data.amounts.map((amount) => {
-                    const value = formatEther(amount);
-                    const decimals = token.value?.decimals || 18;
-                    return parseUnits(value, decimals);
-                }),
+                amounts: amounts,
                 token: token.value.address,
                 tokenB: tokenB.value.address,
                 description: dataStore.data.description ? dataStore.data.description : '',
@@ -253,14 +301,21 @@ const makePayment = async () => {
                     schemaVersion: 1,
                     value: JSON.stringify(dataStore.data.metadata)
                 },
-                mintReceipt: false,
-                healthFactorMultiplier: BigInt(healthFactorMultiplier.value * 100),
+                slippage: BigInt(0),
+                healthFactorMultiplier: BigInt(healthFactorMultiplier.value),
                 route: TransactionRoute.Aave,
                 signature: signature.value
-            }
+            },
+            token.value.address == zeroAddress ? amounts[index] : BigInt(0)
         );
     } else if (dataStore.data.subscriptionId) {
-        txHash = await BeamContract.recurrentTransaction(
+        const subscription = await beamSdk.recurrentTransaction.getSubscription({
+            subscriptionId: dataStore.data.subscriptionId
+        });
+
+        if (!subscription || subscription.trashed) return;
+
+        transactionHash = await BeamContract.recurrentTransaction(
             {
                 merchant: dataStore.data.merchant,
                 tokenB: tokenB.value.address,
@@ -270,30 +325,33 @@ const makePayment = async () => {
                     schemaVersion: 1,
                     value: JSON.stringify(dataStore.data.metadata)
                 },
-                mintReceipt: false,
-                healthFactorMultiplier: BigInt(healthFactorMultiplier.value * 100),
+                slippage: BigInt(0),
+                healthFactorMultiplier: BigInt(healthFactorMultiplier.value),
                 route: TransactionRoute.Aave,
                 signature: signature.value
-            }
+            },
+            token.value.address == zeroAddress ? subscription.amount : BigInt(0)
         );
     } else { }
 
-    if (txHash) {
+    if (transactionHash) {
         let tries: number = 0;
         let trxs: Transaction[] = [];
 
-        do {
+        while (trxs.length == 0 && tries < 5) {
             trxs = await beamSdk.oneTimeTransaction.getTransactionsFromHash({
-                transactionId: txHash
+                transactionHash
             });
 
             tries += 1;
 
-            await sleep(1_000);
-        } while (trxs.length == 0 && tries < 5);
+            await sleep(2_000);
+        }
 
         const result: TransactionCallback = {
-            session, ...trxs[0]
+            session,
+            route: TransactionRoute.Aave,
+            ...trxs[0]
         };
 
         window.opener.postMessage(result);
@@ -313,23 +371,27 @@ watch(dataStore, () => {
 
     const otherTokens = getTokens.filter(t => t.address != dataStore.data?.token);
     tokenB.value = otherTokens.length > 0 ? otherTokens[0] : null;
-
-    if (amount <= balance) {
-        router.push(`/?session=${session}&initiator=${initiator}`);
-    }
 }, { deep: true });
 
 watch(walletStore, () => {
+    getHFRate();
     getAmount();
     getAmountB();
     getBalance();
     getBalanceB();
     getAllowance();
     getAllowanceB();
+}, { deep: true });
 
-    if (amount <= balance) {
-        router.push(`/?session=${session}&initiator=${initiator}`);
-    }
+watch(tokenB, () => {
+    getHFRate();
+    getAmountB();
+    getBalanceB();
+    getAllowanceB();
+}, { deep: true });
+
+watch(healthFactorMultiplier, () => {
+    getAmountB();
 }, { deep: true });
 
 onMounted(() => {
@@ -340,6 +402,17 @@ onMounted(() => {
     initiator.value = params.get("initiator");
 
     token.value = getToken(dataStore.data.token);
+
+    getHFRate();
+    getAmount();
+    getAmountB();
+    getBalance();
+    getBalanceB();
+    getAllowance();
+    getAllowanceB();
+
+    const otherTokens = getTokens.filter(t => t.address != dataStore.data?.token);
+    tokenB.value = otherTokens.length > 0 ? otherTokens[0] : null;
 });
 </script>
 
@@ -355,16 +428,16 @@ onMounted(() => {
                                     <ChevronLeftIcon />
                                 </div>
                             </RouterLink>
-                            <p>Swap to Pay</p>
+                            <p>Borrow to Pay</p>
                         </div>
 
                         <div class="asset">
                             <div class="label">
-                                <p>You'll swap</p>
+                                <p>You'll supply</p>
                                 <p>Bal:
                                     <span>
                                         {{ Converter.toMoney(balanceB) }}
-                                        {{ token?.symbol }}
+                                        {{ tokenB?.symbol }}
                                     </span>
                                 </p>
                             </div>
@@ -381,15 +454,35 @@ onMounted(() => {
                             </div>
                         </div>
 
+                        <div class="rates">
+                            <div class="rate">
+                                <p>Supply APY</p>
+
+                                <p>{{ Converter.toMoney(rate, 2) }}<span>%</span></p>
+                            </div>
+
+                            <div class="rate">
+                                <p>Health Factor</p>
+
+                                <div>
+                                    <BadHFIcon v-if="hf <= 1.2" />
+                                    <HFIcon v-else-if="hf <= 1.6" />
+                                    <GoodHFIcon v-else />
+                                    <p>{{ Number(Converter.toMoney(hf)) > 1000 ? '1k+' : Converter.toMoney(hf) }}</p>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="ltv">
                             <div class="label">
                                 <p>Loan-to-Value Ratio</p>
                             </div>
 
                             <div class="hf">
-                                <Slider v-model="healthFactorMultiplier" :step="0.2" :min="1.2" :max="2" />
+                                <Slider v-model="healthFactorMultiplier" :step="10" :min="120" :max="160"
+                                    :tooltips="false" />
                                 <div class="hf_value">
-                                    {{ healthFactorMultiplier * 100 }}
+                                    {{ healthFactorMultiplier }}
                                 </div>
                             </div>
                         </div>
@@ -406,7 +499,7 @@ onMounted(() => {
                                 <p>To Borrow</p>
                                 <p>Bal:
                                     <span>
-                                        {{ Converter.toMoney(amountB) }}
+                                        {{ Converter.toMoney(balance) }}
                                         {{ token?.symbol }}
                                     </span>
                                 </p>
@@ -433,10 +526,13 @@ onMounted(() => {
                                 token?.symbol
                             }}
                         </button>
-                        <button v-if="allowanceB < amountB" @click="approveB">
+                        <button v-else-if="allowanceB < amountB" @click="approveB">
                             {{ approving ? 'Approving' : 'Approve ' +
                                 tokenB?.symbol
                             }}
+                        </button>
+                        <button v-else-if="!signature" @click="signBorrowAllowance">
+                            {{ signing ? 'Signing' : 'Sign Borrow Allowance' }}
                         </button>
                         <button v-else @click="makePayment">
                             {{ paying ? 'Paying' : 'Make Payment' }}
@@ -446,10 +542,11 @@ onMounted(() => {
             </div>
         </div>
 
-        <ChooseAsset v-if="chooseToken" @close="chooseToken = false" @changed="setTokenB" />
+        <ChooseAsset v-if="chooseToken" @close="chooseToken = false" @change="setTokenB" />
     </section>
 </template>
 
+<style src="@vueform/slider/themes/default.css"></style>
 <style scoped>
 .container {
     display: flex;
@@ -522,8 +619,11 @@ label {
 }
 
 .hf {
+    margin-top: 30px;
+    width: 100%;
     display: grid;
     grid-template-columns: 1fr 60px;
+    align-items: center;
     gap: 16px;
 }
 
@@ -535,6 +635,7 @@ label {
     justify-content: center;
     color: var(--tx-normal);
     font-size: 16px;
+    border: 1px solid var(--bg-lightest);
 }
 
 .input {
@@ -560,6 +661,43 @@ label {
 
 .input .dropdown {
     display: none;
+}
+
+.rates {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    background: var(--bg-light);
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+.rate {
+    height: 40px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.rate p:first-child {
+    color: var(--tx-dimmed);
+    font-size: 14px;
+}
+
+.rate div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rate p:last-child {
+    color: var(--tx-normal);
+    font-size: 14px;
+}
+
+.rate:first-child {
+    border-right: 1px solid var(--bg-lightest);
 }
 
 .tokens {

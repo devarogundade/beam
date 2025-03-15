@@ -13,8 +13,7 @@ interface IOneTimeTransaction {
 
     function onFulfill(
         bytes32 transactionId,
-        address payer,
-        bool mintReceipt
+        address payer
     ) external returns (bool completed, uint256 amount);
 
     function onComplete(bytes32 transactionId) external;

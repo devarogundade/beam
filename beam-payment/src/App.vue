@@ -61,7 +61,7 @@ onMounted(async () => {
   if (session && initiator) {
     window.addEventListener('message', (event) => {
       if (initiator == event.origin) {
-        dataStore.setData(event.data);
+        dataStore.setData(JSON.parse(event.data));
       }
     });
   } else if (transactionId) {

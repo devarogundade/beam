@@ -1,4 +1,12 @@
-import { Hex, TypedDataDomain } from "viem";
+import { Signature } from "src/params";
+import { Hex, TypedDataDomain, zeroHash } from "viem";
+
+export const emptySignature: Signature = {
+  deadline: 0,
+  v: BigInt(0),
+  r: zeroHash,
+  s: zeroHash,
+};
 
 export const buildDelegationWithSigParams = (
   chainId: number,

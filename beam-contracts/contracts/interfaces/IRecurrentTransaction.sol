@@ -13,8 +13,7 @@ interface IRecurrentTransaction {
 
     function onFulfill(
         bytes32 transactionId,
-        address payer,
-        bool mintReceipt
+        address payer
     ) external returns (uint256 amount, address token, uint256 dueDate);
 
     function onComplete(bytes32 transactionId, uint256 amount) external;

@@ -16,7 +16,7 @@ export const Client = {
 
   async createSale(params: CreateSale): Promise<Sale | null> {
     try {
-      const response = await this.client.post(`/products/create`, params);
+      const response = await this.client.post(`/sales/create`, params);
       return response.data;
     } catch (error) {
       return null;

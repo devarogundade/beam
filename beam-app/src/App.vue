@@ -31,7 +31,7 @@ const getMerchant = async () => {
     return router.push('/onboarding');
   }
 
-  walletStore.merchant = merchant.value;
+  walletStore.setMerchant(merchant.value);
 
   loading.value = false;
 

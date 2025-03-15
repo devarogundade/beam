@@ -6,6 +6,12 @@ import {Params} from "../libs/Params.sol";
 interface IAaveV3 {
     function execute(Params.ExecuteLoan memory params) external payable;
 
+    function getHealthFactor(address payer) external view returns (uint256 hf);
+
+    function getCurrentLiquidityRate(
+        address supplyAsset
+    ) external view returns (uint256 rate);
+
     function getVariableDebtTokenAddresses(
         address asset
     ) external view returns (address variableDebtToken);

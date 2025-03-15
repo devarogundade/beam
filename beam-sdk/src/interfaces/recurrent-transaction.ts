@@ -1,30 +1,29 @@
 import {
-  CancelRecurrentTransaction,
-  CreateRecurrentTransaction,
-  CreateRecurrentTransactionCallback,
-  FulfillRecurrentTransaction,
-  FulfillRecurrentTransactionCallback,
+  PrepareCancelRecurrentTransaction,
+  PrepareFulfillRecurrentTransaction,
+  PrepareRecurrentTransaction,
+} from "src/params";
+import {
+  TransactionCallback,
   Transaction,
-  CancelRecurrentTransactionCallback,
   GetTransactions,
   GetPayment,
   Subscription,
   GetSubscription,
   GetSubscriptions,
+  GetPaymentHash,
 } from "../types";
 
 export interface IRecurrentTransaction {
-  create(
-    params: CreateRecurrentTransaction
-  ): Promise<CreateRecurrentTransactionCallback>;
+  create(params: PrepareRecurrentTransaction): Promise<TransactionCallback>;
 
   fulfill(
-    params: FulfillRecurrentTransaction
-  ): Promise<FulfillRecurrentTransactionCallback>;
+    params: PrepareFulfillRecurrentTransaction
+  ): Promise<TransactionCallback>;
 
   cancel(
-    params: CancelRecurrentTransaction
-  ): Promise<CancelRecurrentTransactionCallback>;
+    params: PrepareCancelRecurrentTransaction
+  ): Promise<TransactionCallback>;
 
   getSubscription(params: GetSubscription): Promise<Subscription | null>;
 
@@ -34,7 +33,7 @@ export interface IRecurrentTransaction {
 
   getTransactions(params: GetTransactions): Promise<Transaction[]>;
 
-  getTransactionsFromHash(params: GetPayment): Promise<Transaction[]>;
+  getTransactionsFromHash(params: GetPaymentHash): Promise<Transaction[]>;
 
   getRecurrentTransactions(params: GetTransactions): Promise<Transaction[]>;
 }

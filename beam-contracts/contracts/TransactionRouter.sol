@@ -19,21 +19,29 @@ abstract contract TransactionRouter {
         _uniswap = uniswap_;
     }
 
-    function _routePayment(Params.RoutePayment memory params) internal {
-        uint256 payerBalance = 0;
+    receive() external payable {}
+
+    function _setAave(IAaveV3 aave) internal {
+        _aave = aave;
+    }
+
+    function _setUniswap(IUniswap uniswap) internal {
+        _uniswap = uniswap;
+    }
+
+    function _routeTransaction(Params.RouteTransaction memory params) internal {
+        uint256 balance = 0;
 
         if (params.token == address(0)) {
-            payerBalance = payable(msg.sender).balance;
+            balance = payable(msg.sender).balance;
         } else {
-            payerBalance = IERC20(params.token).balanceOf(msg.sender);
+            balance = IERC20(params.token).balanceOf(msg.sender);
         }
 
-        if (payerBalance >= params.amount) {
+        // @dev Extract all amount from user
+        if (balance >= params.amount) {
             if (params.token == address(0)) {
-                require(
-                    msg.value >= params.amount,
-                    Errors.INSUFFICIENT_BALANCE
-                );
+                require(msg.value >= params.amount, Errors.TRANSACTION_FAILED);
             } else {
                 IERC20(params.token).transferFrom(
                     msg.sender,
@@ -43,52 +51,51 @@ abstract contract TransactionRouter {
             }
 
             return _afterRoute(params.token, params.amount, params.wallet);
-        } else {
+        }
+        // @dev Extract all balance from user
+        else {
             if (params.token == address(0)) {
-                require(msg.value <= payerBalance, Errors.INSUFFICIENT_BALANCE);
+                require(msg.value == balance, Errors.INSUFFICIENT_BALANCE);
             } else {
                 IERC20(params.token).transferFrom(
                     msg.sender,
                     address(this),
-                    payerBalance
+                    balance
                 );
             }
         }
 
-        if (params.token == address(0)) {
-            require(msg.value >= payerBalance, Errors.INSUFFICIENT_BALANCE);
-        } else {
-            IERC20(params.token).transferFrom(
-                msg.sender,
-                address(this),
-                payerBalance
-            );
-        }
-
-        uint256 amountLeft = params.amount - payerBalance;
+        uint256 amountLeft = params.amount - balance;
 
         if (params.route == Enums.TransactionRoute.Uniswap) {
             Params.RequiredAmountIn memory amountInParams = Params
                 .RequiredAmountIn({
                     tokenIn: params.tokenB,
                     tokenOut: params.token,
-                    amountOut: amountLeft
+                    amountOut: amountLeft,
+                    slippage: params.slippage
                 });
 
-            uint256 amountIn = _uniswap.requiredAmountIn(amountInParams);
+            uint256 amountInMax = _uniswap.requiredAmountIn(amountInParams);
 
             Params.ExecuteSwap memory executeParams = Params.ExecuteSwap({
                 tokenIn: params.tokenB,
                 tokenOut: params.token,
-                amountIn: amountIn,
-                amountOutMin: amountLeft
+                amountInMax: amountInMax,
+                amountOut: amountLeft
             });
 
             if (params.tokenB != address(0)) {
-                IERC20(params.tokenB).approve(address(_uniswap), amountIn);
+                IERC20(params.tokenB).transferFrom(
+                    msg.sender,
+                    address(this),
+                    amountInMax
+                );
+
+                IERC20(params.tokenB).approve(address(_uniswap), amountInMax);
             }
 
-            _uniswap.execute{value: msg.value}(executeParams);
+            _uniswap.execute{value: amountInMax}(executeParams);
         } else if (params.route == Enums.TransactionRoute.Aave) {
             Params.RequiredSupply memory supplyParams = Params.RequiredSupply({
                 payer: msg.sender,
@@ -109,14 +116,20 @@ abstract contract TransactionRouter {
                 signature: params.signature
             });
 
-            if (params.tokenB != address(0)) {
+            if (params.tokenB != address(0) && requiredSupplyMin > 0) {
+                IERC20(params.tokenB).transferFrom(
+                    msg.sender,
+                    address(this),
+                    requiredSupplyMin
+                );
+
                 IERC20(params.tokenB).approve(
                     address(_aave),
                     requiredSupplyMin
                 );
             }
 
-            _aave.execute{value: msg.value}(executeParams);
+            _aave.execute{value: requiredSupplyMin}(executeParams);
         }
 
         _afterRoute(params.token, params.amount, params.wallet);

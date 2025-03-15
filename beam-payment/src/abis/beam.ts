@@ -116,11 +116,6 @@ export const beamAbi = [
             type: "address",
           },
           {
-            internalType: "bool",
-            name: "mintReceipt",
-            type: "bool",
-          },
-          {
             internalType: "uint256",
             name: "healthFactorMultiplier",
             type: "uint256",
@@ -181,11 +176,6 @@ export const beamAbi = [
             internalType: "address",
             name: "tokenB",
             type: "address",
-          },
-          {
-            internalType: "bool",
-            name: "mintReceipt",
-            type: "bool",
           },
           {
             internalType: "uint256",
@@ -295,6 +285,11 @@ export const beamAbi = [
             name: "transactionId",
             type: "bytes32",
           },
+          {
+            internalType: "string",
+            name: "URI",
+            type: "string",
+          },
         ],
         internalType: "struct Params.MintReceipt",
         name: "params",
@@ -319,6 +314,11 @@ export const beamAbi = [
             internalType: "bytes32",
             name: "transactionId",
             type: "bytes32",
+          },
+          {
+            internalType: "string",
+            name: "URI",
+            type: "string",
           },
         ],
         internalType: "struct Params.MintReceipt",
@@ -381,11 +381,6 @@ export const beamAbi = [
             internalType: "struct Types.Metadata",
             name: "metadata",
             type: "tuple",
-          },
-          {
-            internalType: "bool",
-            name: "mintReceipt",
-            type: "bool",
           },
           {
             internalType: "uint256",
@@ -488,11 +483,6 @@ export const beamAbi = [
             internalType: "struct Types.Metadata",
             name: "metadata",
             type: "tuple",
-          },
-          {
-            internalType: "bool",
-            name: "mintReceipt",
-            type: "bool",
           },
           {
             internalType: "uint256",

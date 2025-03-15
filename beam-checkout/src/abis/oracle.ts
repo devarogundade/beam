@@ -2,11 +2,6 @@ export const oracleAbi = [
   {
     inputs: [
       {
-        internalType: "address",
-        name: "usd",
-        type: "address",
-      },
-      {
         internalType: "contract IChainlink",
         name: "chainlink",
         type: "address",
@@ -25,6 +20,11 @@ export const oracleAbi = [
       {
         internalType: "uint256",
         name: "amountInUsd",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "multiplier",
         type: "uint256",
       },
     ],

@@ -14,25 +14,27 @@ contract UniswapV2 is IUniswap {
         _swapRouter = IUniswapV2Router02(router_);
     }
 
+    receive() external payable {}
+
     function execute(
         Params.ExecuteSwap memory params
     ) external payable override {
         if (params.tokenIn == params.tokenOut) {
             return;
         } else if (params.tokenIn == address(0)) {
-            _swapEthToToken(params.tokenOut, params.amountOutMin);
+            _swapEthToToken(params.tokenOut, params.amountOut);
         } else if (params.tokenOut == address(0)) {
             _swapTokenToEth(
                 params.tokenIn,
-                params.amountIn,
-                params.amountOutMin
+                params.amountInMax,
+                params.amountOut
             );
         } else {
             _swapTokens(
                 params.tokenIn,
                 params.tokenOut,
-                params.amountIn,
-                params.amountOutMin
+                params.amountInMax,
+                params.amountOut
             );
         }
     }
@@ -50,35 +52,40 @@ contract UniswapV2 is IUniswap {
             ? _swapRouter.WETH()
             : params.tokenOut;
 
-        uint256[] memory amounts = _swapRouter.getAmountsOut(amountIn, path);
+        uint256[] memory amounts = _swapRouter.getAmountsIn(
+            params.amountOut,
+            path
+        );
 
-        amountIn = amounts[1];
+        uint256 slippageAmount = (amounts[0] * params.slippage) / 100;
+
+        amountIn = amounts[0] + slippageAmount;
     }
 
     function _swapTokens(
         address tokenIn,
         address tokenOut,
-        uint256 amountIn,
-        uint256 amountOutMin
+        uint256 amountInMax,
+        uint256 amountOut
     ) internal {
-        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
-        IERC20(tokenIn).approve(address(_swapRouter), amountIn);
+        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountInMax);
+        IERC20(tokenIn).approve(address(_swapRouter), amountInMax);
 
         address[] memory path = new address[](2);
 
         path[0] = tokenIn;
         path[1] = tokenOut;
 
-        _swapRouter.swapExactTokensForTokens(
-            amountIn,
-            amountOutMin,
+        _swapRouter.swapTokensForExactTokens(
+            amountOut,
+            amountInMax,
             path,
             msg.sender,
             block.timestamp + 1
         );
     }
 
-    function _swapEthToToken(address tokenOut, uint256 amountOutMin) internal {
+    function _swapEthToToken(address tokenOut, uint256 amountOut) internal {
         require(msg.value > 0, Errors.INVALID_INPUT);
 
         address[] memory path = new address[](2);
@@ -86,8 +93,8 @@ contract UniswapV2 is IUniswap {
         path[0] = _swapRouter.WETH();
         path[1] = tokenOut;
 
-        _swapRouter.swapExactETHForTokens{value: msg.value}(
-            amountOutMin,
+        _swapRouter.swapETHForExactTokens{value: msg.value}(
+            amountOut,
             path,
             msg.sender,
             block.timestamp + 1
@@ -96,20 +103,20 @@ contract UniswapV2 is IUniswap {
 
     function _swapTokenToEth(
         address tokenIn,
-        uint256 amountIn,
-        uint256 amountOutMin
+        uint256 amountInMax,
+        uint256 amountOut
     ) internal {
-        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
-        IERC20(tokenIn).approve(address(_swapRouter), amountIn);
+        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountInMax);
+        IERC20(tokenIn).approve(address(_swapRouter), amountInMax);
 
         address[] memory path = new address[](2);
 
         path[0] = tokenIn;
         path[1] = _swapRouter.WETH();
 
-        _swapRouter.swapExactTokensForETH(
-            amountIn,
-            amountOutMin,
+        _swapRouter.swapTokensForExactETH(
+            amountOut,
+            amountInMax,
             path,
             msg.sender,
             block.timestamp + 1

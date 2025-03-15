@@ -1,5 +1,10 @@
 import { Hex } from "viem";
-import { Network, TransactionStatus, TransactionType } from "./enums";
+import {
+  Network,
+  TransactionRoute,
+  TransactionStatus,
+  TransactionType,
+} from "./enums";
 
 export type Token = {
   name: string;
@@ -8,6 +13,7 @@ export type Token = {
   image: string;
   decimals: number;
   aToken: Hex;
+  price: number;
 };
 
 export type Metadata = {
@@ -17,6 +23,7 @@ export type Metadata = {
 
 export type TransactionCallback = Transaction & {
   session: string;
+  route: TransactionRoute;
 };
 
 export type GetSubscription = {
@@ -31,6 +38,10 @@ export type GetSubscriptions = {
 
 export type GetPayment = {
   transactionId: Hex;
+};
+
+export type GetPaymentHash = {
+  transactionHash: Hex;
 };
 
 export type GetTransactions = {

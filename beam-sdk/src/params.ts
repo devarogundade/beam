@@ -1,5 +1,36 @@
 import type { Hex } from "viem";
 import type { Metadata } from "./types";
+import { TransactionRoute } from "./enums";
+
+export type PrepareOneTimeTransaction = {
+  payers: Hex[];
+  merchant: Hex;
+  amounts: bigint[];
+  token: Hex;
+  description: string;
+  metadata: Metadata;
+};
+
+export type PrepareFulfillOneTimeTransaction = {
+  transactionId: Hex;
+};
+
+export type PrepareRecurrentTransaction = {
+  merchant: Hex;
+  subscriptionId: Hex;
+  description: string;
+  metadata: Metadata;
+};
+
+export type PrepareFulfillRecurrentTransaction = {
+  transactionId: Hex;
+  subscriptionId: Hex;
+};
+
+export type PrepareCancelRecurrentTransaction = {
+  transactionId: Hex;
+  subscriptionId: Hex;
+};
 
 export type CreateOneTimeTransaction = {
   payers: Hex[];
@@ -9,7 +40,7 @@ export type CreateOneTimeTransaction = {
   tokenB: Hex;
   description: string;
   metadata: Metadata;
-  mintReceipt: boolean;
+  slippage: bigint;
   healthFactorMultiplier: bigint;
   route: TransactionRoute;
   signature: Signature;
@@ -18,7 +49,6 @@ export type CreateOneTimeTransaction = {
 export type FulfillOneTimeTransaction = {
   transactionId: Hex;
   tokenB: Hex;
-  mintReceipt: boolean;
   healthFactorMultiplier: bigint;
   route: TransactionRoute;
   signature: Signature;
@@ -30,7 +60,7 @@ export type CreateRecurrentTransaction = {
   subscriptionId: Hex;
   description: string;
   metadata: Metadata;
-  mintReceipt: boolean;
+  slippage: bigint;
   healthFactorMultiplier: bigint;
   route: TransactionRoute;
   signature: Signature;
@@ -39,7 +69,7 @@ export type CreateRecurrentTransaction = {
 export type FulfillRecurrentTransaction = {
   transactionId: Hex;
   tokenB: Hex;
-  mintReceipt: boolean;
+  slippage: bigint;
   healthFactorMultiplier: bigint;
   route: TransactionRoute;
   signature: Signature;
@@ -48,12 +78,6 @@ export type FulfillRecurrentTransaction = {
 export type CancelRecurrentTransaction = {
   transactionId: Hex;
 };
-
-export enum TransactionRoute {
-  None,
-  Uniswap,
-  Aave,
-}
 
 export type Signature = {
   deadline: number;
@@ -76,4 +100,5 @@ export type RequiredAmountIn = {
   tokenIn: Hex;
   tokenOut: Hex;
   amountOut: bigint;
+  slippage: bigint;
 };

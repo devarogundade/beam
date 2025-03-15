@@ -2,16 +2,16 @@
 import { BeamContract } from '@/scripts/contract';
 import { useDataStore } from '@/stores/data';
 import { useWalletStore } from '@/stores/wallet';
-import { formatEther, formatUnits, parseUnits, zeroAddress, zeroHash, type Hex } from 'viem';
+import { formatEther, formatUnits, parseUnits, zeroAddress, type Hex } from 'viem';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import BeamSDK from "../../../beam-sdk/src/index";
-import { Network, TransactionType } from '../../../beam-sdk/src/enums';
+import { Network, TransactionType, TransactionRoute } from '../../../beam-sdk/src/enums';
 import type { Token, Transaction, TransactionCallback } from '../../../beam-sdk/src/types';
 import { getToken, sleep } from '../../../beam-sdk/src/utils/constants';
 import { TokenContract } from '@/scripts/erc20';
 import Converter from '@/scripts/converter';
-import { TransactionRoute } from '../../../beam-sdk/src/params';
+import { emptySignature } from '../../../beam-sdk/src/utils/helpers';
 
 const router = useRouter();
 
@@ -37,7 +37,6 @@ const onTypeChanged = (e: any) => {
 
 const getAmount = () => {
     if (!dataStore.data) return;
-    if (!walletStore.address) return;
 
     const index = dataStore.data.payers.length <= 1 ? 0 : dataStore.data.payers.findIndex(p =>
         p.toLowerCase() == walletStore.address?.toLowerCase()
@@ -142,6 +141,7 @@ const proceed = async () => {
 
 const makePayment = async () => {
     if (paying.value) return;
+    if (!dataStore.initiator) return;
     if (!dataStore.data) return;
     if (!walletStore.address) return;
     if (!token.value) return;
@@ -153,18 +153,25 @@ const makePayment = async () => {
 
     paying.value = true;
 
-    let txHash: Hex | null = null;
+    let transactionHash: Hex | null = null;
 
     if (dataStore.data.type == TransactionType.OneTime) {
-        txHash = await BeamContract.oneTimeTransaction(
+
+        const amounts = dataStore.data.amounts.map((amount) => {
+            const value = formatEther(amount);
+            const decimals = token.value?.decimals || 18;
+            return parseUnits(value, decimals);
+        });
+
+        const index = dataStore.data.payers.length <= 1 ? 0 : dataStore.data.payers.findIndex(p =>
+            p.toLowerCase() == walletStore.address?.toLowerCase()
+        );
+
+        transactionHash = await BeamContract.oneTimeTransaction(
             {
                 payers: [walletStore.address],
                 merchant: dataStore.data.merchant,
-                amounts: dataStore.data.amounts.map((amount) => {
-                    const value = formatEther(amount);
-                    const decimals = token.value?.decimals || 18;
-                    return parseUnits(value, decimals);
-                }),
+                amounts: amounts,
                 token: token.value.address,
                 tokenB: zeroAddress,
                 description: dataStore.data.description ? dataStore.data.description : '',
@@ -172,19 +179,21 @@ const makePayment = async () => {
                     schemaVersion: 1,
                     value: JSON.stringify(dataStore.data.metadata)
                 },
-                mintReceipt: false,
+                slippage: BigInt(0),
                 healthFactorMultiplier: BigInt(0),
                 route: TransactionRoute.None,
-                signature: {
-                    deadline: 0,
-                    v: BigInt(0),
-                    r: zeroHash,
-                    s: zeroHash
-                }
-            }
+                signature: emptySignature
+            },
+            token.value.address == zeroAddress ? amounts[index] : BigInt(0)
         );
     } else if (dataStore.data.subscriptionId) {
-        txHash = await BeamContract.recurrentTransaction(
+        const subscription = await beamSdk.recurrentTransaction.getSubscription({
+            subscriptionId: dataStore.data.subscriptionId
+        });
+
+        if (!subscription || subscription.trashed) return;
+
+        transactionHash = await BeamContract.recurrentTransaction(
             {
                 merchant: dataStore.data.merchant,
                 tokenB: zeroAddress,
@@ -194,38 +203,36 @@ const makePayment = async () => {
                     schemaVersion: 1,
                     value: JSON.stringify(dataStore.data.metadata)
                 },
-                mintReceipt: false,
+                slippage: BigInt(0),
                 healthFactorMultiplier: BigInt(0),
                 route: TransactionRoute.None,
-                signature: {
-                    deadline: 0,
-                    v: BigInt(0),
-                    r: zeroHash,
-                    s: zeroHash
-                }
-            }
+                signature: emptySignature
+            },
+            token.value.address == zeroAddress ? subscription.amount : BigInt(0)
         );
     } else { }
 
-    if (txHash) {
+    if (transactionHash) {
         let tries: number = 0;
         let trxs: Transaction[] = [];
 
-        do {
+        while (trxs.length == 0 && tries < 5) {
             trxs = await beamSdk.oneTimeTransaction.getTransactionsFromHash({
-                transactionId: txHash
+                transactionHash
             });
 
             tries += 1;
 
-            await sleep(1_000);
-        } while (trxs.length == 0 && tries < 5);
+            await sleep(2_000);
+        }
 
         const result: TransactionCallback = {
-            session, ...trxs[0]
+            session,
+            route: TransactionRoute.None,
+            ...trxs[0]
         };
 
-        window.opener.postMessage(result);
+        window.opener.postMessage(result, dataStore.initiator.url);
     } else { };
 
     paying.value = false;

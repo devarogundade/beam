@@ -28,7 +28,7 @@ library Params {
         address tokenB;
         string description;
         Types.Metadata metadata;
-        bool mintReceipt;
+        uint256 slippage;
         uint256 healthFactorMultiplier;
         Enums.TransactionRoute route;
         Signature signature;
@@ -37,7 +37,7 @@ library Params {
     struct FulfillOneTimeTransaction {
         bytes32 transactionId;
         address tokenB;
-        bool mintReceipt;
+        uint256 slippage;
         uint256 healthFactorMultiplier;
         Enums.TransactionRoute route;
         Signature signature;
@@ -69,7 +69,7 @@ library Params {
         bytes32 subscriptionId;
         string description;
         Types.Metadata metadata;
-        bool mintReceipt;
+        uint256 slippage;
         uint256 healthFactorMultiplier;
         Enums.TransactionRoute route;
         Signature signature;
@@ -78,7 +78,7 @@ library Params {
     struct FulfillRecurrentTransaction {
         bytes32 transactionId;
         address tokenB;
-        bool mintReceipt;
+        uint256 slippage;
         uint256 healthFactorMultiplier;
         Enums.TransactionRoute route;
         Signature signature;
@@ -91,14 +91,15 @@ library Params {
     struct ExecuteSwap {
         address tokenIn;
         address tokenOut;
-        uint256 amountIn;
-        uint256 amountOutMin;
+        uint256 amountInMax;
+        uint256 amountOut;
     }
 
     struct RequiredAmountIn {
         address tokenIn;
         address tokenOut;
         uint256 amountOut;
+        uint256 slippage;
     }
 
     struct ExecuteLoan {
@@ -118,11 +119,12 @@ library Params {
         uint256 healthFactorMultiplier;
     }
 
-    struct RoutePayment {
+    struct RouteTransaction {
         address token;
         address tokenB;
         uint256 amount;
         address wallet;
+        uint256 slippage;
         uint256 healthFactorMultiplier;
         Enums.TransactionRoute route;
         Signature signature;
@@ -131,6 +133,7 @@ library Params {
     struct MintReceipt {
         address to;
         bytes32 transactionId;
+        string URI;
     }
 
     struct Signature {

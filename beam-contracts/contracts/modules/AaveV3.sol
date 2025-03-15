@@ -20,11 +20,14 @@ contract AaveV3 is IAaveV3 {
     address internal _poolAddressesProvider;
 
     address internal constant WETH = 0xb123dCe044EdF0a755505d9623Fba16C0F41cae9;
+    uint256 internal constant MULTIPLIER = 100;
 
     constructor(address wethGateway_, address poolAddressesProvider_) {
         _wethGateway = wethGateway_;
         _poolAddressesProvider = poolAddressesProvider_;
     }
+
+    receive() external payable {}
 
     function execute(
         Params.ExecuteLoan memory params
@@ -100,6 +103,36 @@ contract AaveV3 is IAaveV3 {
         }
     }
 
+    function getHealthFactor(
+        address payer
+    ) public view override returns (uint256 hf) {
+        IPoolAddressesProvider provider = IPoolAddressesProvider(
+            _poolAddressesProvider
+        );
+
+        IPool pool = IPool(provider.getPool());
+
+        (, , , , , uint256 healthFactor) = pool.getUserAccountData(payer);
+
+        hf = healthFactor;
+    }
+
+    function getCurrentLiquidityRate(
+        address supplyAsset
+    ) public view override returns (uint256 rate) {
+        IPoolAddressesProvider provider = IPoolAddressesProvider(
+            _poolAddressesProvider
+        );
+
+        IPool pool = IPool(provider.getPool());
+
+        DataTypes.ReserveData memory reserveData = pool.getReserveData(
+            supplyAsset
+        );
+
+        rate = reserveData.currentLiquidityRate;
+    }
+
     function getVariableDebtTokenAddresses(
         address asset
     ) public view override returns (address variableDebtToken) {
@@ -132,7 +165,10 @@ contract AaveV3 is IAaveV3 {
             .getUserAccountData(params.payer);
 
         require(healthFactor > 0, Errors.LOAN_REJECTION);
-        require(params.healthFactorMultiplier > 100, Errors.LOAN_REJECTION);
+        require(
+            params.healthFactorMultiplier > MULTIPLIER,
+            Errors.LOAN_REJECTION
+        );
 
         uint256 borrowAssetPriceInETH = priceOracle.getAssetPrice(
             params.borrowAsset
@@ -147,7 +183,7 @@ contract AaveV3 is IAaveV3 {
 
         uint256 ltv = ReserveConfiguration.getLtv(reserveData.configuration);
 
-        uint256 ltvPercentage = ltv / 100;
+        uint256 ltvPercentage = ltv / MULTIPLIER;
 
         uint8 borrowDecimals = IERC20Metadata(params.borrowAsset).decimals();
 
@@ -159,7 +195,7 @@ contract AaveV3 is IAaveV3 {
         }
 
         uint256 additionalCollateralETH = ((borrowAmountInETH -
-            availableBorrowsBase) * 100) / ltvPercentage;
+            availableBorrowsBase) * MULTIPLIER) / ltvPercentage;
 
         uint8 supplyDecimals = IERC20Metadata(params.supplyAsset).decimals();
 
@@ -169,6 +205,6 @@ contract AaveV3 is IAaveV3 {
 
         additionalCollateral =
             (additionalCollateral * params.healthFactorMultiplier) /
-            100;
+            MULTIPLIER;
     }
 }

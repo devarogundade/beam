@@ -8,14 +8,14 @@ import type { TransactionCallback, Token, Transaction } from '../../../beam-sdk/
 import { getToken, getTokens, sleep } from '../../../beam-sdk/src/utils/constants';
 import { useWalletStore } from '@/stores/wallet';
 import { TokenContract } from '@/scripts/erc20';
-import { formatEther, formatUnits, parseUnits, zeroAddress, zeroHash, type Hex } from 'viem';
+import { formatEther, formatUnits, parseUnits, zeroAddress, type Hex } from 'viem';
 import { BeamContract, UniswapContract } from '@/scripts/contract';
-import { Network, TransactionType } from '../../../beam-sdk/src/enums';
+import { Network, TransactionRoute, TransactionType } from '../../../beam-sdk/src/enums';
 import BeamSDK from '../../../beam-sdk/src';
-import { TransactionRoute } from '../../../beam-sdk/src/params';
 import Converter from '@/scripts/converter';
 import ChooseAsset from '@/components/ChooseAsset.vue';
 import { useRouter } from 'vue-router';
+import { emptySignature } from '../../../beam-sdk/src/utils/helpers';
 
 const dataStore = useDataStore();
 const walletStore = useWalletStore();
@@ -32,6 +32,7 @@ const initiator = ref<string | null>(null);
 const chooseToken = ref<boolean>(false);
 const approving = ref<boolean>(false);
 const paying = ref<boolean>(false);
+const slippage = ref<number>(2);
 const amount = ref<number>(0);
 const amountB = ref<number>(0);
 const balance = ref<number>(0);
@@ -43,11 +44,11 @@ const token = ref<Token | undefined>(getToken(dataStore.data?.token));
 
 const setTokenB = (token: Token) => {
     tokenB.value = token;
+    chooseToken.value = false;
 };
 
 const getAmount = () => {
     if (!dataStore.data) return;
-    if (!walletStore.address) return;
 
     const index = dataStore.data.payers.length <= 1
         ? 0
@@ -70,14 +71,14 @@ const getAmountB = async () => {
     if (!walletStore.address) return;
     if (!token.value) return;
 
-    amountB.value = 0;
-
     const decimals = token.value?.decimals || 18;
+    const amountLeft = (amount.value - balance.value);
 
     const resultB = await UniswapContract.requiredAmountIn({
         tokenIn: tokenB.value.address,
         tokenOut: token.value.address,
-        amountOut: parseUnits(amount.value.toString(), decimals)
+        amountOut: parseUnits(amountLeft.toString(), decimals),
+        slippage: BigInt(slippage.value)
     });
 
     const decimalsB = tokenB.value?.decimals || 18;
@@ -90,8 +91,6 @@ const getBalance = async () => {
     if (!token.value) return;
     if (!walletStore.address) return;
 
-    balance.value = 0;
-
     const result = await TokenContract.getTokenBalance(
         token.value.address,
         walletStore.address
@@ -100,6 +99,10 @@ const getBalance = async () => {
     const decimals = token.value?.decimals || 18;
 
     balance.value = Number(formatUnits(result, decimals));
+
+    if (amount.value <= balance.value) {
+        router.push(`/?session=${session.value}&initiator=${initiator.value}`);
+    }
 };
 
 const getBalanceB = async () => {
@@ -107,14 +110,12 @@ const getBalanceB = async () => {
     if (!tokenB.value) return;
     if (!walletStore.address) return;
 
-    balanceB.value = 0;
-
     const resultB = await TokenContract.getTokenBalance(
         tokenB.value.address,
         walletStore.address
     );
 
-    const decimalsB = token.value?.decimals || 18;
+    const decimalsB = tokenB.value?.decimals || 18;
 
     balanceB.value = Number(formatUnits(resultB, decimalsB));
 };
@@ -146,13 +147,13 @@ const getAllowanceB = async () => {
     if (!dataStore.data) return;
 
     if (tokenB.value.address == zeroAddress) {
-        allowance.value = Number.MAX_VALUE;
+        allowanceB.value = Number.MAX_VALUE;
         return;
     }
 
     if (!walletStore.address) return;
 
-    const result = await TokenContract.getAllowance(
+    const resultB = await TokenContract.getAllowance(
         tokenB.value.address,
         walletStore.address,
         BeamContract.address
@@ -160,7 +161,7 @@ const getAllowanceB = async () => {
 
     const decimalsB = tokenB.value?.decimals || 18;
 
-    allowanceB.value = Number(formatUnits(result, decimalsB));
+    allowanceB.value = Number(formatUnits(resultB, decimalsB));
 };
 
 const approve = async () => {
@@ -178,7 +179,7 @@ const approve = async () => {
     const txHash = await TokenContract.approve(
         token.value.address,
         BeamContract.address,
-        parseUnits(amount.value.toString(), decimals)
+        parseUnits(balance.value.toString(), decimals)
     );
 
     if (txHash) {
@@ -228,18 +229,41 @@ const makePayment = async () => {
 
     paying.value = true;
 
-    let txHash: Hex | null = null;
+    let transactionHash: Hex | null = null;
+
+    const amounts = dataStore.data.amounts.map((amount) => {
+        const value = formatEther(amount);
+        const decimals = token.value?.decimals || 18;
+        return parseUnits(value, decimals);
+    });
+
+    const index = dataStore.data.payers.length <= 1 ? 0 : dataStore.data.payers.findIndex(p =>
+        p.toLowerCase() == walletStore.address?.toLowerCase()
+    );
+
+    console.log({
+        payers: [walletStore.address],
+        merchant: dataStore.data.merchant,
+        amounts: amounts,
+        token: token.value.address,
+        tokenB: tokenB.value.address,
+        description: dataStore.data.description ? dataStore.data.description : '',
+        metadata: {
+            schemaVersion: 1,
+            value: JSON.stringify(dataStore.data.metadata)
+        },
+        healthFactorMultiplier: BigInt(0),
+        route: TransactionRoute.Uniswap,
+        signature: emptySignature
+    });
+
 
     if (dataStore.data.type == TransactionType.OneTime) {
-        txHash = await BeamContract.oneTimeTransaction(
+        transactionHash = await BeamContract.oneTimeTransaction(
             {
                 payers: [walletStore.address],
                 merchant: dataStore.data.merchant,
-                amounts: dataStore.data.amounts.map((amount) => {
-                    const value = formatEther(amount);
-                    const decimals = token.value?.decimals || 18;
-                    return parseUnits(value, decimals);
-                }),
+                amounts: amounts,
                 token: token.value.address,
                 tokenB: tokenB.value.address,
                 description: dataStore.data.description ? dataStore.data.description : '',
@@ -247,19 +271,21 @@ const makePayment = async () => {
                     schemaVersion: 1,
                     value: JSON.stringify(dataStore.data.metadata)
                 },
-                mintReceipt: false,
+                slippage: BigInt(slippage.value),
                 healthFactorMultiplier: BigInt(0),
                 route: TransactionRoute.Uniswap,
-                signature: {
-                    deadline: 0,
-                    v: BigInt(0),
-                    r: zeroHash,
-                    s: zeroHash
-                }
-            }
+                signature: emptySignature
+            },
+            token.value.address == zeroAddress ? amounts[index] : BigInt(0)
         );
     } else if (dataStore.data.subscriptionId) {
-        txHash = await BeamContract.recurrentTransaction(
+        const subscription = await beamSdk.recurrentTransaction.getSubscription({
+            subscriptionId: dataStore.data.subscriptionId
+        });
+
+        if (!subscription || subscription.trashed) return;
+
+        transactionHash = await BeamContract.recurrentTransaction(
             {
                 merchant: dataStore.data.merchant,
                 tokenB: tokenB.value.address,
@@ -269,35 +295,33 @@ const makePayment = async () => {
                     schemaVersion: 1,
                     value: JSON.stringify(dataStore.data.metadata)
                 },
-                mintReceipt: false,
+                slippage: BigInt(slippage.value),
                 healthFactorMultiplier: BigInt(0),
                 route: TransactionRoute.Uniswap,
-                signature: {
-                    deadline: 0,
-                    v: BigInt(0),
-                    r: zeroHash,
-                    s: zeroHash
-                }
-            }
+                signature: emptySignature
+            },
+            token.value.address == zeroAddress ? subscription.amount : BigInt(0)
         );
     } else { }
 
-    if (txHash) {
+    if (transactionHash) {
         let tries: number = 0;
         let trxs: Transaction[] = [];
 
-        do {
+        while (trxs.length == 0 && tries < 5) {
             trxs = await beamSdk.oneTimeTransaction.getTransactionsFromHash({
-                transactionId: txHash
+                transactionHash
             });
 
             tries += 1;
 
-            await sleep(1_000);
-        } while (trxs.length == 0 && tries < 5);
+            await sleep(2_000);
+        }
 
         const result: TransactionCallback = {
-            session, ...trxs[0]
+            session,
+            route: TransactionRoute.Uniswap,
+            ...trxs[0]
         };
 
         window.opener.postMessage(result);
@@ -317,10 +341,16 @@ watch(dataStore, () => {
 
     const otherTokens = getTokens.filter(t => t.address != dataStore.data?.token);
     tokenB.value = otherTokens.length > 0 ? otherTokens[0] : null;
+}, { deep: true });
 
-    if (amount <= balance) {
-        router.push(`/?session=${session}&initiator=${initiator}`);
-    }
+watch(slippage, () => {
+    getAmountB();
+}, { deep: true });
+
+watch(tokenB, () => {
+    getAmountB();
+    getBalanceB();
+    getAllowanceB();
 }, { deep: true });
 
 watch(walletStore, () => {
@@ -330,10 +360,6 @@ watch(walletStore, () => {
     getBalanceB();
     getAllowance();
     getAllowanceB();
-
-    if (amount <= balance) {
-        router.push(`/?session=${session}&initiator=${initiator}`);
-    }
 }, { deep: true });
 
 onMounted(() => {
@@ -344,6 +370,16 @@ onMounted(() => {
     initiator.value = params.get("initiator");
 
     token.value = getToken(dataStore.data.token);
+
+    getAmount();
+    getAmountB();
+    getBalance();
+    getBalanceB();
+    getAllowance();
+    getAllowanceB();
+
+    const otherTokens = getTokens.filter(t => t.address != dataStore.data?.token);
+    tokenB.value = otherTokens.length > 0 ? otherTokens[0] : null;
 });
 </script>
 
@@ -368,7 +404,7 @@ onMounted(() => {
                                 <p>Bal:
                                     <span>
                                         {{ Converter.toMoney(balanceB) }}
-                                        {{ token?.symbol }}
+                                        {{ tokenB?.symbol }}
                                     </span>
                                 </p>
                             </div>
@@ -404,13 +440,29 @@ onMounted(() => {
                             </div>
 
                             <div class="input">
-                                <input type="text" :value="amount - balance">
+                                <input type="text" :value="amount">
                                 <div class="tokens">
                                     <div class="token" v-if="token">
                                         <img :src="token.image" alt="">
                                         <p>{{ token.symbol }}</p>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div class="slippage">
+                            <div class="label">
+                                <p>Slippage</p>
+                                <div class="slippage_input">
+                                    <input type="number" v-model="slippage">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="fee">
+                            <div class="label">
+                                <p>Fee</p>
+                                <span>0.00 {{ tokenB?.symbol }}</span>
                             </div>
                         </div>
                     </div>
@@ -424,7 +476,7 @@ onMounted(() => {
                                 token?.symbol
                             }}
                         </button>
-                        <button v-if="allowanceB < amountB" @click="approveB">
+                        <button v-else-if="allowanceB < amountB" @click="approveB">
                             {{ approving ? 'Approving' : 'Approve ' +
                                 tokenB?.symbol
                             }}
@@ -437,7 +489,7 @@ onMounted(() => {
             </div>
         </div>
 
-        <ChooseAsset v-if="chooseToken" @close="chooseToken = false" @changed="setTokenB" />
+        <ChooseAsset v-if="chooseToken" @close="chooseToken = false" @change="setTokenB" />
     </section>
 </template>
 
@@ -534,6 +586,39 @@ label {
 
 .tokens {
     border-left: 1px solid var(--bg-lightest);
+}
+
+.slippage {
+    margin-top: 20px;
+    padding: 20px 0;
+    border-top: 1px solid var(--bg-lightest);
+}
+
+.slippage_input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.slippage_input input {
+    height: 40px;
+    border-radius: 6px;
+    text-align: center;
+    width: 60px;
+    padding: 0 16px;
+    background: none;
+    outline: none;
+    border: none;
+    font-size: 16px;
+    color: var(--tx-normal);
+    border: 1px solid var(--bg-lightest);
+    background: none;
+    outline: none;
+}
+
+.fee {
+    padding: 20px 0;
+    border-top: 1px solid var(--bg-lightest);
 }
 
 .input .token {

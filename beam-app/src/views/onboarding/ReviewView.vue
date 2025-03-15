@@ -3,13 +3,13 @@ import CheckIcon from '@/components/icons/CheckIcon.vue';
 import ChevronLeftIcon from '@/components/icons/ChevronLeftIcon.vue';
 import OutIcon from '@/components/icons/OutIcon.vue';
 import UsersIcon from '@/components/icons/UsersIcon.vue';
-import { getTokens } from '@/scripts/constants';
 import { MerchantContract } from '@/scripts/contract';
 import Converter from '@/scripts/converter';
 import Storage from '@/scripts/storage';
 import { useWalletStore } from '@/stores/wallet';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { getTokens } from '../../../../beam-sdk/src/utils/constants';
 
 const router = useRouter();
 const walletStore = useWalletStore();
@@ -35,10 +35,10 @@ const create = async () => {
         imageURL: imageURL.value
     };
 
-    walletStore.merchant = {
+    walletStore.setMerchant({
         ...walletStore.merchant,
         metadata_value: JSON.stringify(metadata_value)
-    };
+    });
 
     const txHash = await MerchantContract.create({
         metadata: {
@@ -125,7 +125,7 @@ onMounted(() => {
                             <div>
                                 <UsersIcon />
                                 <p>{{ walletStore.merchant.minSigners }} <span>of {{ walletStore.merchant.signers.length
-                                        }}</span></p>
+                                }}</span></p>
                             </div>
                         </div>
                     </div>

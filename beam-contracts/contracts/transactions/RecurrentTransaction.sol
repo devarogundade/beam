@@ -54,8 +54,7 @@ contract RecurrentTransaction is IRecurrentTransaction, Ownable {
 
     function onFulfill(
         bytes32 transactionId,
-        address payer,
-        bool wantsReceipt
+        address payer
     )
         external
         override
@@ -90,15 +89,6 @@ contract RecurrentTransaction is IRecurrentTransaction, Ownable {
 
         amount = subscription.amount;
         token = subscription.token;
-
-        if (wantsReceipt) {
-            Params.MintReceipt memory mintParams = Params.MintReceipt({
-                to: payer,
-                transactionId: transactionId
-            });
-
-            _receipt.mint(mintParams);
-        }
     }
 
     function onComplete(

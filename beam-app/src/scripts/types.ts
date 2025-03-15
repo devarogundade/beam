@@ -1,17 +1,5 @@
 import type { Hex } from "viem";
 
-export enum TransactionType {
-  OneTime = 0,
-  Recurrent = 1,
-}
-
-export enum TransactionStatus {
-  Pending = 0,
-  Active = 1,
-  Completed = 2,
-  Cancelled = 3,
-}
-
 export enum Connection {
   Wallet,
   Guest,
@@ -95,4 +83,12 @@ export type CreateSale = {
   token: Hex;
   amountInUsd: number;
   quantity: number;
+};
+
+export type Chat = {
+  _id: string;
+  from: Hex;
+  to: Hex;
+  text?: string;
+  createdAt: Date;
 };

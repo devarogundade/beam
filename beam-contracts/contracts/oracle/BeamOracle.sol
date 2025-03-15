@@ -5,13 +5,9 @@ import {IOracle} from "../interfaces/IOracle.sol";
 import {IChainlink} from "../interfaces/IChainlink.sol";
 
 contract BeamOracle is IOracle {
-    address internal immutable _usd;
     IChainlink internal immutable _chainlink;
 
-    uint16 internal K = 1_000;
-
-    constructor(address usd, IChainlink chainlink) {
-        _usd = usd;
+    constructor(IChainlink chainlink) {
         _chainlink = chainlink;
     }
 
@@ -25,9 +21,10 @@ contract BeamOracle is IOracle {
 
     function getAmountFromUsd(
         address token,
-        uint256 amountInUsd
+        uint256 amountInUsd,
+        uint256 multiplier
     ) external view returns (uint256 amountOut) {
         (uint256 price, ) = _chainlink.getPrice(token);
-        amountOut = (amountInUsd * K) / price;
+        amountOut = (amountInUsd * multiplier) / price;
     }
 }

@@ -37,7 +37,7 @@ const next = () => {
 
     walletStore.setImage(image.value);
 
-    walletStore.merchant = {
+    walletStore.setMerchant({
         id: zeroAddress,
         merchant: walletStore.address,
         metadata_schemaVersion: 1,
@@ -52,13 +52,15 @@ const next = () => {
         blockNumber: 0,
         blockTimestamp: 0,
         transactionHash: zeroAddress
-    };
+    });
 
     router.push('/onboarding/multisig');
 };
 
 onMounted(() => {
     if (!walletStore.address) router.push('/onboarding');
+
+    console.log('merchant', walletStore.merchant);
 
     if (walletStore.merchant) {
         name.value = JSON.parse(walletStore.merchant.metadata_value)?.name;

@@ -313,43 +313,6 @@ export const eventsAbi = [
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: 'address',
-        name: 'merchant',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'token',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'payer',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        indexed: false,
-        internalType: 'bytes32',
-        name: 'transactionId',
-        type: 'bytes32',
-      },
-    ],
-    name: 'TransactionReceived',
-    type: 'event',
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
         indexed: false,
         internalType: 'bytes32',
         name: 'transactionId',
@@ -603,6 +566,50 @@ export const eventsAbi = [
       },
       {
         indexed: false,
+        internalType: 'address[]',
+        name: 'signers',
+        type: 'address[]',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'minSigners',
+        type: 'uint256',
+      },
+    ],
+    name: 'SignersUpdated',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'bytes32',
+        name: 'subsciptionId',
+        type: 'bytes32',
+      },
+    ],
+    name: 'SubsciptionDeleted',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'bytes32',
+        name: 'subsciptionId',
+        type: 'bytes32',
+      },
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'merchant',
+        type: 'address',
+      },
+      {
+        indexed: false,
         internalType: 'uint256',
         name: 'interval',
         type: 'uint256',
@@ -627,6 +634,99 @@ export const eventsAbi = [
       },
     ],
     name: 'SubscriptionCreated',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'bytes32',
+        name: 'subsciptionId',
+        type: 'bytes32',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'gracePeriod',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'string',
+        name: 'description',
+        type: 'string',
+      },
+      {
+        indexed: false,
+        internalType: 'bool',
+        name: 'active',
+        type: 'bool',
+      },
+    ],
+    name: 'SubscriptionUpdated',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'merchant',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address[]',
+        name: 'tokens',
+        type: 'address[]',
+      },
+    ],
+    name: 'TokensUpdated',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'merchant',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'payer',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'bytes32',
+        name: 'transactionId',
+        type: 'bytes32',
+      },
+    ],
+    name: 'TransactionReceived',
     type: 'event',
   },
   {
@@ -838,6 +938,19 @@ export const eventsAbi = [
       },
     ],
     name: 'grantRole',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'wallet',
+        type: 'address',
+      },
+    ],
+    name: 'grantWalletRole',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -1361,6 +1474,34 @@ export const eventsAbi = [
         type: 'address',
       },
       {
+        internalType: 'address[]',
+        name: 'signers',
+        type: 'address[]',
+      },
+      {
+        internalType: 'uint256',
+        name: 'minSigners',
+        type: 'uint256',
+      },
+    ],
+    name: 'signersUpdated',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'subsciptionId',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'address',
+        name: 'merchant',
+        type: 'address',
+      },
+      {
         internalType: 'uint256',
         name: 'interval',
         type: 'uint256',
@@ -1389,6 +1530,52 @@ export const eventsAbi = [
   {
     inputs: [
       {
+        internalType: 'bytes32',
+        name: 'subsciptionId',
+        type: 'bytes32',
+      },
+    ],
+    name: 'subscriptionDeleted',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'subsciptionId',
+        type: 'bytes32',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'gracePeriod',
+        type: 'uint256',
+      },
+      {
+        internalType: 'string',
+        name: 'description',
+        type: 'string',
+      },
+      {
+        internalType: 'bool',
+        name: 'active',
+        type: 'bool',
+      },
+    ],
+    name: 'subscriptionUpdated',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'bytes4',
         name: 'interfaceId',
         type: 'bytes4',
@@ -1403,6 +1590,24 @@ export const eventsAbi = [
       },
     ],
     stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'merchant',
+        type: 'address',
+      },
+      {
+        internalType: 'address[]',
+        name: 'tokens',
+        type: 'address[]',
+      },
+    ],
+    name: 'tokensUpdated',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {

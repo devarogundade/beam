@@ -1,4 +1,8 @@
 /* eslint-disable prettier/prettier */
+import type {
+  TransactionStatus,
+  TransactionType,
+} from '../../beam-sdk/src/enums';
 
 import { ObjectId } from 'mongoose';
 import { Hex } from 'viem';
@@ -51,11 +55,12 @@ export type UpdateProduct = {
 };
 
 export type CreateSale = {
+  transactionId: Hex;
   merchant: Hex;
   buyer: Hex;
   product: ObjectId;
-  type: string;
-  status: string;
+  type: TransactionType;
+  status: TransactionStatus;
   amount: number;
   token: Hex;
   amountInUsd: number;

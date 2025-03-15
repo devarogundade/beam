@@ -24,13 +24,16 @@ import SettingsIcon from './icons/SettingsIcon.vue';
 </template>
 
 <style scoped>
-header {
+section {
     top: 0;
     position: sticky;
-    z-index: 99;
     background: var(--bg);
-    height: 90px;
+    z-index: 99;
+}
+
+header {
     display: flex;
+    height: 90px;
     align-items: center;
     margin: 0 50px;
     justify-content: space-between;

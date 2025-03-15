@@ -19,25 +19,27 @@ contract UniswapV3 is IUniswap {
         _quoter = IQuoter(quoter_);
     }
 
+    receive() external payable {}
+
     function execute(
         Params.ExecuteSwap memory params
     ) external payable override {
         if (params.tokenIn == params.tokenOut) {
             return;
         } else if (params.tokenIn == address(0)) {
-            _swapEthToToken(params.tokenOut, params.amountOutMin);
+            _swapEthToToken(params.tokenOut, params.amountOut);
         } else if (params.tokenOut == address(0)) {
             _swapTokenToEth(
                 params.tokenIn,
-                params.amountIn,
-                params.amountOutMin
+                params.amountInMax,
+                params.amountOut
             );
         } else {
             _swapTokens(
                 params.tokenIn,
                 params.tokenOut,
-                params.amountIn,
-                params.amountOutMin
+                params.amountInMax,
+                params.amountOut
             );
         }
     }
@@ -60,70 +62,74 @@ contract UniswapV3 is IUniswap {
             params.amountOut,
             0
         );
+
+        uint256 slippageAmount = (amountIn * params.slippage) / 100;
+
+        amountIn = amountIn + slippageAmount;
     }
 
     function _swapTokens(
         address tokenIn,
         address tokenOut,
-        uint256 amountIn,
-        uint256 amountOutMin
+        uint256 amountInMax,
+        uint256 amountOut
     ) internal {
-        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
-        IERC20(tokenIn).approve(address(_swapRouter), amountIn);
+        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountInMax);
+        IERC20(tokenIn).approve(address(_swapRouter), amountInMax);
 
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
-            .ExactInputSingleParams({
+        ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
+            .ExactOutputSingleParams({
                 tokenIn: tokenIn,
                 tokenOut: tokenOut,
                 fee: 0,
                 recipient: msg.sender,
                 deadline: block.timestamp + 1,
-                amountIn: amountIn,
-                amountOutMinimum: amountOutMin,
+                amountOut: amountOut,
+                amountInMaximum: amountInMax,
                 sqrtPriceLimitX96: 0
             });
 
-        _swapRouter.exactInputSingle(params);
+        _swapRouter.exactOutputSingle(params);
     }
 
-    function _swapEthToToken(address tokenOut, uint256 amountOutMin) internal {
+    function _swapEthToToken(address tokenOut, uint256 amountOut) internal {
         require(msg.value > 0, Errors.INVALID_INPUT);
 
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
-            .ExactInputSingleParams({
+        ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
+            .ExactOutputSingleParams({
                 tokenIn: WETH,
                 tokenOut: tokenOut,
                 fee: 0,
                 recipient: msg.sender,
                 deadline: block.timestamp + 1,
-                amountIn: msg.value,
-                amountOutMinimum: amountOutMin,
+                amountOut: amountOut,
+                amountInMaximum: msg.value,
                 sqrtPriceLimitX96: 0
             });
 
-        _swapRouter.exactInputSingle{value: msg.value}(params);
+        _swapRouter.exactOutputSingle{value: msg.value}(params);
     }
 
     function _swapTokenToEth(
         address tokenIn,
-        uint256 amountIn,
-        uint256 amountOutMin
+        uint256 amountInMax,
+        uint256 amountOut
     ) internal {
-        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountIn);
-        IERC20(tokenIn).approve(address(_swapRouter), amountIn);
+        IERC20(tokenIn).transferFrom(msg.sender, address(this), amountInMax);
+        IERC20(tokenIn).approve(address(_swapRouter), amountInMax);
 
-        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
-            .ExactInputSingleParams({
+        ISwapRouter.ExactOutputSingleParams memory params = ISwapRouter
+            .ExactOutputSingleParams({
                 tokenIn: tokenIn,
                 tokenOut: WETH,
                 fee: 0,
                 recipient: msg.sender,
                 deadline: block.timestamp + 1,
-                amountIn: amountIn,
-                amountOutMinimum: amountOutMin,
+                amountOut: amountOut,
+                amountInMaximum: amountInMax,
                 sqrtPriceLimitX96: 0
             });
 
-        _swapRouter.exactInputSingle(params);
+        _swapRouter.exactOutputSingle(params);
     }
 }

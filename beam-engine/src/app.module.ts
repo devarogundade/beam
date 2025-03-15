@@ -9,7 +9,6 @@ import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import WebhookWorker from './workers/webhook';
-import SimpleReceiptWorker from './workers/simple-receipt';
 import { Merchant, MerchantSchema } from './database/schemas/merchant';
 import { Product, ProductSchema } from './database/schemas/product';
 import { Sale, SaleSchema } from './database/schemas/sales';
@@ -41,6 +40,6 @@ import { Chat, ChatSchema } from './database/schemas/chat';
     ]),
   ],
   controllers: [AppController],
-  providers: [SimpleReceiptWorker, WebhookWorker, AppService],
+  providers: [WebhookWorker, AppService],
 })
 export class AppModule {}

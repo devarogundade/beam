@@ -25,13 +25,12 @@ const next = () => {
         signers: signers.value.filter(s => s.address != null).map(signer => signer.name),
     };
 
-
-    walletStore.merchant = {
+    walletStore.setMerchant({
         ...walletStore.merchant,
         metadata_value: JSON.stringify(metadata_value),
         signers: signers.value.filter(s => s.address != null).map(signer => signer.address!),
         minSigners: threshold.value
-    };
+    });
 
     router.push('/onboarding/review');
 };
@@ -47,7 +46,7 @@ const signers = ref<Signer[]>([
 ]);
 
 const addSigner = () => {
-    signers.value.push({ name: '', address: null, disabled: false });
+    signers.value.push({ name: 'My Wallet ' + signers.value.length, address: null, disabled: false });
 };
 
 const removeSigner = (index: number) => {

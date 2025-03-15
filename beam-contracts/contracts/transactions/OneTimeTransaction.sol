@@ -52,8 +52,7 @@ contract OneTimeTransaction is IOneTimeTransaction, Ownable {
 
     function onFulfill(
         bytes32 transactionId,
-        address payer,
-        bool wantsReceipt
+        address payer
     ) external override onlyOwner returns (bool completed, uint256 amount) {
         require(
             _transactions[transactionId].status ==
@@ -68,15 +67,6 @@ contract OneTimeTransaction is IOneTimeTransaction, Ownable {
 
         completed = BoolLib.every(_transactions[transactionId].fulfillments);
         amount = _transactions[transactionId].amounts[payerIndex];
-
-        if (wantsReceipt) {
-            Params.MintReceipt memory mintParams = Params.MintReceipt({
-                to: payer,
-                transactionId: transactionId
-            });
-
-            _receipt.mint(mintParams);
-        }
     }
 
     function onComplete(bytes32 transactionId) external override onlyOwner {

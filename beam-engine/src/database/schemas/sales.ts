@@ -4,25 +4,32 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Product } from './product';
 import { Hex } from 'viem';
+import {
+  TransactionStatus,
+  TransactionType,
+} from '../../../../beam-sdk/src/enums';
 
 export type SaleDocument = HydratedDocument<Sale>;
 
 @Schema()
 export class Sale {
   @Prop({ required: true })
+  transactionId: Hex;
+
+  @Prop({ required: true })
   merchant: Hex;
 
   @Prop({ required: true })
   buyer: Hex;
 
-  @Prop({ required: true, type: Types.ObjectId })
-  product: Types.ObjectId | Product | null;
+  @Prop({ required: true, type: Types.ObjectId, ref: Product.name })
+  product: string | Product;
 
   @Prop({ required: true })
-  type: string;
+  type: TransactionType;
 
   @Prop({ required: true })
-  status: string;
+  status: TransactionStatus;
 
   @Prop({ required: true })
   amount: number;

@@ -43,7 +43,7 @@ contract Receipt is ERC721, IReceipt, Ownable {
         _mint(params.to, _lastTokenId);
 
         // Set the token URI
-        _tokenURIs[_lastTokenId] = _lastTokenId.toString();
+        _tokenURIs[_lastTokenId] = params.URI;
 
         emit ReceiptMinted(params.to, _lastTokenId, params.transactionId);
     }

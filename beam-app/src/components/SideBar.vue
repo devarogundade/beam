@@ -78,7 +78,7 @@ const walletStore = useWalletStore();
                 </div>
 
                 <RouterLink to="/chat" v-if="walletStore.connection == Connection.Wallet">
-                    <div :class="route.name?.toString().startsWith('ai') ? 'option option_selected' : 'option'">
+                    <div :class="route.name?.toString().startsWith('chat') ? 'option option_selected' : 'option'">
                         <div class="selector"></div>
 
                         <button>
@@ -122,7 +122,7 @@ const walletStore = useWalletStore();
     top: 0;
     position: sticky;
     height: 100vh;
-    width: 260px;
+    width: 250px;
     z-index: 20;
     position: fixed;
     border-right: 1px solid var(--bg-lightest);

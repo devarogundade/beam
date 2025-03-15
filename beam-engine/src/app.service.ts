@@ -19,15 +19,12 @@ import {
   BEAM_AI_KNOWLEDGE_BASE,
   BEAM_AI_REPORT_KNOWLEDGE_BASE,
   EVENTS_CONTRACT,
-  SIMPLE_RECEIPT_CONTRACT,
 } from './constants';
-import { simpleReceiptAbi } from './abis/simple-receipt-abi';
 import { publicClient } from './clients';
 import { eventsAbi } from './abis/events-abi';
 import { Product } from './database/schemas/product';
 import { Sale } from './database/schemas/sales';
 import { Chat } from './database/schemas/chat';
-import { AppEvents } from './app.events';
 import { Hex, zeroAddress } from 'viem';
 import OpenAI from 'openai';
 
@@ -39,15 +36,6 @@ export class AppService {
     @InjectModel(Sale.name) private saleModel: Model<Sale>,
     @InjectModel(Chat.name) private chatModel: Model<Chat>,
   ) {
-    publicClient.watchContractEvent({
-      address: SIMPLE_RECEIPT_CONTRACT,
-      abi: simpleReceiptAbi,
-      eventName: 'ReceiptMinted',
-      onLogs: (logs) => {
-        AppEvents.receiptMinted(logs);
-      },
-    });
-
     publicClient.watchContractEvent({
       address: EVENTS_CONTRACT,
       abi: eventsAbi,
@@ -70,6 +58,8 @@ export class AppService {
         apiKey: process.env.OPENAI_API_KEY,
       });
 
+      const profile = JSON.stringify(await this.getMerchant(params.merchant));
+
       const sales = JSON.stringify(
         await this.getSales(params.merchant, null, null, null),
       );
@@ -80,11 +70,12 @@ export class AppService {
         messages: [
           { role: 'user', content: params.message },
           {
-            role: 'user',
-            content: `My merchant address is: ${params.merchant}.`,
+            role: 'system',
+            content: `Merchant address is: ${params.merchant}.`,
           },
-          { role: 'user', content: `My sales are: ${sales}.` },
-          { role: 'user', content: `My products are: ${products}.` },
+          { role: 'system', content: `Profile is: ${profile}.` },
+          { role: 'system', content: `Sales are: ${sales}.` },
+          { role: 'system', content: `Products are: ${products}.` },
           { role: 'system', content: BEAM_AI_KNOWLEDGE_BASE },
           { role: 'system', content: BEAM_AI_REPORT_KNOWLEDGE_BASE },
         ],
@@ -178,19 +169,34 @@ export class AppService {
   }
 
   async createSale(params: CreateSale): Promise<Sale> {
-    return this.saleModel.create({
-      merchant: params.merchant,
-      buyer: params.buyer,
-      product: params.product,
-      type: params.type,
-      status: params.status,
-      amount: params.amount,
-      token: params.token,
-      amountInUsd: params.amountInUsd,
-      quantity: params.quantity,
-      createdAt: new Date(),
-      updatedAt: null,
-    });
+    await this.productModel.findOneAndUpdate(
+      { _id: params.product },
+      {
+        $inc: {
+          quantity: -1 * params.quantity,
+          sold: params.quantity,
+        },
+      },
+    );
+
+    return this.saleModel.findOneAndUpdate(
+      { transactionId: params.transactionId },
+      {
+        transactionId: params.transactionId,
+        merchant: params.merchant,
+        buyer: params.buyer,
+        product: params.product,
+        type: params.type,
+        status: params.status,
+        amount: params.amount,
+        token: params.token,
+        amountInUsd: params.amountInUsd,
+        quantity: params.quantity,
+        createdAt: new Date(),
+        updatedAt: null,
+      },
+      { upsert: true, returnDocument: 'after' },
+    );
   }
 
   async getSales(
@@ -205,6 +211,11 @@ export class AppService {
     if (toDate) query.createdAt = { ...query.createdAt, $lte: toDate };
     if (fromDate) query.createdAt = { ...query.createdAt, $gte: fromDate };
 
-    return this.saleModel.find(query);
+    return this.saleModel
+      .find(query)
+      .populate({
+        path: 'product',
+      })
+      .exec();
   }
 }

@@ -20,7 +20,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            merchant(id: "${merchant}") {
+            merchant(id: "${merchant.toLowerCase()}") {
                 id
                 merchant
                 metadata_schemaVersion
@@ -47,7 +47,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            transaction(id: "${transactionId}") {
+            transaction(id: "${transactionId.toLowerCase()}") {
                 id
                 transactionId
                 payer
@@ -69,7 +69,21 @@ export class Graph {
                 blockNumber
                 blockTimestamp
                 transactionHash
-                confirmations
+                confirmations {
+                  id
+                  transactionId
+                  from
+                  recipient
+                  token
+                  amount
+                  adjustedToken
+                  adjustedAmount
+                  description
+                  type      
+                  blockNumber
+                  blockTimestamp
+                  transactionHash
+                }
             }
         }`,
       });
@@ -84,7 +98,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            transactions(where: {transactionHash: "${transactionHash}") {
+            transactions(where: {transactionHash: "${transactionHash.toLowerCase()}"}) {
                 id
                 transactionId
                 payer
@@ -106,7 +120,21 @@ export class Graph {
                 blockNumber
                 blockTimestamp
                 transactionHash
-                confirmations
+                confirmations {
+                  id
+                  transactionId
+                  from
+                  recipient
+                  token
+                  amount
+                  adjustedToken
+                  adjustedAmount
+                  description
+                  type      
+                  blockNumber
+                  blockTimestamp
+                  transactionHash
+                }
             }
         }`,
       });
@@ -170,7 +198,21 @@ export class Graph {
           blockNumber
           blockTimestamp
           transactionHash
-          confirmations
+          confirmations {
+            id
+            transactionId
+            from
+            recipient
+            token
+            amount
+            adjustedToken
+            adjustedAmount
+            description
+            type      
+            blockNumber
+            blockTimestamp
+            transactionHash
+          }
         }
       }`,
       });
@@ -186,7 +228,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            confirmation(id: "${id}") {
+            confirmation(id: "${id.toLowerCase()}") {
                 id
                 transactionId
                 from
@@ -216,7 +258,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            confirmations(where: {transactionId: "${transactionId}"}) {
+            confirmations(where: {transactionId: "${transactionId.toLowerCase()}"}) {
                 id
                 transactionId
                 from
@@ -244,7 +286,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            confirmations(where: {recipient: "${account}"}) {
+            confirmations(where: {recipient: "${account.toLowerCase()}"}) {
                 id
                 transactionId
                 from
@@ -272,7 +314,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            subscriptionPlan(id: "${subsciptionId}") {
+            subscriptionPlan(id: "${subsciptionId.toLowerCase()}") {
                 id
                 subsciptionId
                 merchant
@@ -340,7 +382,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            withdrawRequest(id: "${merchant}${requestId}") {
+            withdrawRequest(id: "${merchant.toLowerCase()}${requestId}") {
                 id
                 subsciptionId
                 merchant
@@ -367,7 +409,7 @@ export class Graph {
     try {
       const data = await this.client.graphCall<any>({
         query: `{
-            withdrawRequests(where: {merchant: "${merchant}"}) {
+            withdrawRequests(where: {merchant: "${merchant.toLowerCase()}"}) {
                 id
                 subsciptionId
                 merchant

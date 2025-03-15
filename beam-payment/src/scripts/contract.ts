@@ -48,18 +48,18 @@ const DelegationContract = {
     try {
       const delegatee = AaveV3Contract.address;
 
-      const tokenName: string = await readContract(config, {
+      const tokenName = (await readContract(config, {
         abi: variableDebtTokenAbi,
         address: debtToken,
         functionName: "name",
-      });
+      })) as string;
 
-      const nonce: number = await readContract(config, {
+      const nonce = (await readContract(config, {
         abi: variableDebtTokenAbi,
         address: debtToken,
         functionName: "nonces",
         args: [payer],
-      });
+      })) as number;
 
       const deadline = Math.floor(Date.now() / 1000) + 3600;
 
@@ -93,7 +93,7 @@ const DelegationContract = {
 };
 
 const UniswapContract = {
-  address: "0xE229A3bC3FFBAf5c2ad02fd3f459E3D52ce32CEA" as Hex,
+  address: "0x15C17BDE89c23FC435BDa7860D605185e361266e" as Hex,
 
   async requiredAmountIn(params: RequiredAmountIn): Promise<bigint> {
     try {
@@ -110,7 +110,33 @@ const UniswapContract = {
 };
 
 const AaveV3Contract = {
-  address: "0xE229A3bC3FFBAf5c2ad02fd3f459E3D52ce32CEA" as Hex,
+  address: "0xC7a9aae511B3C34015914f80CfB84f9Bae9D5Fee" as Hex,
+
+  async getHealthFactor(payer: Hex): Promise<bigint | null> {
+    try {
+      return (await readContract(config, {
+        abi: aaveV3Abi,
+        address: this.address,
+        functionName: "getHealthFactor",
+        args: [payer],
+      })) as bigint;
+    } catch (error) {
+      return null;
+    }
+  },
+
+  async getCurrentLiquidityRate(token: Hex): Promise<bigint | null> {
+    try {
+      return (await readContract(config, {
+        abi: aaveV3Abi,
+        address: this.address,
+        functionName: "getCurrentLiquidityRate",
+        args: [token],
+      })) as bigint;
+    } catch (error) {
+      return null;
+    }
+  },
 
   async getVariableDebtTokenAddresses(token: Hex): Promise<Hex | null> {
     try {
@@ -140,10 +166,11 @@ const AaveV3Contract = {
 };
 
 const BeamContract = {
-  address: "0xE229A3bC3FFBAf5c2ad02fd3f459E3D52ce32CEA" as Hex,
+  address: "0xd02bFd4710878f31dFf13fAeeC408D8bFb892250" as Hex,
 
   async oneTimeTransaction(
-    params: CreateOneTimeTransaction
+    params: CreateOneTimeTransaction,
+    value: bigint = BigInt(0)
   ): Promise<Hex | null> {
     try {
       const result = await writeContract(config, {
@@ -151,6 +178,7 @@ const BeamContract = {
         address: this.address,
         functionName: "oneTimeTransaction",
         args: [params],
+        value: value,
       });
 
       const receipt = await waitForTransactionReceipt(config, {
@@ -166,7 +194,8 @@ const BeamContract = {
   },
 
   async fulfillOneTimeTransaction(
-    params: FulfillOneTimeTransaction
+    params: FulfillOneTimeTransaction,
+    value: bigint = BigInt(0)
   ): Promise<Hex | null> {
     try {
       const result = await writeContract(config, {
@@ -174,6 +203,7 @@ const BeamContract = {
         address: this.address,
         functionName: "fulfillOneTimeTransaction",
         args: [params],
+        value: value,
       });
 
       const receipt = await waitForTransactionReceipt(config, {
@@ -187,7 +217,8 @@ const BeamContract = {
   },
 
   async recurrentTransaction(
-    params: CreateRecurrentTransaction
+    params: CreateRecurrentTransaction,
+    value: bigint = BigInt(0)
   ): Promise<Hex | null> {
     try {
       const result = await writeContract(config, {
@@ -195,6 +226,7 @@ const BeamContract = {
         address: this.address,
         functionName: "recurrentTransaction",
         args: [params],
+        value: value,
       });
 
       const receipt = await waitForTransactionReceipt(config, {
@@ -210,7 +242,8 @@ const BeamContract = {
   },
 
   async fulfillRecurrentTransaction(
-    params: FulfillRecurrentTransaction
+    params: FulfillRecurrentTransaction,
+    value: bigint = BigInt(0)
   ): Promise<Hex | null> {
     try {
       const result = await writeContract(config, {
@@ -218,6 +251,7 @@ const BeamContract = {
         address: this.address,
         functionName: "fulfillRecurrentTransaction",
         args: [params],
+        value: value,
       });
 
       const receipt = await waitForTransactionReceipt(config, {

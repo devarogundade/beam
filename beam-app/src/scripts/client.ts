@@ -1,5 +1,6 @@
 import axios from "axios";
 import type {
+  Chat,
   ClientMerchant,
   CreateMerchant,
   CreateProduct,
@@ -39,15 +40,6 @@ export const Client = {
     }
   },
 
-  async createSale(params: CreateSale): Promise<Product | null> {
-    try {
-      const response = await this.client.post(`/sales/create`, params);
-      return response.data;
-    } catch (error) {
-      return null;
-    }
-  },
-
   async getProducts(merchant: Hex): Promise<Product[]> {
     try {
       const response = await this.client.get(`/products?merchant=${merchant}`);
@@ -69,6 +61,27 @@ export const Client = {
   async getSales(merchant: Hex): Promise<Sale[]> {
     try {
       const response = await this.client.get(`/sales?merchant=${merchant}`);
+      return response.data;
+    } catch (error) {
+      return [];
+    }
+  },
+
+  async sendChat(merchant: Hex, text: string): Promise<boolean> {
+    try {
+      const response = await this.client.post(`/chat`, {
+        merchant,
+        message: text,
+      });
+      return response.data;
+    } catch (error) {
+      return false;
+    }
+  },
+
+  async getChats(merchant: Hex): Promise<Chat[]> {
+    try {
+      const response = await this.client.get(`/chats/${merchant}`);
       return response.data;
     } catch (error) {
       return [];

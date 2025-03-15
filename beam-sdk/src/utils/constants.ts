@@ -14,6 +14,7 @@ export const getTokens: Token[] = [
     image: "/images/usdc.png",
     decimals: 6,
     aToken: "0x6E4A1BcBd3C3038e6957207cadC1A17092DC7ba3",
+    price: 1,
   },
   {
     name: "Bitcoin",
@@ -22,6 +23,7 @@ export const getTokens: Token[] = [
     image: "/images/btc.png",
     decimals: 8,
     aToken: "0x43AE2a14AD923915aa85d683D1b7d0d320ae87B2",
+    price: 80_000,
   },
   {
     name: "Ethereum",
@@ -30,6 +32,7 @@ export const getTokens: Token[] = [
     image: "/images/eth.png",
     decimals: 18,
     aToken: "0x9E8CEC4F2F4596141B62e88966D7167E9db555aD",
+    price: 2_400,
   },
   {
     name: "DAI",
@@ -38,6 +41,7 @@ export const getTokens: Token[] = [
     image: "/images/dai.png",
     decimals: 18,
     aToken: "0x99Cb50E6bE36C8096e6731ED7738d93090B710DD",
+    price: 0.998,
   },
   {
     name: "ChainLink",
@@ -46,6 +50,7 @@ export const getTokens: Token[] = [
     image: "/images/link.png",
     decimals: 18,
     aToken: "0x55DD1cDFE13fCa68F6D14D452E2a20cABe191841",
+    price: 5,
   },
 ];
 
@@ -55,6 +60,8 @@ export const getToken = (address: Hex | undefined): Token | undefined => {
 
 export const sleep = async (ms: number) => {
   return new Promise((resolve) => {
-    setTimeout(() => resolve, ms);
+    setTimeout(() => {
+      resolve(ms);
+    }, ms);
   });
 };

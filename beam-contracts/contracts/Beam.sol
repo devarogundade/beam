@@ -57,8 +57,7 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
 
         (bool completed, uint256 amount) = _oneTimeTransaction.onFulfill(
             transactionId,
-            msg.sender,
-            params.mintReceipt
+            msg.sender
         );
 
         address wallet = _merchant.getWallet(params.merchant);
@@ -84,17 +83,18 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
         (address adjustedToken, uint256 adjustedAmount) = _hookManager
             .adjustTokenAmount(adjustTokenAmountParams);
 
-        Params.RoutePayment memory routePaymentParams = Params.RoutePayment({
+        Params.RouteTransaction memory routeParams = Params.RouteTransaction({
             token: adjustedToken,
             tokenB: params.tokenB,
             amount: adjustedAmount,
             wallet: wallet,
+            slippage: params.slippage,
             healthFactorMultiplier: params.healthFactorMultiplier,
             route: params.route,
             signature: params.signature
         });
 
-        _routePayment(routePaymentParams);
+        _routeTransaction(routeParams);
 
         IWallet(wallet).deposit{value: msg.value}(
             adjustedToken,
@@ -140,8 +140,7 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
 
         (bool completed, uint256 amount) = _oneTimeTransaction.onFulfill(
             params.transactionId,
-            msg.sender,
-            params.mintReceipt
+            msg.sender
         );
 
         address wallet = _merchant.getWallet(transaction.merchant);
@@ -167,17 +166,18 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
         (address adjustedToken, uint256 adjustedAmount) = _hookManager
             .adjustTokenAmount(adjustTokenAmountParams);
 
-        Params.RoutePayment memory routePaymentParams = Params.RoutePayment({
+        Params.RouteTransaction memory routeParams = Params.RouteTransaction({
             token: adjustedToken,
             tokenB: params.tokenB,
             amount: adjustedAmount,
             wallet: wallet,
+            slippage: params.slippage,
             healthFactorMultiplier: params.healthFactorMultiplier,
             route: params.route,
             signature: params.signature
         });
 
-        _routePayment(routePaymentParams);
+        _routeTransaction(routeParams);
 
         IWallet(wallet).deposit{value: msg.value}(
             adjustedToken,
@@ -223,7 +223,7 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
         );
 
         (uint256 amount, address token, uint256 dueDate) = _recurrentTransaction
-            .onFulfill(transactionId, msg.sender, params.mintReceipt);
+            .onFulfill(transactionId, msg.sender);
 
         address wallet = _merchant.getWallet(params.merchant);
         AddressLib.requireOne(wallet);
@@ -248,17 +248,18 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
         (address adjustedToken, uint256 adjustedAmount) = _hookManager
             .adjustTokenAmount(adjustTokenAmountParams);
 
-        Params.RoutePayment memory routePaymentParams = Params.RoutePayment({
+        Params.RouteTransaction memory routeParams = Params.RouteTransaction({
             token: adjustedToken,
             tokenB: params.tokenB,
             amount: adjustedAmount,
             wallet: wallet,
+            slippage: params.slippage,
             healthFactorMultiplier: params.healthFactorMultiplier,
             route: params.route,
             signature: params.signature
         });
 
-        _routePayment(routePaymentParams);
+        _routeTransaction(routeParams);
 
         IWallet(wallet).deposit{value: msg.value}(
             adjustedToken,
@@ -303,7 +304,7 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
             .getTransaction(params.transactionId);
 
         (uint256 amount, address token, uint256 dueDate) = _recurrentTransaction
-            .onFulfill(params.transactionId, msg.sender, params.mintReceipt);
+            .onFulfill(params.transactionId, msg.sender);
 
         address wallet = _merchant.getWallet(transaction.merchant);
         AddressLib.requireOne(wallet);
@@ -328,17 +329,18 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
         (address adjustedToken, uint256 adjustedAmount) = _hookManager
             .adjustTokenAmount(adjustTokenAmountParams);
 
-        Params.RoutePayment memory routePaymentParams = Params.RoutePayment({
+        Params.RouteTransaction memory routeParams = Params.RouteTransaction({
             token: adjustedToken,
             tokenB: params.tokenB,
             amount: adjustedAmount,
             wallet: wallet,
+            slippage: params.slippage,
             healthFactorMultiplier: params.healthFactorMultiplier,
             route: params.route,
             signature: params.signature
         });
 
-        _routePayment(routePaymentParams);
+        _routeTransaction(routeParams);
 
         IWallet(wallet).deposit{value: msg.value}(
             adjustedToken,
@@ -392,5 +394,25 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
         Params.MintReceipt memory params
     ) external {
         _recurrentTransaction.mintReceipt(params);
+    }
+
+    function setOneTimeTransaction(
+        IOneTimeTransaction transaction
+    ) external onlyOwner {
+        _oneTimeTransaction = transaction;
+    }
+
+    function setRecurentTransaction(
+        IRecurrentTransaction transaction
+    ) external onlyOwner {
+        _recurrentTransaction = transaction;
+    }
+
+    function setAave(IAaveV3 aave) external onlyOwner {
+        _setAave(aave);
+    }
+
+    function setUniswap(IUniswap uniswap) external onlyOwner {
+        _setUniswap(uniswap);
     }
 }
