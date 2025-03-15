@@ -4,9 +4,9 @@ import AppHeader from './components/AppHeader.vue';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useWalletStore } from './stores/wallet';
-import BeamSDK from '../../beam-sdk/src';
-import { Network } from '../../beam-sdk/src/enums';
-import type { Merchant } from '../../beam-sdk/src/types';
+import BeamSDK from 'beam-ts/src';
+import { Network } from 'beam-ts/src/enums';
+import type { Merchant } from 'beam-ts/src/types';
 import ProgressBox from './components/ProgressBox.vue';
 import { Client } from './scripts/client';
 
