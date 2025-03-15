@@ -1,4 +1,4 @@
-import { Signature } from "src/params";
+import { Signature } from "../params";
 import { Hex, TypedDataDomain, zeroHash } from "viem";
 
 export const emptySignature: Signature = {

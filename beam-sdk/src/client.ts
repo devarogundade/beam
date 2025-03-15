@@ -1,6 +1,6 @@
-import { BeamSDKOptions } from "./types";
+import type { BeamSDKOptions } from "./types";
 import { Endpoints } from "./utils/endpoints";
-import axios, { AxiosInstance } from "axios";
+import axios, { type AxiosInstance } from "axios";
 
 export class BeamClient {
   private paymentURL: string;

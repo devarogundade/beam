@@ -2,8 +2,8 @@ import {
   PrepareCancelRecurrentTransaction,
   PrepareFulfillRecurrentTransaction,
   PrepareRecurrentTransaction,
-} from "src/params";
-import {
+} from "../params";
+import type {
   TransactionCallback,
   Transaction,
   GetTransactions,

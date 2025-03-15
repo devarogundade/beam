@@ -1,5 +1,4 @@
-import { Endpoints } from "../utils/endpoints";
-import {
+import type {
   TransactionCallback,
   GetTransactions,
   GetSubscription,
@@ -14,7 +13,7 @@ import {
   PrepareCancelRecurrentTransaction,
   PrepareFulfillRecurrentTransaction,
   PrepareRecurrentTransaction,
-} from "src/params";
+} from "../params";
 
 export class RecurrentTransaction
   extends BaseTransaction

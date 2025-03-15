@@ -5,7 +5,7 @@ import { IMerchant } from "./interfaces/merchant";
 import { Merchant } from "./merchant/index";
 import { IRecurrentTransaction } from "./interfaces/recurrent-transaction";
 import { IOneTimeTransaction } from "./interfaces/one-time-transaction";
-import { BeamSDKOptions } from "./types";
+import type { BeamSDKOptions } from "./types";
 class BeamSDK {
   private readonly options: BeamSDKOptions;
 

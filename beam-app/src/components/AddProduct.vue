@@ -15,7 +15,7 @@ const creating = ref<boolean>(false);
 const selectedImage = ref<number>(0);
 
 const images = ref<(File | null)[]>([null, null, null]);
-const selectedImageURLs = ref<(string | null)[]>([null, null, null]);
+const selectedImageURLs = ref<(string | undefined)[]>([undefined, undefined, undefined]);
 
 const form = ref({
     name: '',

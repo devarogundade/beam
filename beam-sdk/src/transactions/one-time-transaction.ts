@@ -1,12 +1,15 @@
-import { Endpoints } from "../utils/endpoints";
 import { IOneTimeTransaction } from "../interfaces/one-time-transaction";
-import { TransactionCallback, GetTransactions, Transaction } from "../types";
+import type {
+  TransactionCallback,
+  GetTransactions,
+  Transaction,
+} from "../types";
 import { BaseTransaction } from "./base";
 import { TransactionType } from "../enums";
 import {
   PrepareFulfillOneTimeTransaction,
   PrepareOneTimeTransaction,
-} from "src/params";
+} from "../params";
 
 export class OneTimeTransaction
   extends BaseTransaction

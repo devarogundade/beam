@@ -1,8 +1,8 @@
 import {
   PrepareFulfillOneTimeTransaction,
   PrepareOneTimeTransaction,
-} from "src/params";
-import {
+} from "../params";
+import type {
   TransactionCallback,
   GetPayment,
   GetTransactions,

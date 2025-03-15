@@ -6,8 +6,8 @@ import type {
   WithdrawRequest,
 } from "../types";
 import type { Hex } from "viem";
-import { TransactionStatus, TransactionType } from "src/enums";
-import { BeamClient } from "src/client";
+import { TransactionStatus, TransactionType } from "../enums";
+import { BeamClient } from "../client";
 
 export class Graph {
   private client: BeamClient;

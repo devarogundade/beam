@@ -1,5 +1,5 @@
 import { BeamClient } from "../client";
-import {
+import type {
   GetPayment,
   GetPaymentHash,
   GetTransactions,
