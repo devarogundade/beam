@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import SearchIcon from './icons/SearchIcon.vue';
-import { getTokens } from '../../../beam-sdk/src/utils/constants';
+import { getTokens } from 'beam-ts/src/utils/constants';
 import Converter from '@/scripts/converter';
 import { useWalletStore } from '@/stores/wallet';
 import { formatUnits, parseUnits } from 'viem';

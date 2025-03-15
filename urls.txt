@@ -1,8 +1,0 @@
-Merchant Page
-https://beam-app.netlify.app
-
-Product page
-https://beam-checkout.netlify.app?id=abcdef12345
-
-Payment page
-https://beam-payment.netlify.app?session=abcdef12345

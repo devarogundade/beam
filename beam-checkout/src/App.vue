@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
-import BeamSDK from "../../beam-sdk/src";
-import { Network, TransactionRoute, TransactionType } from "../../beam-sdk/src/enums";
-import type { Merchant, Token, TransactionCallback } from "../../beam-sdk/src/types";
-import { getTokens } from "../../beam-sdk/src/utils/constants";
+import BeamSDK from "beam-ts/src";
+import { Network, TransactionRoute, TransactionType } from "beam-ts/src/enums";
+import type { Merchant, Token, TransactionCallback } from "beam-ts/src/types";
+import { getTokens } from "beam-ts/src/utils/constants";
 import type { Product } from "./scripts/types";
 import { parseUnits, formatUnits, parseEther } from "viem";
 import { Swiper, SwiperSlide } from 'swiper/vue';

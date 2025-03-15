@@ -4,10 +4,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { Product } from './product';
 import { Hex } from 'viem';
-import {
-  TransactionStatus,
-  TransactionType,
-} from '../../../../beam-sdk/src/enums';
+import { TransactionStatus, TransactionType } from 'beam-ts/src/enums';
 
 export type SaleDocument = HydratedDocument<Sale>;
 

@@ -9,7 +9,7 @@ import Converter from '@/scripts/converter';
 import { SaleStatus, type Sale } from '@/scripts/types';
 import { useWalletStore } from '@/stores/wallet';
 import { onMounted, ref } from 'vue';
-import { getToken } from "../../../../beam-sdk/src/utils/constants";
+import { getToken } from "beam-ts/src/utils/constants";
 
 const VITE_EXPLORER_URL = import.meta.env.VITE_EXPLORER_URL;
 
@@ -62,21 +62,21 @@ onMounted(() => {
                     <td>
                         <div class="time">
                             <p>
-                            {{
-                                Intl.DateTimeFormat('en-US', {
-                                    day: '2-digit',
-                                    month: 'short',
-                                }).format(new Date(sale.createdAt))
-                            }}
+                                {{
+                                    Intl.DateTimeFormat('en-US', {
+                                        day: '2-digit',
+                                        month: 'short',
+                                    }).format(new Date(sale.createdAt))
+                                }}
                             </p>
                             <p>
-                            {{
-                                Intl.DateTimeFormat('en-US', {
-                                    second: '2-digit',
-                                    minute: '2-digit',
-                                    hour: '2-digit'
-                                }).format(new Date(sale.createdAt))
-                            }}
+                                {{
+                                    Intl.DateTimeFormat('en-US', {
+                                        second: '2-digit',
+                                        minute: '2-digit',
+                                        hour: '2-digit'
+                                    }).format(new Date(sale.createdAt))
+                                }}
                             </p>
                         </div>
                     </td>
@@ -112,8 +112,8 @@ onMounted(() => {
 
                     <td>
                         <div class="amount">
-                            <p>{{Converter.toMoney(sale.amount)}} <span>{{getToken(sale.token)?.symbol}}</span></p>
-                            <p>≈ ${{Converter.toMoney(sale.amountInUsd)}}</p>
+                            <p>{{ Converter.toMoney(sale.amount) }} <span>{{ getToken(sale.token)?.symbol }}</span></p>
+                            <p>≈ ${{ Converter.toMoney(sale.amountInUsd) }}</p>
                         </div>
                     </td>
 

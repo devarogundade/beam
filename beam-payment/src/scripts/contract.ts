@@ -20,9 +20,9 @@ import type {
   RequiredSupplyMin,
   RequiredAmountIn,
   Signature,
-} from "../../../beam-sdk/src/params";
-import { buildDelegationWithSigParams } from "./../../../beam-sdk/src/utils/helpers";
-import { EIP712_REVISION } from "../../../beam-sdk/src/utils/constants";
+} from "beam-ts/src/params";
+import { buildDelegationWithSigParams } from "./beam-ts/src/utils/helpers";
+import { EIP712_REVISION } from "beam-ts/src/utils/constants";
 
 const DelegationContract = {
   async getBorrowAllowance(payer: Hex, debtToken: Hex): Promise<bigint> {

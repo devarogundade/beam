@@ -1,7 +1,4 @@
-import type {
-  TransactionStatus,
-  TransactionType,
-} from "../../../beam-sdk/src/enums";
+import type { TransactionStatus, TransactionType } from "beam-ts/src/enums";
 import type { Hex } from "viem";
 
 export enum Connection {

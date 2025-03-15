@@ -1,8 +1,5 @@
 /* eslint-disable prettier/prettier */
-import type {
-  TransactionStatus,
-  TransactionType,
-} from '../../beam-sdk/src/enums';
+import type { TransactionStatus, TransactionType } from 'beam-ts/src/enums';
 
 import { ObjectId } from 'mongoose';
 import { Hex } from 'viem';

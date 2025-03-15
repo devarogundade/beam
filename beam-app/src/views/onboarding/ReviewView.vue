@@ -9,7 +9,7 @@ import Storage from '@/scripts/storage';
 import { useWalletStore } from '@/stores/wallet';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { getTokens } from '../../../../beam-sdk/src/utils/constants';
+import { getTokens } from 'beam-ts/src/utils/constants';
 
 const router = useRouter();
 const walletStore = useWalletStore();
@@ -125,7 +125,7 @@ onMounted(() => {
                             <div>
                                 <UsersIcon />
                                 <p>{{ walletStore.merchant.minSigners }} <span>of {{ walletStore.merchant.signers.length
-                                }}</span></p>
+                                        }}</span></p>
                             </div>
                         </div>
                     </div>

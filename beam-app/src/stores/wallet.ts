@@ -1,6 +1,6 @@
 import { Connection, type ClientMerchant } from "@/scripts/types";
 import { defineStore } from "pinia";
-import type { Merchant } from "../../../beam-sdk/src/types";
+import type { Merchant } from "beam-ts/src/types";
 
 export const useWalletStore = defineStore("wallet", {
   state: () => ({

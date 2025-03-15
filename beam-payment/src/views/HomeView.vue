@@ -5,13 +5,13 @@ import { useWalletStore } from '@/stores/wallet';
 import { formatEther, formatUnits, parseUnits, zeroAddress, type Hex } from 'viem';
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import BeamSDK from "../../../beam-sdk/src/index";
-import { Network, TransactionType, TransactionRoute } from '../../../beam-sdk/src/enums';
-import type { Token, Transaction, TransactionCallback } from '../../../beam-sdk/src/types';
-import { getToken, sleep } from '../../../beam-sdk/src/utils/constants';
+import BeamSDK from "beam-ts/src/index";
+import { Network, TransactionType, TransactionRoute } from 'beam-ts/src/enums';
+import type { Token, Transaction, TransactionCallback } from 'beam-ts/src/types';
+import { getToken, sleep } from 'beam-ts/src/utils/constants';
 import { TokenContract } from '@/scripts/erc20';
 import Converter from '@/scripts/converter';
-import { emptySignature } from '../../../beam-sdk/src/utils/helpers';
+import { emptySignature } from 'beam-ts/src/utils/helpers';
 
 const router = useRouter();
 

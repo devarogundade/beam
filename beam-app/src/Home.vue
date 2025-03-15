@@ -2,10 +2,10 @@
 import OnboardingHeader from './components/OnboardingHeader.vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useWalletStore } from './stores/wallet';
-import type { Merchant } from '../../beam-sdk/src/types';
+import type { Merchant } from 'beam-ts/src/types';
 import { onMounted, ref, watch } from 'vue';
-import BeamSDK from '../../beam-sdk/src';
-import { Network } from '../../beam-sdk/src/enums';
+import BeamSDK from 'beam-ts/src';
+import { Network } from 'beam-ts/src/enums';
 
 const route = useRoute();
 const router = useRouter();
