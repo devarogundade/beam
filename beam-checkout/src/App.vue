@@ -96,7 +96,7 @@ const proceed = async () => {
         result.value = await beamSdk.oneTimeTransaction.create({
             merchant: product.value.merchant,
             payers: [],
-            amounts: [parseEther(amount.value.toString()).toString()],
+            amounts: [parseEther(amount.value.toString()).toString()] as any,
             token: token.value.address,
             description: form.value.description,
             metadata: {
