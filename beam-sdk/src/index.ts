@@ -10,7 +10,6 @@ class BeamSDK {
   private readonly options: BeamSDKOptions;
 
   public merchant: IMerchant;
-  public OneTimeTransaction: IOneTimeTransaction;
   public oneTimeTransaction: IOneTimeTransaction;
   public recurrentTransaction: IRecurrentTransaction;
 
@@ -20,7 +19,6 @@ class BeamSDK {
     const client = new BeamClient(this.options);
 
     this.merchant = new Merchant(client);
-    this.OneTimeTransaction = new OneTimeTransaction(client);
     this.oneTimeTransaction = new OneTimeTransaction(client);
     this.recurrentTransaction = new RecurrentTransaction(client);
   }

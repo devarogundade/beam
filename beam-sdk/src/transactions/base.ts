@@ -12,13 +12,13 @@ import { Hex } from "viem";
 export abstract class BaseTransaction {
   private currentTab: Window | null;
   protected readonly graph: Graph;
-  protected readonly paymentURL: string;
+  protected readonly transactionURL: string;
   protected readonly basePath: string = "/";
 
   constructor(client: BeamClient) {
     this.currentTab = null;
     this.graph = new Graph(client);
-    this.paymentURL = client.getTransactionURL();
+    this.transactionURL = client.getTransactionURL();
   }
 
   protected createSession(): string {
@@ -28,7 +28,7 @@ export abstract class BaseTransaction {
   protected buildUrl(
     params: Record<string, Hex | string | number | boolean | undefined>
   ): string {
-    const url = new URL(this.paymentURL);
+    const url = new URL(this.transactionURL);
 
     // Add search parameters
     Object.entries(params).forEach(([key, value]) => {
@@ -62,7 +62,7 @@ export abstract class BaseTransaction {
         throw new Error("Payment tab failed.");
       }
 
-      this.currentTab.postMessage(JSON.stringify(data), this.paymentURL);
+      this.currentTab.postMessage(JSON.stringify(data), this.transactionURL);
     }, 3000);
 
     // Check if the tab was closed without a result
@@ -97,7 +97,7 @@ export abstract class BaseTransaction {
       throw new Error("Payment tab failed.");
     }
 
-    if (event.origin !== this.paymentURL) {
+    if (event.origin !== this.transactionURL) {
       console.warn("Received message from untrusted origin:", event.origin);
       return;
     }

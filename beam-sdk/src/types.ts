@@ -69,7 +69,7 @@ export type BeamSDKOptions = {
   oracle?: Hex;
   timeout?: number;
   graphURL?: string;
-  paymentURL?: string;
+  transactionURL?: string;
 };
 
 export type Merchant = {

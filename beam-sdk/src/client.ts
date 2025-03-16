@@ -3,12 +3,12 @@ import { Endpoints } from "./utils/endpoints";
 import axios, { type AxiosInstance } from "axios";
 
 export class BeamClient {
-  private paymentURL: string;
+  private transactionURL: string;
   private graphClient: AxiosInstance;
 
   constructor(options: BeamSDKOptions) {
-    this.paymentURL = options.paymentURL
-      ? options.paymentURL
+    this.transactionURL = options.transactionURL
+      ? options.transactionURL
       : Endpoints.BASE_TRANSACTION_URL[options.network];
 
     this.graphClient = axios.create({
@@ -19,7 +19,7 @@ export class BeamClient {
   }
 
   getTransactionURL(): string {
-    return this.paymentURL;
+    return this.transactionURL;
   }
 
   async graphCall<T>(data?: any): Promise<T> {
