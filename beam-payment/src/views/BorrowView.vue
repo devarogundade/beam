@@ -402,7 +402,7 @@ const makePayment = async () => {
             category: 'error'
         });
     }
-
+    signature.value = null;
     paying.value = false;
 };
 

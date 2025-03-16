@@ -161,7 +161,6 @@ const makePayment = async () => {
     let transactionHash: Hex | null = null;
 
     if (dataStore.data.type == TransactionType.OneTime) {
-
         const amounts = dataStore.data.amounts.map((amount) => {
             const value = formatEther(amount);
             const decimals = token.value?.decimals || 18;
