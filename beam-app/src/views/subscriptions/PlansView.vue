@@ -41,7 +41,7 @@ onMounted(() => {
     <ProgressBox v-if="progress" />
     <div class="plans">
         <div class="plan" v-for="plan, index in plans" :key="index" @click="selectedPlan = plan">
-            <img src="/images/image_1.png" alt="">
+            <img :src="plan.images[0]" alt="">
 
             <div class="plan_info">
                 <h3 class="name">{{ plan.name }}</h3>
@@ -49,11 +49,11 @@ onMounted(() => {
 
                 <div class="plan_type">
                     <div class="duration">
-                        <p>Duration: <span>{{ plan.interval }}</span></p>
+                        <p>Duration: <span>{{ plan.interval / (24 * 60 * 60 * 1000) }} days</span></p>
                         <p>{{ plan.available ? 'Active' : 'Not active' }}</p>
                     </div>
 
-                    <div class="amount">{{ getToken(plan.token)?.symbol }}{{ Converter.toMoney(plan.amount) }}</div>
+                    <div class="amount">{{ Converter.toMoney(plan.amount) }} {{ getToken(plan.token)?.symbol }}</div>
                 </div>
             </div>
         </div>
@@ -94,6 +94,7 @@ onMounted(() => {
 
 .plan_info {
     padding: 0 20px 0 10px;
+    width: 100%;
 }
 
 .name {
@@ -113,6 +114,7 @@ onMounted(() => {
     border-top: 1px dashed var(--bg-lightest);
     display: flex;
     align-items: center;
+    width: 100%;
     justify-content: space-between;
 }
 

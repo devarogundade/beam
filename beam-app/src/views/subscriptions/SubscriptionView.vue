@@ -33,7 +33,7 @@ const creatingPlan = ref<boolean>(false);
                     </p>
 
                     <div class="stat_info">
-                        <h3>{{ Converter.toMoney(walletStore.clientMerchant?.planSalesCount || 0) }}</h3>
+                        <h3>{{ Converter.toMoney(walletStore.clientMerchant?.plansCount || 0) }}</h3>
                         <p>payments</p>
                     </div>
                 </div>
@@ -44,7 +44,7 @@ const creatingPlan = ref<boolean>(false);
                     </p>
 
                     <div class="stat_info">
-                        <h3>{{ Converter.toMoney(walletStore.clientMerchant?.plansCount || 0) }}</h3>
+                        <h3>{{ Converter.toMoney(walletStore.clientMerchant?.planSalesCount || 0) }}</h3>
                         <p><span>-0.0%</span> vs last 7d</p>
                     </div>
                 </div>

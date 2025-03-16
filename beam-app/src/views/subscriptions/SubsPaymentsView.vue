@@ -57,7 +57,12 @@ onMounted(() => {
 
                             <div class="product_info">
                                 <p>{{ sale.plan?.name }}</p>
-                                <p><span>Duration:</span> {{ sale.quantity }}</p>
+                                <p v-if="sale.dueDate"><span>Due Date:</span> {{
+                                    Intl.DateTimeFormat('en-US', {
+                                        month: 'short',
+                                        day: '2-digit'
+                                    }).format(new Date(sale.dueDate))
+                                }}</p>
                             </div>
                         </div>
                     </td>
