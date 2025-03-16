@@ -1,6 +1,6 @@
 import { type Hex } from "viem";
 import { defineStore } from "pinia";
-import type { Metadata } from "beam-ts/src/types";
+import type { Metadata, TransactionCallback } from "beam-ts/src/types";
 import type { TransactionType } from "beam-ts/src/enums";
 
 interface PayData {
@@ -25,6 +25,7 @@ export const useDataStore = defineStore("data", {
   state: () => ({
     data: null as PayData | null,
     initiator: null as Initiator | null,
+    result: null as TransactionCallback | null,
   }),
   actions: {
     setData(newData: PayData | null) {
@@ -32,6 +33,9 @@ export const useDataStore = defineStore("data", {
     },
     setInitiator(newInitiator: Initiator | null) {
       this.initiator = newInitiator;
+    },
+    setResult(newResult: TransactionCallback | null) {
+      this.result = newResult;
     },
   },
 });

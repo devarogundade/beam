@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import NotifyPop from '@/components/NotifyPop.vue';
 import AppHeader from '@/components/AppHeader.vue';
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { useDataStore } from './stores/data';
 import ProgressBox from './components/ProgressBox.vue';
 import type { Hex } from 'viem';
 import BeamSDK from 'beam-ts/src';
 import { Network } from '@/scripts/types';
+import { notify } from './reactives/notify';
 
 const dataStore = useDataStore();
 
@@ -53,11 +55,17 @@ const getTransaction = async (transactionId: Hex) => {
   });
 };
 
+watch(dataStore, () => {
+  if (dataStore.result) {
+    window.opener.postMessage(dataStore.result);
+  }
+}, { deep: true });
+
 onMounted(async () => {
   const params = new URLSearchParams(window.location.search);
   const session = params.get("session");
   const initiator = params.get("initiator");
-  const transactionId = params.get("tx_hash") as Hex | null;
+  const transactionId = params.get("tx") as Hex | null;
 
   if (session && initiator) {
     window.addEventListener('message', (event) => {
@@ -67,7 +75,13 @@ onMounted(async () => {
     });
   } else if (transactionId) {
     getTransaction(transactionId);
-  } else { }
+  } else {
+    notify.push({
+      title: 'Invalid payment link!',
+      description: 'Try again.',
+      category: 'error'
+    });
+  }
 
   if (!initiator) return;
 
@@ -83,4 +97,5 @@ onMounted(async () => {
   <AppHeader />
   <ProgressBox v-if="!dataStore.data" />
   <RouterView />
+  <NotifyPop />
 </template>

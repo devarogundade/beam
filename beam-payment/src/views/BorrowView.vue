@@ -20,6 +20,7 @@ import { useRouter } from 'vue-router';
 import GoodHFIcon from '@/components/icons/GoodHFIcon.vue';
 import BadHFIcon from '@/components/icons/BadHFIcon.vue';
 import HFIcon from '@/components/icons/HFIcon.vue';
+import { notify } from '@/reactives/notify';
 
 const dataStore = useDataStore();
 const walletStore = useWalletStore();
@@ -347,6 +348,14 @@ const makePayment = async () => {
     } else { }
 
     if (transactionHash) {
+        notify.push({
+            title: 'Transaction sent!',
+            description: 'Payment successful.',
+            category: 'error',
+            linkTitle: 'View Trx',
+            linkUrl: `${import.meta.env.VITE_EXPLORER_URL}/tx/${transactionHash}`
+        });
+
         let tries: number = 0;
         let trxs: Transaction[] = [];
 
@@ -366,8 +375,14 @@ const makePayment = async () => {
             ...trxs[0]
         };
 
-        window.opener.postMessage(result);
-    } else { }
+        dataStore.setResult(result);
+    } else {
+        notify.push({
+            title: 'Transaction failed!',
+            description: 'Try again.',
+            category: 'error'
+        });
+    }
 
     paying.value = false;
 };

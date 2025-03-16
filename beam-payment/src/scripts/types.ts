@@ -20,3 +20,11 @@ export enum TransactionRoute {
 export enum Network {
   Testnet = "Testnet",
 }
+
+export type Notification = {
+  title: string;
+  description: string;
+  category: string;
+  linkTitle?: string;
+  linkUrl?: string;
+};

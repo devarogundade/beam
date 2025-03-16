@@ -16,6 +16,7 @@ import Converter from '@/scripts/converter';
 import ChooseAsset from '@/components/ChooseAsset.vue';
 import { useRouter } from 'vue-router';
 import { emptySignature } from 'beam-ts/src/utils/helpers';
+import { notify } from '@/reactives/notify';
 
 const dataStore = useDataStore();
 const walletStore = useWalletStore();
@@ -288,6 +289,14 @@ const makePayment = async () => {
     } else { }
 
     if (transactionHash) {
+        notify.push({
+            title: 'Transaction sent!',
+            description: 'Payment successful.',
+            category: 'error',
+            linkTitle: 'View Trx',
+            linkUrl: `${import.meta.env.VITE_EXPLORER_URL}/tx/${transactionHash}`
+        });
+
         let tries: number = 0;
         let trxs: Transaction[] = [];
 
@@ -307,8 +316,14 @@ const makePayment = async () => {
             ...trxs[0]
         };
 
-        window.opener.postMessage(result);
-    } else { }
+        dataStore.setResult(result);
+    } else {
+        notify.push({
+            title: 'Transaction failed!',
+            description: 'Try again.',
+            category: 'error'
+        });
+    }
 
     paying.value = false;
 };

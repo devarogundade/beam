@@ -12,6 +12,7 @@ import { getToken, SCHEMA_JSON, sleep } from 'beam-ts/src/utils/constants';
 import { TokenContract } from '@/scripts/erc20';
 import Converter from '@/scripts/converter';
 import { emptySignature } from 'beam-ts/src/utils/helpers';
+import { notify } from '@/reactives/notify';
 
 const router = useRouter();
 
@@ -213,6 +214,14 @@ const makePayment = async () => {
     } else { }
 
     if (transactionHash) {
+        notify.push({
+            title: 'Transaction sent!',
+            description: 'Payment successful.',
+            category: 'error',
+            linkTitle: 'View Trx',
+            linkUrl: `${import.meta.env.VITE_EXPLORER_URL}/tx/${transactionHash}`
+        });
+
         let tries: number = 0;
         let trxs: Transaction[] = [];
 
@@ -232,8 +241,14 @@ const makePayment = async () => {
             ...trxs[0]
         };
 
-        window.opener.postMessage(result, dataStore.initiator.url);
-    } else { };
+        dataStore.setResult(result);
+    } else {
+        notify.push({
+            title: 'Transaction failed!',
+            description: 'Try again.',
+            category: 'error'
+        });
+    };
 
     paying.value = false;
 };
