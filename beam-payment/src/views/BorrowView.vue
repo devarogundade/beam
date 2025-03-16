@@ -369,7 +369,7 @@ const makePayment = async () => {
         notify.push({
             title: 'Transaction sent!',
             description: 'Payment successful.',
-            category: 'error',
+            category: 'success',
             linkTitle: 'View Trx',
             linkUrl: `${import.meta.env.VITE_EXPLORER_URL}/tx/${transactionHash}`
         });
