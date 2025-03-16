@@ -113,7 +113,7 @@ onUnmounted(() => {
 
             <div v-for="chat in chats"
                 :class="chat.from.toLowerCase() == walletStore.address?.toLowerCase() ? 'message message_user' : 'message'">
-                <img v-if="chat.from == walletStore.address" src="/images/colors.png" alt="">
+                <img v-if="chat.from == walletStore.address?.toLowerCase()" src="/images/colors.png" alt="">
                 <img v-else src="/images/ai.png" alt="">
                 <div class="text" v-html="chat.text?.replace('```html', '').replace('```', '')"></div>
             </div>
