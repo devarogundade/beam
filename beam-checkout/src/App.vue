@@ -438,7 +438,7 @@ onMounted(() => {
 
                     <div class="mint">
                         <a target="_blank"
-                            :href="`https://beam-payment.netlify.app/receipt?tx=${result.transactionId}`">
+                            :href="`https://beam-payment.netlify.app/receipt?id=${result.transactionId}`">
                             <button>
                                 <TicketIcon />
                                 <p>Get Receipt</p>
@@ -786,6 +786,7 @@ input {
 }
 
 .mint button {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
