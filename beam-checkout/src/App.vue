@@ -437,12 +437,13 @@ onMounted(() => {
                     </div>
 
                     <div class="mint">
-                        <RouterLink :to="`https://beam-payment.netlify.app/receipt?tx=${result.transactionId}`">
+                        <a target="_blank"
+                            :href="`https://beam-payment.netlify.app/receipt?tx=${result.transactionId}`">
                             <button>
                                 <TicketIcon />
                                 <p>Get Receipt</p>
                             </button>
-                        </RouterLink>
+                        </a>
 
                         <button v-if="product" @click="reload">
                             <PlusIcon />
@@ -774,13 +775,17 @@ input {
     padding: 30px;
     background: var(--bg-light);
     border-top: 1px solid var(--bg-lightest);
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     align-items: center;
     gap: 20px;
 }
 
+.mint a {
+    display: block;
+}
+
 .mint button {
-    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;

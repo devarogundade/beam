@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import NotifyPop from '@/components/NotifyPop.vue';
-import AppHeader from '@/components/AppHeader.vue';
-import { onMounted, watch } from 'vue';
+import { onMounted } from 'vue';
 import { useDataStore } from './stores/data';
 import ProgressBox from './components/ProgressBox.vue';
 import type { Hex } from 'viem';
@@ -94,8 +92,6 @@ onMounted(async () => {
 </script>
 
 <template>
-  <AppHeader />
   <ProgressBox v-if="!dataStore.data" />
   <RouterView />
-  <NotifyPop />
 </template>
