@@ -3,6 +3,7 @@
 import { Body, Controller, Get, Post, Param, Query, Put } from '@nestjs/common';
 import { AppService } from './app.service';
 import {
+  ClientMerchant,
   CreateChat,
   CreateMerchant,
   CreatePlan,
@@ -35,7 +36,9 @@ export class AppController {
   }
 
   @Get('/merchants/:merchant')
-  getMerchant(@Param('merchant') merchant: Hex): Promise<Merchant | null> {
+  getMerchant(
+    @Param('merchant') merchant: Hex,
+  ): Promise<Merchant | ClientMerchant | null> {
     return this.appService.getMerchant(merchant);
   }
 

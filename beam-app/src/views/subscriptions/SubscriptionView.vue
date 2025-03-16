@@ -2,10 +2,13 @@
 import ChevronDownIcon from '@/components/icons/ChevronDownIcon.vue';
 import FilterIcon from '@/components/icons/FilterIcon.vue';
 import PlusIcon from '@/components/icons/PlusIcon.vue';
+import Converter from '@/scripts/converter';
+import { useWalletStore } from '@/stores/wallet';
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
+const walletStore = useWalletStore();
 const creatingPlan = ref<boolean>(false);
 </script>
 
@@ -19,8 +22,8 @@ const creatingPlan = ref<boolean>(false);
                     </p>
 
                     <div class="stat_info">
-                        <h3>$248,569</h3>
-                        <p><span>+14%</span> than last 7d</p>
+                        <h3>${{ Converter.toMoney(walletStore.clientMerchant?.planSalesInUsd || 0) }}</h3>
+                        <p><span>+0.00%</span> than last 7d</p>
                     </div>
                 </div>
 
@@ -30,7 +33,7 @@ const creatingPlan = ref<boolean>(false);
                     </p>
 
                     <div class="stat_info">
-                        <h3>6,214</h3>
+                        <h3>{{ Converter.toMoney(walletStore.clientMerchant?.planSalesCount || 0) }}</h3>
                         <p>payments</p>
                     </div>
                 </div>
@@ -41,8 +44,8 @@ const creatingPlan = ref<boolean>(false);
                     </p>
 
                     <div class="stat_info">
-                        <h3>214</h3>
-                        <p><span>-9.2%</span> vs last 7d</p>
+                        <h3>{{ Converter.toMoney(walletStore.clientMerchant?.plansCount || 0) }}</h3>
+                        <p><span>-0.0%</span> vs last 7d</p>
                     </div>
                 </div>
             </div>

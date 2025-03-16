@@ -3,6 +3,17 @@
 import { ObjectId } from 'mongoose';
 import { Hex } from 'viem';
 
+export type ClientMerchant = {
+  address: Hex;
+  webhooks: string[];
+  productsCount: number;
+  plansCount: number;
+  productSalesInUsd: number;
+  productSalesCount: number;
+  planSalesInUsd: number;
+  planSalesCount: number;
+};
+
 export enum TransactionStatus {
   Pending = 0,
   Active = 1,

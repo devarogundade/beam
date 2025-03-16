@@ -31,6 +31,9 @@ const getProducts = async (load: boolean = true) => {
         walletStore.address
     );
     progress.value = false;
+
+    const clientMerchant = await Client.getMerchant(walletStore.address);
+    walletStore.setClientMerchant(clientMerchant);
 };
 
 onMounted(() => {

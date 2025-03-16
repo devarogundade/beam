@@ -25,6 +25,9 @@ const getSales = async (load: boolean = true) => {
         TransactionType.OneTime
     );
     progress.value = false;
+
+    const clientMerchant = await Client.getMerchant(walletStore.address);
+    walletStore.setClientMerchant(clientMerchant);
 };
 
 onMounted(() => {

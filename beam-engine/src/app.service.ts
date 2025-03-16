@@ -13,6 +13,7 @@ import {
   CreateMerchant,
   CreatePlan,
   TransactionType,
+  ClientMerchant,
 } from './types';
 import { Merchant } from './database/schemas/merchant';
 import { Model, UpdateResult } from 'mongoose';
@@ -62,7 +63,9 @@ export class AppService {
         apiKey: process.env.OPENAI_API_KEY,
       });
 
-      const profile = JSON.stringify(await this.getMerchant(params.merchant));
+      const profile = JSON.stringify(
+        await this.getMerchant(params.merchant, true),
+      );
 
       const sales = JSON.stringify(
         await this.getSales(params.merchant, null, null, null),
@@ -126,10 +129,42 @@ export class AppService {
     });
   }
 
-  async getMerchant(merchant: Hex): Promise<Merchant | null> {
-    return this.merchantModel.findOne({
+  async getMerchant(
+    merchant: Hex,
+    simple: boolean = false,
+  ): Promise<Merchant | ClientMerchant | null> {
+    const data = await this.merchantModel.findOne({
       address: merchant,
     });
+
+    if (!data) return null;
+    if (simple) return data;
+
+    const productSales = await this.getSales(
+      merchant,
+      TransactionType.OneTime,
+      null,
+      null,
+    );
+    const planSales = await this.getSales(
+      merchant,
+      TransactionType.Recurrent,
+      null,
+      null,
+    );
+    const products = await this.getProducts(merchant);
+    const plans = await this.getPlans(merchant);
+
+    return {
+      address: data.address,
+      webhooks: data.webhooks,
+      productsCount: products.length,
+      plansCount: plans.length,
+      productSalesInUsd: productSales.reduce((a, b) => a + b.amountInUsd, 0),
+      productSalesCount: productSales.length,
+      planSalesInUsd: planSales.reduce((a, b) => a + b.amountInUsd, 0),
+      planSalesCount: planSales.length,
+    };
   }
 
   async updateWebhooks(params: UpdateWebhooks): Promise<any> {

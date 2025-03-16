@@ -27,6 +27,9 @@ const getPlans = async (load: boolean = true) => {
     plans.value = await Client.getPlans(walletStore.address);
 
     progress.value = false;
+
+    const clientMerchant = await Client.getMerchant(walletStore.address);
+    walletStore.setClientMerchant(clientMerchant);
 };
 
 onMounted(() => {

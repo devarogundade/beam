@@ -82,6 +82,12 @@ export enum SaleStatus {
 export type ClientMerchant = {
   address: Hex;
   webhooks: string[];
+  productsCount: number;
+  plansCount: number;
+  productSalesInUsd: number;
+  productSalesCount: number;
+  planSalesInUsd: number;
+  planSalesCount: number;
 };
 
 export type CreatePlan = {

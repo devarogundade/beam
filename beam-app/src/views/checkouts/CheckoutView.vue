@@ -1,10 +1,13 @@
 <script lang="ts" setup>
 import FilterIcon from '@/components/icons/FilterIcon.vue';
 import PlusIcon from '@/components/icons/PlusIcon.vue';
+import Converter from '@/scripts/converter';
+import { useWalletStore } from '@/stores/wallet';
 import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
+const walletStore = useWalletStore();
 const addingProduct = ref<boolean>(false);
 </script>
 
@@ -18,7 +21,7 @@ const addingProduct = ref<boolean>(false);
                     </p>
 
                     <div class="stat_info">
-                        <h3>$248,569</h3>
+                        <h3>${{ Converter.toMoney(walletStore.clientMerchant?.productSalesInUsd || 0) }}</h3>
                         <p><span>+14%</span> than last 7d</p>
                     </div>
                 </div>
@@ -29,7 +32,7 @@ const addingProduct = ref<boolean>(false);
                     </p>
 
                     <div class="stat_info">
-                        <h3>2,984</h3>
+                        <h3>{{ Converter.toMoney(walletStore.clientMerchant?.productSalesCount || 0) }}</h3>
                         <p>items sold</p>
                     </div>
                 </div>
@@ -40,7 +43,7 @@ const addingProduct = ref<boolean>(false);
                     </p>
 
                     <div class="stat_info">
-                        <h3>142</h3>
+                        <h3>{{ Converter.toMoney(walletStore.clientMerchant?.productsCount || 0) }}</h3>
                         <p>items on sale</p>
                     </div>
                 </div>
