@@ -251,7 +251,7 @@ const makePayment = async () => {
             ...trxs[0]
         };
 
-        dataStore.setResult(result);
+        window.opener.postMessage(result, dataStore.initiator.url);
     } else {
         notify.push({
             title: 'Transaction failed!',

@@ -293,6 +293,7 @@ const makePayment = async () => {
     if (!token.value) return;
     if (!tokenB.value) return;
     if (!signature.value) return;
+    if (!dataStore.initiator) return;
 
     const params = new URLSearchParams(window.location.search);
     const session = params.get("session");
@@ -393,7 +394,7 @@ const makePayment = async () => {
             ...trxs[0]
         };
 
-        dataStore.setResult(result);
+        window.opener.postMessage(result, dataStore.initiator.url);
     } else {
         notify.push({
             title: 'Transaction failed!',

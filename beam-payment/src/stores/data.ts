@@ -25,7 +25,6 @@ export const useDataStore = defineStore("data", {
   state: () => ({
     data: null as PayData | null,
     initiator: null as Initiator | null,
-    result: null as TransactionCallback | null,
   }),
   actions: {
     setData(newData: PayData | null) {
@@ -33,9 +32,6 @@ export const useDataStore = defineStore("data", {
     },
     setInitiator(newInitiator: Initiator | null) {
       this.initiator = newInitiator;
-    },
-    setResult(newResult: TransactionCallback | null) {
-      this.result = newResult;
     },
   },
 });

@@ -54,17 +54,20 @@ const getTransaction = async (transactionId: Hex) => {
   });
 };
 
-watch(dataStore, () => {
-  if (dataStore.result && dataStore.initiator) {
-    window.opener.postMessage(dataStore.result, dataStore.initiator.url);
-  }
-}, { deep: true });
-
 onMounted(async () => {
   const params = new URLSearchParams(window.location.search);
   const session = params.get("session");
   const initiator = params.get("initiator");
   const transactionId = params.get("tx") as Hex | null;
+
+  if (!initiator) {
+    notify.push({
+      title: 'Invalid payment link!',
+      description: 'Try again.',
+      category: 'error'
+    });
+    return;
+  }
 
   if (session && initiator) {
     window.addEventListener('message', (event) => {
@@ -81,8 +84,6 @@ onMounted(async () => {
       category: 'error'
     });
   }
-
-  if (!initiator) return;
 
   dataStore.setInitiator({
     url: initiator,
