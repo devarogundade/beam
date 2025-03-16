@@ -57,7 +57,7 @@ const removeIndex = (index: number) => {
 
 .snackbar {
     width: 580px;
-    background: var(--bg-darkest);
+    background: var(--bg-lightest);
     box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.8);
     border-radius: 4px;
     margin-bottom: 25px;
@@ -105,19 +105,21 @@ const removeIndex = (index: number) => {
     width: 22px;
     height: 22px;
     border-radius: 4px;
-    background: #9a9d9f;
+    background: var(--bg-light);
     cursor: pointer;
+    padding: 4px;
 }
 
 .texts h3 {
     font-size: 16px;
+    font-weight: 500;
     color: var(--tx-normal);
 }
 
 .texts p {
     font-size: 14px;
     margin-top: 14px;
-    color: var(--tx-dimmed);
+    color: var(--tx-semi);
 }
 
 .link {
@@ -135,7 +137,7 @@ const removeIndex = (index: number) => {
 
 .link p {
     font-size: 12px;
-    color: #181A1C;
+    color: var(--primary);
 }
 
 .link svg {
