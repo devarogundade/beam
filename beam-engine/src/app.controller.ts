@@ -47,7 +47,7 @@ export class AppController {
     return this.appService.getProduct(id);
   }
 
-  @Get('/products/:plan')
+  @Get('/plans/:plan')
   getPlan(@Param('plan') id: string): Promise<Plan | null> {
     return this.appService.getPlan(id);
   }
