@@ -40,7 +40,7 @@ const walletStore = useWalletStore();
                     </div>
                 </RouterLink>
 
-                <div :class="route.name?.toString().startsWith('overview') ? 'option option_selected' : 'option'">
+                <div class="option option_disabled">
                     <div class="selector"></div>
 
                     <button>
@@ -171,6 +171,8 @@ main {
     gap: 15px;
 }
 
+
+
 .option_selected .selector {
     background: var(--primary-light);
 }
@@ -185,6 +187,8 @@ main {
 .option_selected button {
     background: var(--bg-lighter) !important;
 }
+
+
 
 .option button {
     width: 210px;
@@ -233,6 +237,10 @@ main {
 
 .option_child_selected {
     color: var(--tx-normal);
+}
+
+.option_disabled button {
+    cursor: not-allowed !important;
 }
 
 footer {
