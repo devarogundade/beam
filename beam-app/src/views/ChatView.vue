@@ -50,7 +50,7 @@ const sendText = async () => {
 
     chats.value.push({
         _id: 'text',
-        from: walletStore.address,
+        from: walletStore.address.toLowerCase(),
         text: message,
         to: '0x',
         createdAt: new Date()
@@ -60,7 +60,7 @@ const sendText = async () => {
         _id: 'reply',
         from: '0x',
         text: 'Thinking...',
-        to: walletStore.address,
+        to: walletStore.address.toLowerCase(),
         createdAt: new Date()
     });
 
@@ -111,7 +111,8 @@ onUnmounted(() => {
                 <p>Your payments and sales AI Assistant.</p>
             </div>
 
-            <div v-for="chat in chats" :class="chat.from == walletStore.address ? 'message message_user' : 'message'">
+            <div v-for="chat in chats"
+                :class="chat.from.toLowerCase() == walletStore.address.toLowerCase() ? 'message message_user' : 'message'">
                 <img v-if="chat.from == walletStore.address" src="/images/colors.png" alt="">
                 <img v-else src="/images/ai.png" alt="">
                 <div class="text" v-html="chat.text?.replace('```html', '').replace('```', '')"></div>

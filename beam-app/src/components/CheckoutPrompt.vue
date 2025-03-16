@@ -25,7 +25,7 @@ const createClientMerchant = async () => {
         notify.push({
             title: 'Checkout page created!',
             description: 'Start selling with ease.',
-            category: "sucesss"
+            category: "success"
         });
 
         walletStore.setClientMerchant(clientMerchant);

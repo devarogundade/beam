@@ -136,7 +136,7 @@ const create = async () => {
         notify.push({
             title: 'Plan created!',
             description: 'Share plan link to your customers.',
-            category: "sucesss"
+            category: "success"
         });
 
         emit('refresh');

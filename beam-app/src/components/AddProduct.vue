@@ -107,7 +107,7 @@ const create = async () => {
         notify.push({
             title: 'Product added!',
             description: 'Share product link to your customers.',
-            category: "sucesss"
+            category: "success"
         });
 
         emit('refresh');
