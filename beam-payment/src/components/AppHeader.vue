@@ -70,11 +70,14 @@ onMounted(() => {
 </template>
 
 <style scoped>
-header {
+section {
     top: 0;
     position: sticky;
     z-index: 99;
     background: var(--bg);
+}
+
+header {
     height: 90px;
     display: flex;
     align-items: center;
