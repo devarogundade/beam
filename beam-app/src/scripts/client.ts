@@ -4,9 +4,11 @@ import type {
   ClientMerchant,
   CreateMerchant,
   CreateProduct,
-  CreateSale,
+  CreatePlan,
   Product,
   Sale,
+  Plan,
+  TransactionType,
 } from "./types";
 import type { Hex } from "viem";
 
@@ -40,6 +42,15 @@ export const Client = {
     }
   },
 
+  async createPlan(params: CreatePlan): Promise<Plan | null> {
+    try {
+      const response = await this.client.post(`/plans/create`, params);
+      return response.data;
+    } catch (error) {
+      return null;
+    }
+  },
+
   async getProducts(merchant: Hex): Promise<Product[]> {
     try {
       const response = await this.client.get(`/products?merchant=${merchant}`);
@@ -58,9 +69,29 @@ export const Client = {
     }
   },
 
-  async getSales(merchant: Hex): Promise<Sale[]> {
+  async getPlans(merchant: Hex): Promise<Plan[]> {
     try {
-      const response = await this.client.get(`/sales?merchant=${merchant}`);
+      const response = await this.client.get(`/plans?merchant=${merchant}`);
+      return response.data;
+    } catch (error) {
+      return [];
+    }
+  },
+
+  async getPlan(id: string): Promise<Plan | null> {
+    try {
+      const response = await this.client.get(`/plans/${id}`);
+      return response.data;
+    } catch (error) {
+      return null;
+    }
+  },
+
+  async getSales(merchant: Hex, type: TransactionType): Promise<Sale[]> {
+    try {
+      const response = await this.client.get(
+        `/sales?merchant=${merchant}&type=${type}`
+      );
       return response.data;
     } catch (error) {
       return [];

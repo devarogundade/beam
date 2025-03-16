@@ -5,6 +5,7 @@ import { HydratedDocument, Types } from 'mongoose';
 import { Product } from './product';
 import { Hex } from 'viem';
 import { TransactionType, TransactionStatus } from 'src/types';
+import { Plan } from './plan';
 
 export type SaleDocument = HydratedDocument<Sale>;
 
@@ -20,7 +21,10 @@ export class Sale {
   buyer: Hex;
 
   @Prop({ required: true, type: Types.ObjectId, ref: Product.name })
-  product: string | Product;
+  product?: string | Product;
+
+  @Prop({ required: true, type: Types.ObjectId, ref: Plan.name })
+  plan?: string | Plan;
 
   @Prop({ required: true })
   type: TransactionType;

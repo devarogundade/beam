@@ -5,8 +5,10 @@ import { AppService } from './app.service';
 import {
   CreateChat,
   CreateMerchant,
+  CreatePlan,
   CreateProduct,
   CreateSale,
+  TransactionType,
   UpdateProduct,
   UpdateWebhooks,
 } from './types';
@@ -16,6 +18,7 @@ import { UpdateResult } from 'mongoose';
 import { Hex } from 'viem';
 import { Chat } from './database/schemas/chat';
 import { Merchant } from './database/schemas/merchant';
+import { Plan } from './database/schemas/plan';
 
 @Controller()
 export class AppController {
@@ -41,6 +44,11 @@ export class AppController {
     return this.appService.getProduct(id);
   }
 
+  @Get('/products/:plan')
+  getPlan(@Param('plan') id: string): Promise<Plan | null> {
+    return this.appService.getPlan(id);
+  }
+
   @Post('/merchants/create')
   createMerchant(@Body() params: CreateMerchant): Promise<Merchant> {
     return this.appService.createMerchant(params);
@@ -56,6 +64,11 @@ export class AppController {
     return this.appService.createProduct(params);
   }
 
+  @Post('/plans/create')
+  async createPlan(@Body() params: CreatePlan): Promise<Plan> {
+    return this.appService.createPlan(params);
+  }
+
   @Put('/products/update')
   async updateProduct(@Body() params: UpdateProduct): Promise<UpdateResult> {
     return this.appService.updateProduct(params);
@@ -66,6 +79,11 @@ export class AppController {
     return this.appService.getProducts(merchant);
   }
 
+  @Get('/plans')
+  getPlans(@Query('merchant') merchant: Hex): Promise<Plan[]> {
+    return this.appService.getPlans(merchant);
+  }
+
   @Post('/sales/create')
   async createSale(@Body() params: CreateSale): Promise<Sale> {
     return this.appService.createSale(params);
@@ -74,7 +92,7 @@ export class AppController {
   @Get('/sales')
   getSales(
     @Query('merchant') merchant: Hex,
-    @Query('type') type: string | null,
+    @Query('type') type: TransactionType | null,
     @Query('from_date') fromDate: Date | null,
     @Query('from_date') toDate: Date | null,
   ): Promise<Sale[]> {

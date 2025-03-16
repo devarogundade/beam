@@ -38,12 +38,29 @@ export type Sale = {
   merchant: Hex;
   buyer: Hex;
   product: Product | null;
+  plan: Plan | null;
   type: string;
   status: SaleStatus;
   amount: number;
   token: Hex;
   amountInUsd: number;
   quantity: number;
+  createdAt: Date;
+  updatedAt: Date | null;
+};
+
+export type Plan = {
+  _id: string;
+  transactionHash: Hex;
+  merchant: Hex;
+  name: string;
+  description: string;
+  images: string[];
+  category: string;
+  gracePeriod: number;
+  available: boolean;
+  interval: number;
+  amountInUsd: number;
   createdAt: Date;
   updatedAt: Date | null;
 };
@@ -56,6 +73,18 @@ export enum SaleStatus {
 export type ClientMerchant = {
   address: Hex;
   webhooks: string[];
+};
+
+export type CreatePlan = {
+  transactionHash: Hex;
+  merchant: Hex;
+  name: string;
+  description: string;
+  images: string[];
+  category: string;
+  interval: number;
+  gracePeriod: number;
+  amountInUsd: number;
 };
 
 export type CreateMerchant = {

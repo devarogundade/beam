@@ -6,7 +6,7 @@ import PendingIcon from '@/components/icons/PendingIcon.vue';
 import ProgressBox from '@/components/ProgressBox.vue';
 import { Client } from '@/scripts/client';
 import Converter from '@/scripts/converter';
-import { SaleStatus, type Sale } from '@/scripts/types';
+import { SaleStatus, TransactionType, type Sale } from '@/scripts/types';
 import { useWalletStore } from '@/stores/wallet';
 import { onMounted, ref } from 'vue';
 import { getToken } from "beam-ts/src/utils/constants";
@@ -21,7 +21,8 @@ const getSales = async (load: boolean = true) => {
     if (!walletStore.address) return;
     progress.value = load;
     sales.value = await Client.getSales(
-        walletStore.address
+        walletStore.address,
+        TransactionType.OneTime
     );
     progress.value = false;
 };

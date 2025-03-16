@@ -5,22 +5,23 @@ import OutIcon from '@/components/icons/OutIcon.vue';
 import PendingIcon from '@/components/icons/PendingIcon.vue';
 import { Client } from '@/scripts/client';
 import Converter from '@/scripts/converter';
-import { SaleStatus, type Sale } from '@/scripts/types';
+import { SaleStatus, TransactionType, type Sale } from '@/scripts/types';
 import { useWalletStore } from '@/stores/wallet';
+import { getToken } from 'beam-ts/src/utils/constants';
 import { onMounted, ref } from 'vue';
 
 const VITE_EXPLORER_URL = import.meta.env.VITE_EXPLORER_URL;
 
-
 const walletStore = useWalletStore();
 const progress = ref<boolean>(false);
-const payments = ref<Sale[]>([]);
+const sales = ref<Sale[]>([]);
 
 const getSales = async (load: boolean = true) => {
     if (!walletStore.address) return;
     progress.value = load;
-    payments.value = await Client.getSales(
-        walletStore.address
+    sales.value = await Client.getSales(
+        walletStore.address,
+        TransactionType.Recurrent
     );
     progress.value = false;
 };
@@ -46,32 +47,47 @@ onMounted(() => {
             </thead>
 
             <tbody>
-                <tr v-for="payment, index in payments" :key="index">
+                <tr v-for="sale, index in sales" :key="index">
                     <td>
                         <div class="product">
-                            <img src="/images/image_1.png" alt="">
+                            <img :src="sale.plan?.images[0]" :alt="sale.product?.name">
 
                             <div class="product_info">
-                                <p>Rabbit R1 Device</p>
-                                <p><span>Qty:</span> 3</p>
+                                <p>{{ sale.plan?.name }}</p>
+                                <p><span>Duration:</span> {{ sale.quantity }}</p>
                             </div>
                         </div>
                     </td>
 
                     <td>
                         <div class="time">
-                            <p>14 Feb</p>
-                            <p>03:10:12 PM</p>
+                            <p>
+                                {{
+                                    Intl.DateTimeFormat('en-US', {
+                                        day: '2-digit',
+                                        month: 'short',
+                                    }).format(new Date(sale.createdAt))
+                                }}
+                            </p>
+                            <p>
+                                {{
+                                    Intl.DateTimeFormat('en-US', {
+                                        second: '2-digit',
+                                        minute: '2-digit',
+                                        hour: '2-digit'
+                                    }).format(new Date(sale.createdAt))
+                                }}
+                            </p>
                         </div>
                     </td>
 
                     <td>
-                        <div class="status" v-if="payment.status == SaleStatus.Pending">
+                        <div class="status" v-if="sale.status == SaleStatus.Pending">
                             <PendingIcon />
                             <p>Pending</p>
                         </div>
 
-                        <div class="status" v-else-if="payment.status == SaleStatus.Completed">
+                        <div class="status" v-else-if="sale.status == SaleStatus.Completed">
                             <CompletedIcon />
                             <p>Completed</p>
                         </div>
@@ -79,14 +95,14 @@ onMounted(() => {
 
                     <td>
                         <div class="buyer">
-                            <img src="/images/user.png" alt="">
+                            <img src="/images/colors.png" alt="">
 
                             <div class="buyer_info">
-                                <p>Berry Parker</p>
+                                <p>{{ sale.buyer }}</p>
 
-                                <a :href="`${VITE_EXPLORER_URL}/address/${payment.buyer}`">
+                                <a :href="`${VITE_EXPLORER_URL}/address/${sale.buyer}`">
                                     <div class="buyer_address">
-                                        <p>{{ Converter.fineAddress(payment.buyer, 5) }}</p>
+                                        <p>{{ Converter.fineAddress(sale.merchant, 5) }}</p>
                                         <OutIcon />
                                     </div>
                                 </a>
@@ -96,8 +112,8 @@ onMounted(() => {
 
                     <td>
                         <div class="amount">
-                            <p>0.384 <span>BTC</span></p>
-                            <p>≈ $39,680</p>
+                            <p>{{ Converter.toMoney(sale.amount) }} <span>{{ getToken(sale.token)?.symbol }}</span></p>
+                            <p>≈ ${{ Converter.toMoney(sale.amountInUsd) }}</p>
                         </div>
                     </td>
 

@@ -25,6 +25,22 @@ export type Product = {
   updatedAt: Date | null;
 };
 
+export type Plan = {
+  _id: string;
+  transactionHash: Hex;
+  merchant: Hex;
+  name: string;
+  description: string;
+  images: string[];
+  category: string;
+  gracePeriod: number;
+  available: boolean;
+  interval: number;
+  amountInUsd: number;
+  createdAt: Date;
+  updatedAt: Date | null;
+};
+
 export type Sale = {
   _id: string;
   transactionId: Hex;
@@ -41,21 +57,12 @@ export type Sale = {
   updatedAt: Date | null;
 };
 
-export type CreateProduct = {
-  merchant: Hex;
-  name: string;
-  description: string;
-  images: string[];
-  category: string;
-  quantity: number;
-  amountInUsd: number;
-};
-
 export type CreateSale = {
   transactionId: Hex;
   merchant: Hex;
   buyer: Hex;
-  product: string;
+  product?: string;
+  plan?: string;
   type: TransactionType;
   status: TransactionStatus;
   amount: number;

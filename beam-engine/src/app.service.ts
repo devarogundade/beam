@@ -11,6 +11,8 @@ import {
   UpdateProduct,
   UpdateWebhooks,
   CreateMerchant,
+  CreatePlan,
+  TransactionType,
 } from './types';
 import { Merchant } from './database/schemas/merchant';
 import { Model, UpdateResult } from 'mongoose';
@@ -27,6 +29,7 @@ import { Sale } from './database/schemas/sales';
 import { Chat } from './database/schemas/chat';
 import { Hex, zeroAddress } from 'viem';
 import OpenAI from 'openai';
+import { Plan } from './database/schemas/plan';
 
 @Injectable()
 export class AppService {
@@ -35,6 +38,7 @@ export class AppService {
     @InjectModel(Product.name) private productModel: Model<Product>,
     @InjectModel(Sale.name) private saleModel: Model<Sale>,
     @InjectModel(Chat.name) private chatModel: Model<Chat>,
+    @InjectModel(Plan.name) private planModel: Model<Plan>,
   ) {
     publicClient.watchContractEvent({
       address: EVENTS_CONTRACT,
@@ -113,6 +117,12 @@ export class AppService {
     });
   }
 
+  async getPlan(id: string): Promise<Plan | null> {
+    return this.planModel.findOne({
+      _id: id,
+    });
+  }
+
   async getMerchant(merchant: Hex): Promise<Merchant | null> {
     return this.merchantModel.findOne({
       address: merchant,
@@ -148,6 +158,23 @@ export class AppService {
     });
   }
 
+  async createPlan(params: CreatePlan): Promise<Plan> {
+    return this.planModel.create({
+      transactionHash: params.transactionHash,
+      merchant: params.merchant,
+      name: params.name,
+      description: params.description,
+      images: params.images,
+      category: params.category,
+      interval: params.interval,
+      gracePeriod: params.gracePeriod,
+      available: true,
+      amountInUsd: params.amountInUsd,
+      createdAt: new Date(),
+      updatedAt: null,
+    });
+  }
+
   async updateProduct(params: UpdateProduct): Promise<UpdateResult> {
     return this.productModel.updateOne(
       { _id: params.id, address: params.merchant },
@@ -168,6 +195,10 @@ export class AppService {
     return this.productModel.find({ merchant });
   }
 
+  async getPlans(merchant: Hex): Promise<Plan[]> {
+    return this.planModel.find({ merchant });
+  }
+
   async createSale(params: CreateSale): Promise<Sale> {
     await this.productModel.findOneAndUpdate(
       { _id: params.product },
@@ -186,6 +217,7 @@ export class AppService {
         merchant: params.merchant,
         buyer: params.buyer,
         product: params.product,
+        plan: params.plan,
         type: params.type,
         status: params.status,
         amount: params.amount,
@@ -201,7 +233,7 @@ export class AppService {
 
   async getSales(
     merchant: Hex,
-    type: string | null,
+    type: TransactionType | null,
     fromDate: Date | null,
     toDate: Date | null,
   ): Promise<Sale[]> {
@@ -211,11 +243,6 @@ export class AppService {
     if (toDate) query.createdAt = { ...query.createdAt, $lte: toDate };
     if (fromDate) query.createdAt = { ...query.createdAt, $gte: fromDate };
 
-    return this.saleModel
-      .find(query)
-      .populate({
-        path: 'product',
-      })
-      .exec();
+    return this.saleModel.find(query).populate(['product', 'plan']).exec();
   }
 }

@@ -51,6 +51,18 @@ export type CreateProduct = {
   amountInUsd: number;
 };
 
+export type CreatePlan = {
+  transactionHash: Hex;
+  merchant: Hex;
+  name: string;
+  description: string;
+  images: string[];
+  category: string;
+  interval: number;
+  gracePeriod: number;
+  amountInUsd: number;
+};
+
 export type UpdateProduct = {
   id: ObjectId;
   merchant: Hex;
@@ -68,6 +80,7 @@ export type CreateSale = {
   merchant: Hex;
   buyer: Hex;
   product: ObjectId;
+  plan: ObjectId;
   type: TransactionType;
   status: TransactionStatus;
   amount: number;

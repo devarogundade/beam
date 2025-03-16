@@ -1,18 +1,8 @@
 import axios from "axios";
-import type { Hex } from "viem";
-import type { Product, Sale, CreateSale } from "./types";
+import type { Product, Sale, CreateSale, Plan } from "./types";
 
 export const Client = {
   client: axios.create({ baseURL: import.meta.env.VITE_CLIENT_URL }),
-
-  async getProducts(merchant: Hex): Promise<Product[]> {
-    try {
-      const response = await this.client.get(`/products?merchant=${merchant}`);
-      return response.data;
-    } catch (error) {
-      return [];
-    }
-  },
 
   async createSale(params: CreateSale): Promise<Sale | null> {
     try {
@@ -32,12 +22,12 @@ export const Client = {
     }
   },
 
-  async getSales(merchant: Hex): Promise<Sale[]> {
+  async getPlan(id: string): Promise<Plan | null> {
     try {
-      const response = await this.client.get(`/sales?merchant=${merchant}`);
+      const response = await this.client.get(`/plans/${id}`);
       return response.data;
     } catch (error) {
-      return [];
+      return null;
     }
   },
 };
