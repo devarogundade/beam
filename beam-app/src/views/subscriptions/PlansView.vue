@@ -3,7 +3,7 @@ import PlanDetails from '@/components/PlanDetails.vue';
 import { useWalletStore } from '@/stores/wallet';
 import { onMounted, ref } from 'vue';
 import BeamSDK from "beam-ts/src/index";
-import { Network } from "beam-ts/src/enums";
+import { Network } from '@/scripts/types';
 import type { Subscription } from "beam-ts/src/types";
 
 const beamSdk = new BeamSDK({

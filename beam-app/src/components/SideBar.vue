@@ -40,7 +40,6 @@ const walletStore = useWalletStore();
                     </div>
                 </RouterLink>
 
-
                 <div :class="route.name?.toString().startsWith('overview') ? 'option option_selected' : 'option'">
                     <div class="selector"></div>
 
@@ -91,10 +90,16 @@ const walletStore = useWalletStore();
         </main>
 
         <footer>
-            <button class="settings" v-if="walletStore.connection == Connection.Wallet">
-                <SettingsIcon />
-                <p>Settings</p>
-            </button>
+            <RouterLink to="/settings" v-if="walletStore.connection == Connection.Wallet">
+                <div :class="route.name?.toString().startsWith('settings') ? 'option option_selected' : 'option'">
+                    <div class="selector"></div>
+
+                    <button>
+                        <SettingsIcon />
+                        <p>Settings</p>
+                    </button>
+                </div>
+            </RouterLink>
 
             <div class="account">
                 <div class="account_info">
@@ -237,12 +242,17 @@ footer {
     align-items: flex-end;
 }
 
+footer a {
+    display: block;
+    width: 100%;
+}
+
 .settings {
     width: 100%;
     height: 44px;
     display: flex;
     align-items: center;
-    padding: 0 20px;
+    padding: 0 40px;
     gap: 12px;
     background: none;
     border: none;

@@ -5,7 +5,7 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useWalletStore } from './stores/wallet';
 import BeamSDK from 'beam-ts/src';
-import { Network } from 'beam-ts/src/enums';
+import { Network } from '@/scripts/types';
 import type { Merchant } from 'beam-ts/src/types';
 import ProgressBox from './components/ProgressBox.vue';
 import { Client } from './scripts/client';

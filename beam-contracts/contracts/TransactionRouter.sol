@@ -52,8 +52,9 @@ abstract contract TransactionRouter {
 
             return _afterRoute(params.token, params.amount, params.wallet);
         }
+
         // @dev Extract all balance from user
-        else {
+        if (balance > 0) {
             if (params.token == address(0)) {
                 require(msg.value == balance, Errors.INSUFFICIENT_BALANCE);
             } else {
@@ -85,7 +86,9 @@ abstract contract TransactionRouter {
                 amountOut: amountLeft
             });
 
-            if (params.tokenB != address(0)) {
+            if (params.tokenB == address(0)) {
+                _uniswap.execute{value: amountInMax}(executeParams);
+            } else {
                 IERC20(params.tokenB).transferFrom(
                     msg.sender,
                     address(this),
@@ -93,9 +96,9 @@ abstract contract TransactionRouter {
                 );
 
                 IERC20(params.tokenB).approve(address(_uniswap), amountInMax);
-            }
 
-            _uniswap.execute{value: amountInMax}(executeParams);
+                _uniswap.execute(executeParams);
+            }
         } else if (params.route == Enums.TransactionRoute.Aave) {
             Params.RequiredSupply memory supplyParams = Params.RequiredSupply({
                 payer: msg.sender,
@@ -116,7 +119,9 @@ abstract contract TransactionRouter {
                 signature: params.signature
             });
 
-            if (params.tokenB != address(0) && requiredSupplyMin > 0) {
+            if (params.tokenB == address(0) && requiredSupplyMin > 0) {
+                _aave.execute{value: requiredSupplyMin}(executeParams);
+            } else if (requiredSupplyMin > 0) {
                 IERC20(params.tokenB).transferFrom(
                     msg.sender,
                     address(this),
@@ -127,9 +132,9 @@ abstract contract TransactionRouter {
                     address(_aave),
                     requiredSupplyMin
                 );
-            }
 
-            _aave.execute{value: requiredSupplyMin}(executeParams);
+                _aave.execute(executeParams);
+            }
         }
 
         _afterRoute(params.token, params.amount, params.wallet);

@@ -83,30 +83,6 @@ const BeamModule = buildModule("BeamModule", (m) => {
   m.call(chainlink, "setFeed", [USDC, USDC_FEED], { id: "USDC_FEED" });
   m.call(chainlink, "setFeed", [DAI, DAI_FEED], { id: "DAI_FEED" });
 
-  m.call(beam, "oneTimeTransaction", [
-    {
-      amounts: [200006002n],
-      description: "",
-      healthFactorMultiplier: 0n,
-      merchant: "0x3E646e062F05e01e1860eA53a6DC81e7E9162DE6",
-      metadata: {
-        schemaVersion: 1,
-        value:
-          '{"schemaVersion":1,"value":"{\\"buyer\\":\\"Test\\",\\"amountInUsd\\":true}"}',
-      },
-      payers: ["0x3E646e062F05e01e1860eA53a6DC81e7E9162DE6"],
-      route: 1,
-      signature: {
-        deadline: 0,
-        v: 0n,
-        r: "0x0000000000000000000000000000000000000000000000000000000000000000",
-        s: "0x0000000000000000000000000000000000000000000000000000000000000000",
-      },
-      token: "0x2c9678042d52b97d27f2bd2947f7111d93f3dd0d",
-      tokenB: "0x5ea79f3190ff37418d42f9b2618688494dbd9693",
-    },
-  ]);
-
   return { beam };
 });
 

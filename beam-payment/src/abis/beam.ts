@@ -117,6 +117,11 @@ export const beamAbi = [
           },
           {
             internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
             name: "healthFactorMultiplier",
             type: "uint256",
           },
@@ -176,6 +181,11 @@ export const beamAbi = [
             internalType: "address",
             name: "tokenB",
             type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
           },
           {
             internalType: "uint256",
@@ -384,6 +394,11 @@ export const beamAbi = [
           },
           {
             internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
             name: "healthFactorMultiplier",
             type: "uint256",
           },
@@ -486,6 +501,11 @@ export const beamAbi = [
           },
           {
             internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
             name: "healthFactorMultiplier",
             type: "uint256",
           },
@@ -542,6 +562,58 @@ export const beamAbi = [
   {
     inputs: [
       {
+        internalType: "contract IAaveV3",
+        name: "aave",
+        type: "address",
+      },
+    ],
+    name: "setAave",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IOneTimeTransaction",
+        name: "transaction",
+        type: "address",
+      },
+    ],
+    name: "setOneTimeTransaction",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IRecurrentTransaction",
+        name: "transaction",
+        type: "address",
+      },
+    ],
+    name: "setRecurentTransaction",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IUniswap",
+        name: "uniswap",
+        type: "address",
+      },
+    ],
+    name: "setUniswap",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "newOwner",
         type: "address",
@@ -551,5 +623,9 @@ export const beamAbi = [
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ];

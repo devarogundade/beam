@@ -5,12 +5,12 @@ import ChevronLeftIcon from '@/components/icons/ChevronLeftIcon.vue';
 import { useDataStore } from '@/stores/data';
 import { onMounted, ref, watch } from 'vue';
 import type { TransactionCallback, Token, Transaction } from 'beam-ts/src/types';
-import { getToken, getTokens, sleep } from 'beam-ts/src/utils/constants';
+import { getToken, getTokens, SCHEMA_JSON, sleep } from 'beam-ts/src/utils/constants';
 import { useWalletStore } from '@/stores/wallet';
 import { TokenContract } from '@/scripts/erc20';
 import { formatEther, formatUnits, parseUnits, zeroAddress, type Hex } from 'viem';
 import { BeamContract, UniswapContract } from '@/scripts/contract';
-import { Network, TransactionRoute, TransactionType } from 'beam-ts/src/enums';
+import { Network, TransactionType, TransactionRoute } from '@/scripts/types';
 import BeamSDK from 'beam-ts/src';
 import Converter from '@/scripts/converter';
 import ChooseAsset from '@/components/ChooseAsset.vue';
@@ -241,23 +241,6 @@ const makePayment = async () => {
         p.toLowerCase() == walletStore.address?.toLowerCase()
     );
 
-    console.log({
-        payers: [walletStore.address],
-        merchant: dataStore.data.merchant,
-        amounts: amounts,
-        token: token.value.address,
-        tokenB: tokenB.value.address,
-        description: dataStore.data.description ? dataStore.data.description : '',
-        metadata: {
-            schemaVersion: 1,
-            value: JSON.stringify(dataStore.data.metadata)
-        },
-        healthFactorMultiplier: BigInt(0),
-        route: TransactionRoute.Uniswap,
-        signature: emptySignature
-    });
-
-
     if (dataStore.data.type == TransactionType.OneTime) {
         transactionHash = await BeamContract.oneTimeTransaction(
             {
@@ -267,9 +250,9 @@ const makePayment = async () => {
                 token: token.value.address,
                 tokenB: tokenB.value.address,
                 description: dataStore.data.description ? dataStore.data.description : '',
-                metadata: {
-                    schemaVersion: 1,
-                    value: JSON.stringify(dataStore.data.metadata)
+                metadata: dataStore.data.metadata || {
+                    schemaVersion: SCHEMA_JSON,
+                    value: "{}"
                 },
                 slippage: BigInt(slippage.value),
                 healthFactorMultiplier: BigInt(0),
@@ -291,9 +274,9 @@ const makePayment = async () => {
                 tokenB: tokenB.value.address,
                 subscriptionId: dataStore.data.subscriptionId,
                 description: dataStore.data.description ? dataStore.data.description : '',
-                metadata: {
-                    schemaVersion: 1,
-                    value: JSON.stringify(dataStore.data.metadata)
+                metadata: dataStore.data.metadata || {
+                    schemaVersion: SCHEMA_JSON,
+                    value: "{}"
                 },
                 slippage: BigInt(slippage.value),
                 healthFactorMultiplier: BigInt(0),

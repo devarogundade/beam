@@ -185,4 +185,8 @@ export const aaveV3Abi = [
     stateMutability: "view",
     type: "function",
   },
+  {
+    stateMutability: "payable",
+    type: "receive",
+  },
 ];

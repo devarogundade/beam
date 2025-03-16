@@ -5,12 +5,12 @@ import ChevronLeftIcon from '@/components/icons/ChevronLeftIcon.vue';
 import { useDataStore } from '@/stores/data';
 import { onMounted, ref, watch } from 'vue';
 import type { TransactionCallback, Token, Transaction } from 'beam-ts/src/types';
-import { getToken, getTokens, sleep } from 'beam-ts/src/utils/constants';
+import { getToken, getTokens, SCHEMA_JSON, sleep } from 'beam-ts/src/utils/constants';
 import { useWalletStore } from '@/stores/wallet';
 import { TokenContract } from '@/scripts/erc20';
 import { formatEther, formatUnits, parseUnits, zeroAddress, type Hex } from 'viem';
 import { AaveV3Contract, BeamContract, DelegationContract } from '@/scripts/contract';
-import { Network, TransactionType, TransactionRoute } from 'beam-ts/src/enums';
+import { Network, TransactionType, TransactionRoute } from '@/scripts/types';
 import BeamSDK from 'beam-ts/src';
 import { type Signature } from 'beam-ts/src/params';
 import Converter from '@/scripts/converter';
@@ -45,6 +45,7 @@ const balance = ref<number>(0);
 const balanceB = ref<number>(0);
 const allowance = ref<number>(0);
 const allowanceB = ref<number>(0);
+const borrowAllowance = ref<number>(0);
 const signature = ref<Signature | null>(null);
 const healthFactorMultiplier = ref<number>(160);
 const tokenB = ref<Token | null>(null);
@@ -234,6 +235,24 @@ const approveB = async () => {
     approving.value = false;
 };
 
+const getBorrowAllowance = async () => {
+    if (!dataStore.data) return;
+    if (!walletStore.address) return;
+    if (!token.value) return;
+
+    const debtToken = await AaveV3Contract.getVariableDebtTokenAddresses(token.value.address);
+    if (!debtToken) return;
+
+    const result = await DelegationContract.getBorrowAllowance(
+        walletStore.address,
+        debtToken
+    );
+
+    const decimals = token.value?.decimals || 18;
+
+    borrowAllowance.value = Number(formatUnits(result, decimals));
+};
+
 const signBorrowAllowance = async () => {
     if (signing.value) return;
     if (!dataStore.data) return;
@@ -244,20 +263,13 @@ const signBorrowAllowance = async () => {
     const debtToken = await AaveV3Contract.getVariableDebtTokenAddresses(token.value.address);
     if (!debtToken) return;
 
-    const amounts = dataStore.data.amounts.map((amount) => {
-        const value = formatEther(amount);
-        const decimals = token.value?.decimals || 18;
-        return parseUnits(value, decimals);
-    });
-
-    const index = dataStore.data.payers.length <= 1 ? 0 : dataStore.data.payers.findIndex(p =>
-        p.toLowerCase() == walletStore.address?.toLowerCase()
-    );
+    const decimals = token.value?.decimals || 18;
+    const amountLeft = (amount.value - balance.value);
 
     signature.value = await DelegationContract.signBorrowAllowance(
         walletStore.address,
         debtToken,
-        amounts[index]
+        parseUnits(amountLeft.toString(), decimals)
     );
 };
 
@@ -297,9 +309,9 @@ const makePayment = async () => {
                 token: token.value.address,
                 tokenB: tokenB.value.address,
                 description: dataStore.data.description ? dataStore.data.description : '',
-                metadata: {
-                    schemaVersion: 1,
-                    value: JSON.stringify(dataStore.data.metadata)
+                metadata: dataStore.data.metadata || {
+                    schemaVersion: SCHEMA_JSON,
+                    value: "{}"
                 },
                 slippage: BigInt(0),
                 healthFactorMultiplier: BigInt(healthFactorMultiplier.value),
@@ -321,9 +333,9 @@ const makePayment = async () => {
                 tokenB: tokenB.value.address,
                 subscriptionId: dataStore.data.subscriptionId,
                 description: dataStore.data.description ? dataStore.data.description : '',
-                metadata: {
-                    schemaVersion: 1,
-                    value: JSON.stringify(dataStore.data.metadata)
+                metadata: dataStore.data.metadata || {
+                    schemaVersion: SCHEMA_JSON,
+                    value: "{}"
                 },
                 slippage: BigInt(0),
                 healthFactorMultiplier: BigInt(healthFactorMultiplier.value),
@@ -367,6 +379,8 @@ watch(dataStore, () => {
     getBalanceB();
     getAllowance();
     getAllowanceB();
+    getBorrowAllowance();
+
     token.value = getToken(dataStore.data?.token);
 
     const otherTokens = getTokens.filter(t => t.address != dataStore.data?.token);
@@ -381,6 +395,7 @@ watch(walletStore, () => {
     getBalanceB();
     getAllowance();
     getAllowanceB();
+    getBorrowAllowance();
 }, { deep: true });
 
 watch(tokenB, () => {
@@ -388,6 +403,7 @@ watch(tokenB, () => {
     getAmountB();
     getBalanceB();
     getAllowanceB();
+    getBorrowAllowance();
 }, { deep: true });
 
 watch(healthFactorMultiplier, () => {
@@ -410,6 +426,7 @@ onMounted(() => {
     getBalanceB();
     getAllowance();
     getAllowanceB();
+    getBorrowAllowance();
 
     const otherTokens = getTokens.filter(t => t.address != dataStore.data?.token);
     tokenB.value = otherTokens.length > 0 ? otherTokens[0] : null;
@@ -468,7 +485,7 @@ onMounted(() => {
                                     <BadHFIcon v-if="hf <= 1.2" />
                                     <HFIcon v-else-if="hf <= 1.6" />
                                     <GoodHFIcon v-else />
-                                    <p>{{ Number(Converter.toMoney(hf)) > 1000 ? '1k+' : Converter.toMoney(hf) }}</p>
+                                    <p>{{ hf > 1000 ? '1k+' : Converter.toMoney(hf) }}</p>
                                 </div>
                             </div>
                         </div>

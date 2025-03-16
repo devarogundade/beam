@@ -6,7 +6,6 @@ import {Errors} from "../libs/Errors.sol";
 import {IUniswap} from "../interfaces/IUniswap.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IUniswapV2Router02} from "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
-
 contract UniswapV2 is IUniswap {
     IUniswapV2Router02 internal immutable _swapRouter;
 

@@ -11,6 +11,8 @@ import { Connection } from '@/scripts/types';
 import Converter from '@/scripts/converter';
 import EyeIcon from './icons/EyeIcon.vue';
 import WalletIcon from './icons/WalletIcon.vue';
+import AIIcon from './icons/AIIcon.vue';
+import SettingsIcon from './icons/SettingsIcon.vue';
 
 interface Props {
     parent?: string;
@@ -48,7 +50,13 @@ watch(route, (newValue) => {
     else if (newValue.name?.toString().startsWith('chat')) {
         props.value = {
             title: 'Beam AI',
-            icon: PaymentsIcon
+            icon: AIIcon
+        };
+    }
+    else if (newValue.name?.toString().startsWith('settings')) {
+        props.value = {
+            title: 'Settings',
+            icon: SettingsIcon
         };
     }
 });

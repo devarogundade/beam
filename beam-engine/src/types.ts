@@ -1,8 +1,20 @@
 /* eslint-disable prettier/prettier */
-import type { TransactionStatus, TransactionType } from 'beam-ts/src/enums';
 
 import { ObjectId } from 'mongoose';
 import { Hex } from 'viem';
+
+export enum TransactionStatus {
+  Pending = 0,
+  Active = 1,
+  Completed = 2,
+  Cancelled = 3,
+}
+
+export enum TransactionType {
+  OneTime = 0,
+  Recurrent = 1,
+  Send = 2,
+}
 
 export type WebhookOptions = {
   merchant: Hex;

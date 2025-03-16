@@ -5,7 +5,7 @@ import { useDataStore } from './stores/data';
 import ProgressBox from './components/ProgressBox.vue';
 import type { Hex } from 'viem';
 import BeamSDK from 'beam-ts/src';
-import { Network } from 'beam-ts/src/enums';
+import { Network } from '@/scripts/types';
 
 const dataStore = useDataStore();
 

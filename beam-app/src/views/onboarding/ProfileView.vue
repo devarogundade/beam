@@ -60,8 +60,6 @@ const next = () => {
 onMounted(() => {
     if (!walletStore.address) router.push('/onboarding');
 
-    console.log('merchant', walletStore.merchant);
-
     if (walletStore.merchant) {
         name.value = JSON.parse(walletStore.merchant.metadata_value)?.name;
     }
@@ -109,11 +107,12 @@ onMounted(() => {
                             <label>Merchant Image</label>
                             <div class="file">
                                 <div class="upload">
-                                    <input type="file" @change="onImageSelected">
                                     <img :src="imageURL ? imageURL : '/images/placeholder.png'" alt="">
                                 </div>
 
                                 <div class="upload_text">
+                                    <input type="file" @change="onImageSelected">
+
                                     <p>
                                         Click below to upload a JPG or PNG file type, <span>100 x 100px
                                             recommended.</span>
@@ -225,10 +224,13 @@ onMounted(() => {
     height: 214px;
     border-radius: 8px;
     overflow: hidden;
+}
+
+.upload_text {
     position: relative;
 }
 
-.upload input {
+.upload_text input {
     width: 100%;
     height: 100%;
     position: absolute;

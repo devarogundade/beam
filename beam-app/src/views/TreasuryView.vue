@@ -10,8 +10,7 @@ import SwapIcon from '@/components/icons/SwapIcon.vue';
 import UsersIcon from '@/components/icons/UsersIcon.vue';
 import { useWalletStore } from '@/stores/wallet';
 import { onMounted, ref } from 'vue';
-import BeamSDK from "beam-ts/src/index";
-import { Network, TransactionType } from "beam-ts/src/enums";
+import BeamSDK from "beam-ts/src";
 import type { Token, Transaction } from "beam-ts/src/types";
 import { getToken, getTokens } from "beam-ts/src/utils/constants";
 import CompletedIcon from '@/components/icons/CompletedIcon.vue';
@@ -23,6 +22,8 @@ import ArrowUpIcon from '@/components/icons/ArrowUpIcon.vue';
 import { TokenContract } from '@/scripts/erc20';
 import AllAssets from '@/components/AllAssets.vue';
 import ProgressBox from '@/components/ProgressBox.vue';
+import { Network, TransactionType } from '@/scripts/types';
+import ReceiveToken from '@/components/ReceiveToken.vue';
 
 const beamSdk = new BeamSDK({
   network: Network.Testnet
@@ -37,6 +38,7 @@ const balances = ref<{ [key: string]: number; }>({
   '0x279cbf5b7e3651f03cb9b71a9e7a3c924b267801': 0,
 });
 const tokens = ref<Token[]>([]);
+const receiveToken = ref<boolean>(false);
 const allAssets = ref<boolean>(false);
 
 const transactions = ref<Transaction[]>([]);
@@ -131,7 +133,7 @@ onMounted(() => {
             <p>Send</p>
           </button>
 
-          <button>
+          <button @click="receiveToken = true">
             <ReceiveIcon />
             <p>Receive</p>
           </button>
@@ -186,7 +188,7 @@ onMounted(() => {
       <div class="title">
         <div class="name">
           <p>Confirmations</p>
-          <p>21 <span>Txns</span></p>
+          <p>{{ transactions.length }} <span>Txns</span></p>
         </div>
 
         <button class="filter">
@@ -310,6 +312,8 @@ onMounted(() => {
       </table>
     </div>
 
+    <ReceiveToken v-if="walletStore.merchant && receiveToken" :address="walletStore.merchant.wallet"
+      @close="receiveToken = false" />
     <AllAssets v-if="allAssets" :balances="balances" :tokens="tokens" @close="allAssets = false" />
   </div>
 </template>

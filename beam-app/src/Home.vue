@@ -5,7 +5,7 @@ import { useWalletStore } from './stores/wallet';
 import type { Merchant } from 'beam-ts/src/types';
 import { onMounted, ref, watch } from 'vue';
 import BeamSDK from 'beam-ts/src';
-import { Network } from 'beam-ts/src/enums';
+import { Network } from '@/scripts/types';
 
 const route = useRoute();
 const router = useRouter();

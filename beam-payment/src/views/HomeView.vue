@@ -6,9 +6,9 @@ import { formatEther, formatUnits, parseUnits, zeroAddress, type Hex } from 'vie
 import { onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import BeamSDK from "beam-ts/src/index";
-import { Network, TransactionType, TransactionRoute } from 'beam-ts/src/enums';
+import { Network, TransactionType, TransactionRoute } from '@/scripts/types';
 import type { Token, Transaction, TransactionCallback } from 'beam-ts/src/types';
-import { getToken, sleep } from 'beam-ts/src/utils/constants';
+import { getToken, SCHEMA_JSON, sleep } from 'beam-ts/src/utils/constants';
 import { TokenContract } from '@/scripts/erc20';
 import Converter from '@/scripts/converter';
 import { emptySignature } from 'beam-ts/src/utils/helpers';
@@ -175,9 +175,9 @@ const makePayment = async () => {
                 token: token.value.address,
                 tokenB: zeroAddress,
                 description: dataStore.data.description ? dataStore.data.description : '',
-                metadata: {
-                    schemaVersion: 1,
-                    value: JSON.stringify(dataStore.data.metadata)
+                metadata: dataStore.data.metadata || {
+                    schemaVersion: SCHEMA_JSON,
+                    value: "{}"
                 },
                 slippage: BigInt(0),
                 healthFactorMultiplier: BigInt(0),
@@ -199,9 +199,9 @@ const makePayment = async () => {
                 tokenB: zeroAddress,
                 subscriptionId: dataStore.data.subscriptionId,
                 description: dataStore.data.description ? dataStore.data.description : '',
-                metadata: {
-                    schemaVersion: 1,
-                    value: JSON.stringify(dataStore.data.metadata)
+                metadata: dataStore.data.metadata || {
+                    schemaVersion: SCHEMA_JSON,
+                    value: "{}"
                 },
                 slippage: BigInt(0),
                 healthFactorMultiplier: BigInt(0),

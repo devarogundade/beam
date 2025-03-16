@@ -16,6 +16,9 @@ import WatchView from "@/views/onboarding/WatchView.vue";
 import ProfileView from "@/views/onboarding/ProfileView.vue";
 import ReviewView from "@/views/onboarding/ReviewView.vue";
 import MultisigView from "@/views/onboarding/MultisigView.vue";
+import GeneralView from "@/views/settings/GeneralView.vue";
+import WalletSettings from "@/views/settings/WalletSettings.vue";
+import PaymentsSettingsView from "@/views/settings/PaymentsSettingsView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -119,6 +122,23 @@ const router = createRouter({
           path: "/settings",
           name: "settings",
           component: SettingsView,
+          children: [
+            {
+              path: "/settings",
+              name: "settings-general",
+              component: GeneralView,
+            },
+            {
+              path: "/settings/payments",
+              name: "settings-payments",
+              component: PaymentsSettingsView,
+            },
+            {
+              path: "/settings/wallet",
+              name: "settings-wallet",
+              component: WalletSettings,
+            },
+          ],
         },
       ],
     },

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
 import BeamSDK from "beam-ts/src";
-import { Network, TransactionRoute, TransactionType } from "beam-ts/src/enums";
+import { Network } from "@/scripts/types";
 import type { Merchant, Token, TransactionCallback } from "beam-ts/src/types";
 import { getTokens } from "beam-ts/src/utils/constants";
 import type { Product } from "./scripts/types";

@@ -26,12 +26,12 @@ export const uniswapAbi = [
           },
           {
             internalType: "uint256",
-            name: "amountIn",
+            name: "amountInMax",
             type: "uint256",
           },
           {
             internalType: "uint256",
-            name: "amountOutMin",
+            name: "amountOut",
             type: "uint256",
           },
         ],
@@ -64,6 +64,11 @@ export const uniswapAbi = [
             name: "amountOut",
             type: "uint256",
           },
+          {
+            internalType: "uint256",
+            name: "slippage",
+            type: "uint256",
+          },
         ],
         internalType: "struct Params.RequiredAmountIn",
         name: "params",
@@ -80,5 +85,9 @@ export const uniswapAbi = [
     ],
     stateMutability: "view",
     type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ];
