@@ -14,7 +14,7 @@ import BeamSDK from "beam-ts/src";
 import type { Token, Transaction } from "beam-ts/src/types";
 import { getToken, getTokens } from "beam-ts/src/utils/constants";
 import CompletedIcon from '@/components/icons/CompletedIcon.vue';
-import { formatUnits, zeroAddress } from 'viem';
+import { formatUnits } from 'viem';
 import Converter from '@/scripts/converter';
 import PaymentsIcon from '@/components/icons/PaymentsIcon.vue';
 import ArrowDownIcon from '@/components/icons/ArrowDownIcon.vue';
@@ -24,14 +24,18 @@ import AllAssets from '@/components/AllAssets.vue';
 import ProgressBox from '@/components/ProgressBox.vue';
 import { Network, TransactionType } from '@/scripts/types';
 import ReceiveToken from '@/components/ReceiveToken.vue';
+import UserIcon from '@/components/icons/UserIcon.vue';
+
+const VITE_EXPLORER_URL = import.meta.env.VITE_EXPLORER_URL;
 
 const beamSdk = new BeamSDK({
   network: Network.Testnet
 });
+const activeIndex = ref<number>(-1);
 const walletStore = useWalletStore();
 const progress = ref<boolean>(false);
 const balances = ref<{ [key: string]: number; }>({
-  zeroAddress: 0,
+  '0x0000000000000000000000000000000000000000': 0,
   '0x2c9678042d52b97d27f2bd2947f7111d93f3dd0d': 0,
   '0x5ea79f3190ff37418d42f9b2618688494dbd9693': 0,
   '0x9E8CEC4F2F4596141B62e88966D7167E9db555aD': 0,
@@ -211,7 +215,9 @@ onMounted(() => {
         </thead>
 
         <tbody>
-          <tr v-for="transaction, index in transactions" :key="index">
+          <tr v-for="transaction, index in transactions" :key="index"
+            @click="index == activeIndex ? activeIndex = - 1 : activeIndex = index"
+            :class="index == activeIndex ? 'active_transaction' : ''">
             <td>
               <div class="product">
                 <PaymentsIcon v-if="transaction.type == TransactionType.OneTime" />
@@ -221,7 +227,7 @@ onMounted(() => {
                 <div class="product_info">
                   <p v-if="transaction.type == TransactionType.OneTime">{{
                     transaction.description?.length > 0 ? transaction.description : 'One Time'
-                  }}</p>
+                    }}</p>
                   <p v-if="transaction.type == TransactionType.Recurrent">{{
                     transaction.description?.length > 0 ?
                       transaction.description : 'Recurrent'
@@ -272,6 +278,11 @@ onMounted(() => {
                 <CompletedIcon />
                 <p>Completed</p>
               </div>
+
+              <div class="status" v-if="transaction.type == TransactionType.Recurrent">
+                <CompletedIcon />
+                <p>Completed</p>
+              </div>
             </td>
 
             <td>
@@ -281,11 +292,15 @@ onMounted(() => {
                   <p v-if="transaction.type == TransactionType.OneTime">
                     {{ transaction.fulfilleds.length }} <span>of {{ transaction.payers.length }}</span>
                   </p>
+
+                  <p v-if="transaction.type == TransactionType.Recurrent">1 <span>of 1</span> </p>
                 </div>
 
                 <div class=" progress">
                   <div v-if="transaction.type == TransactionType.OneTime" class="bar"
                     :style="`width: ${(transaction.fulfilleds.length / transaction.payers.length) * 100}%`"></div>
+
+                  <div v-if="transaction.type == TransactionType.Recurrent" class="bar" :style="`width: ${100}%`"></div>
                 </div>
               </div>
             </td>
@@ -301,21 +316,63 @@ onMounted(() => {
                   }}
                   <span>{{ getToken(transaction.token)?.symbol }}</span>
                 </p>
-                <p>≈ ${{Converter.toMoney(
+                <p v-if="transaction.type == TransactionType.OneTime">≈ ${{Converter.toMoney(
                   (getToken(transaction.token)?.price || 0) * Number(formatUnits(transaction.amounts.reduce((a, b) => a
                     + b, BigInt(0)),
                     getToken(transaction.token)?.decimals || 18))
 
                 )}}
                 </p>
+
+                <p v-if="transaction.type == TransactionType.Recurrent">
+                  {{
+                    Converter.toMoney(
+                      Number(formatUnits(transaction.amount,
+                        getToken(transaction.token)?.decimals || 18))
+                    )
+                  }}
+                  <span>{{ getToken(transaction.token)?.symbol }}</span>
+                </p>
+                <p v-if="transaction.type == TransactionType.Recurrent">≈ ${{ Converter.toMoney(
+                  (getToken(transaction.token)?.price || 0) * Number(formatUnits(transaction.amount,
+                    getToken(transaction.token)?.decimals || 18)))
+                }}
+                </p>
               </div>
             </td>
 
             <td>
-              <div class="view">
-                <ChevronDownIcon />
+              <div class="view_dropdown">
+                <div class="view">
+                  <ChevronDownIcon />
+                </div>
               </div>
             </td>
+
+            <div class="confirmation">
+              <div class="confirmation_title">
+                <p>Confrimations</p>
+                <div class="icon">
+
+                </div>
+              </div>
+
+              <div class="confirmation_signers"
+                :style="`grid-template-columns: repeat(${transaction.confirmations.length}, 1fr);`">
+                <div class="confirmation_signer" v-for="confirmation, index in transaction.confirmations">
+                  <div class="signer_wrapper">
+                    <div class="signer_info">
+                      <UserIcon />
+                      <p>Signer {{ index + 1 }}</p>
+                    </div>
+                    <p>{{ Converter.fineAddress(confirmation.from, 6) }}</p>
+                  </div>
+                  <a target="_blank" :href="`${VITE_EXPLORER_URL}/tx/${confirmation.transactionHash}`">
+                    <OutIcon />
+                  </a>
+                </div>
+              </div>
+            </div>
           </tr>
         </tbody>
       </table>
@@ -636,6 +693,7 @@ tbody td:last-child {
   justify-content: center;
 }
 
+
 .product {
   display: flex;
   align-items: center;
@@ -747,6 +805,12 @@ tbody td:last-child {
   font-size: 14px;
 }
 
+.view_dropdown {
+  padding: 0 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .view {
   width: 32px;
   height: 30px;
@@ -755,5 +819,81 @@ tbody td:last-child {
   justify-content: center;
   border-radius: 8px;
   border: 1px solid var(--bg-lighter);
+}
+
+tr {
+  position: relative;
+  overflow: hidden;
+}
+
+.active_transaction {
+  background: var(--bg-lighter);
+  margin-bottom: 132px;
+}
+
+.confirmation {
+  width: 100%;
+  position: absolute;
+  left: 0;
+  bottom: -132px;
+  height: 132px;
+  display: none;
+  padding: 20px;
+  z-index: 1;
+  background: var(--bg-light);
+}
+
+.active_transaction .confirmation {
+  display: block;
+}
+
+.confirmation_title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 30px;
+}
+
+.confirmation_title p {
+  color: var(--tx-semi);
+  font-size: 14px;
+}
+
+.confirmation_signers {
+  margin-top: 20px;
+  width: 100%;
+  display: grid;
+  justify-content: space-between;
+  border-left: 1px solid var(--bg-lightest);
+  border-right: 1px solid var(--bg-lightest);
+}
+
+.confirmation_signer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-right: 1px solid var(--bg-lightest);
+}
+
+.confirmation_signer:last-child {
+  border-right: none;
+}
+
+.signer_wrapper p {
+  margin-top: 6px;
+  color: var(--tx-normal);
+  font-size: 14px;
+}
+
+.signer_info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.signer_info p {
+  color: var(--tx-semi);
+  font-size: 14px;
 }
 </style>
