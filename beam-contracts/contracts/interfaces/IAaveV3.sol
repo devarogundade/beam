@@ -8,6 +8,10 @@ interface IAaveV3 {
 
     function getHealthFactor(address payer) external view returns (uint256 hf);
 
+    function getCurrentVariableBorrowRate(
+        address borrowAsset
+    ) external returns (uint256 rate);
+
     function getCurrentLiquidityRate(
         address supplyAsset
     ) external view returns (uint256 rate);

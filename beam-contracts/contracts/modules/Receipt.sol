@@ -4,39 +4,30 @@ pragma solidity ^0.8.28;
 import {Params} from "../libs/Params.sol";
 import {IReceipt} from "../interfaces/IReceipt.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
-/**
- * @title Receipt
- * @dev A contract for minting receipt NFTs, based on the ERC721 standard.
- * @notice This contract allows the owner to mint receipts as non-fungible tokens (NFTs).
- */
-contract Receipt is ERC721, IReceipt, Ownable {
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract Receipt is ERC721, IReceipt, AccessControl {
     using Strings for uint256;
 
     string internal BASE_URL; // Base URL for the receipt metadata
     uint256 internal _lastTokenId; // Tracks the last issued token ID
     mapping(uint256 => string) internal _tokenURIs; // Mapping from token ID to metadata URI
 
-    /**
-     * @notice Constructor to initialize the contract with a base URI.
-     * @param baseURI_ The base URI for receipt metadata.
-     */
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+
     constructor(
-        string memory baseURI_
-    ) ERC721("Beam Receipt", "BMRPT") Ownable(msg.sender) {
+        string memory baseURI_,
+        address CONTROLLER
+    ) ERC721("Beam Receipt", "BMRPT") {
         BASE_URL = baseURI_;
+        _grantRole(DEFAULT_ADMIN_ROLE, CONTROLLER);
     }
 
-    /**
-     * @notice Mints a new receipt NFT.
-     * @param params The parameters for minting the receipt, including payer, token, amount, etc.
-     * @dev Only the owner can mint receipts.
-     */
     function mint(
         Params.MintReceipt memory params
-    ) external override onlyOwner {
+    ) external override onlyRole(MINTER_ROLE) {
         _beforeNewReceipt();
 
         // Mint the receipt NFT
@@ -48,37 +39,35 @@ contract Receipt is ERC721, IReceipt, Ownable {
         emit ReceiptMinted(params.to, _lastTokenId, params.transactionId);
     }
 
-    /**
-     * @notice Returns the metadata URI for a specific receipt.
-     * @param tokenId The token ID of the receipt.
-     * @return The URI for the receipt metadata.
-     */
     function tokenURI(
         uint256 tokenId
     ) public view override returns (string memory) {
         return _tokenURIs[tokenId];
     }
 
-    /**
-     * @notice Returns the base URI for all receipts.
-     * @return The base URI for the receipts.
-     */
     function baseURI() public view override returns (string memory) {
         return _baseURI();
     }
 
-    /**
-     * @dev Internal function to return the base URI.
-     * @return The base URI for the contract.
-     */
     function _baseURI() internal view override returns (string memory) {
         return BASE_URL;
     }
 
-    /**
-     * @dev Internal function to increment the token ID for the next minted receipt.
-     */
     function _beforeNewReceipt() internal {
         _lastTokenId = _lastTokenId + 1;
+    }
+
+    function grantRole(
+        address account,
+        bytes32 role
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _grantRole(role, account);
+    }
+
+    // Explicitly override supportsInterface
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(ERC721, AccessControl) returns (bool) {
+        return super.supportsInterface(interfaceId);
     }
 }

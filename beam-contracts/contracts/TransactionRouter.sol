@@ -119,7 +119,7 @@ abstract contract TransactionRouter {
                 signature: params.signature
             });
 
-            if (params.tokenB == address(0) && requiredSupplyMin > 0) {
+            if (params.tokenB == address(0)) {
                 _aave.execute{value: requiredSupplyMin}(executeParams);
             } else if (requiredSupplyMin > 0) {
                 IERC20(params.tokenB).transferFrom(
@@ -133,6 +133,8 @@ abstract contract TransactionRouter {
                     requiredSupplyMin
                 );
 
+                _aave.execute(executeParams);
+            } else {
                 _aave.execute(executeParams);
             }
         }

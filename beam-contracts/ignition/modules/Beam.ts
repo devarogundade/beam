@@ -13,7 +13,9 @@ import HookManagerModule from "./HookManager";
 import EventsModule from "./Events";
 import ChainlinkModule from "./Chainlink";
 import BeamOracleModule from "./BeamOracle";
+import ReceiptModule from "./Receipt";
 
+const MINTER_ROLE = keccak256(stringToBytes("MINTER_ROLE"));
 const BEAM_ROLE = keccak256(stringToBytes("BEAM_ROLE"));
 const HOOK_ROLE = keccak256(stringToBytes("HOOK_ROLE"));
 const MERCHANT_ROLE = keccak256(stringToBytes("MERCHANT_ROLE"));
@@ -33,6 +35,7 @@ const DAI_FEED = "0x9388954B816B2030B003c81A779316394b3f3f11";
 const BeamModule = buildModule("BeamModule", (m) => {
   const { events } = m.useModule(EventsModule);
   const { merchant } = m.useModule(MerchantModule);
+  const { receipt } = m.useModule(ReceiptModule);
   const { oneTimeTransaction } = m.useModule(OneTimeTransactionModule);
   const { recurrentTransaction } = m.useModule(RecurrentTransactionModule);
   const { hookManager } = m.useModule(HookManagerModule);
@@ -76,6 +79,23 @@ const BeamModule = buildModule("BeamModule", (m) => {
   m.call(events, "grantRole(address,bytes32)", [merchant, MERCHANT_ROLE], {
     id: "MERCHANT_ROLE",
   });
+
+  m.call(
+    receipt,
+    "grantRole(address,bytes32)",
+    [oneTimeTransaction, MINTER_ROLE],
+    {
+      id: "MINTER_ROLE_1",
+    }
+  );
+  m.call(
+    receipt,
+    "grantRole(address,bytes32)",
+    [recurrentTransaction, MINTER_ROLE],
+    {
+      id: "MINTER_ROLE_2",
+    }
+  );
 
   m.call(chainlink, "setFeed", [ETH, ETH_FEED], { id: "ETH_FEED" });
   m.call(chainlink, "setFeed", [WBTC, WBTC_FEED], { id: "WBTC_FEED" });

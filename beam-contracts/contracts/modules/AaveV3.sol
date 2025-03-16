@@ -117,6 +117,22 @@ contract AaveV3 is IAaveV3 {
         hf = healthFactor;
     }
 
+    function getCurrentVariableBorrowRate(
+        address borrowAsset
+    ) public view override returns (uint256 rate) {
+        IPoolAddressesProvider provider = IPoolAddressesProvider(
+            _poolAddressesProvider
+        );
+
+        IPool pool = IPool(provider.getPool());
+
+        DataTypes.ReserveData memory reserveData = pool.getReserveData(
+            borrowAsset
+        );
+
+        rate = reserveData.currentVariableBorrowRate;
+    }
+
     function getCurrentLiquidityRate(
         address supplyAsset
     ) public view override returns (uint256 rate) {

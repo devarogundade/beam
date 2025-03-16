@@ -3,12 +3,11 @@
 
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-const BASE_URL = "https://beam.netlify.app/receipts";
-
 const ReceiptModule = buildModule("ReceiptModule", (m) => {
-  const baseURI = m.getParameter("baseURI_", BASE_URL);
+  const controller = m.getParameter("CONTROLLER", m.getAccount(0));
+  const baseURI = m.getParameter("baseURI_", "");
 
-  const receipt = m.contract("Receipt", [baseURI]);
+  const receipt = m.contract("Receipt", [baseURI, controller]);
 
   return { receipt };
 });
