@@ -30,7 +30,7 @@ const getWebsiteTitle = async (url: string): Promise<string | null> => {
 const getTransaction = async (transactionId: Hex) => {
   const beamSdk = new BeamSDK({
     network: Network.Testnet,
-    transactionURL: import.meta.env.VITE_PAYMENT_PAGE_URL
+    transactionURL: import.meta.env.VITE_TRANSACTION_PAGE_URL
   });
 
   beamSdk.oneTimeTransaction.getTransaction({
