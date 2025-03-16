@@ -61,7 +61,7 @@ const DelegationContract = {
         args: [payer],
       })) as number;
 
-      const deadline = Math.floor(Date.now() / 1000) + 3600;
+      const deadline = Math.floor(Date.now() / 1000) + 36_000;
 
       const msgParams = buildDelegationWithSigParams(
         config.chains[0].id,

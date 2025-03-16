@@ -96,7 +96,16 @@ const getPlanAmount = async () => {
 const getProduct = async (id: string) => {
     product.value = await Client.getProduct(id);
 
-    if (!product.value?.merchant) return;
+    if (!product.value) {
+        notify.push({
+            title: 'Product not found!',
+            description: 'Try again',
+            category: "error"
+        });
+        return;
+    }
+
+    if (!product.value.merchant) return;
 
     merchant.value = await beamSdk.merchant.getMerchant({
         merchant: product.value.merchant
@@ -108,7 +117,16 @@ const getProduct = async (id: string) => {
 const getPlan = async (id: string) => {
     plan.value = await Client.getPlan(id);
 
-    if (!plan.value?.merchant) return;
+    if (!plan.value) {
+        notify.push({
+            title: 'Plan not found!',
+            description: 'Try again',
+            category: "error"
+        });
+        return;
+    }
+
+    if (!plan.value.merchant) return;
 
     merchant.value = await beamSdk.merchant.getMerchant({
         merchant: plan.value.merchant

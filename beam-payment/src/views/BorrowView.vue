@@ -21,6 +21,7 @@ import GoodHFIcon from '@/components/icons/GoodHFIcon.vue';
 import BadHFIcon from '@/components/icons/BadHFIcon.vue';
 import HFIcon from '@/components/icons/HFIcon.vue';
 import { notify } from '@/reactives/notify';
+import AaveIcon from '@/components/icons/AaveIcon.vue';
 
 const dataStore = useDataStore();
 const walletStore = useWalletStore();
@@ -590,6 +591,11 @@ onMounted(() => {
                         </button>
                     </div>
                 </div>
+
+                <div class="powered">
+                    <p>Powered by</p>
+                    <AaveIcon />
+                </div>
             </div>
         </div>
 
@@ -601,8 +607,22 @@ onMounted(() => {
 <style scoped>
 .container {
     display: flex;
-    justify-content: center;
+    align-items: center;
+    flex-direction: column;
     padding: 60px;
+}
+
+.powered {
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.powered p {
+    color: var(--tx-semi);
+    font-size: 14px;
 }
 
 .payment {
