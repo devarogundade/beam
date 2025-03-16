@@ -27,7 +27,8 @@ type PayData = {
 };
 
 const beamSdk = new BeamSDK({
-    network: Network.Testnet
+    network: Network.Testnet,
+    transactionURL: import.meta.env.VITE_TRANSACTION_PAGE_URL
 });
 
 const modules = [Pagination];
