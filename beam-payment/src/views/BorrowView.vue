@@ -205,7 +205,13 @@ const approve = async () => {
 
     if (txHash) {
         getAllowance();
-    } else { }
+    } else {
+        notify.push({
+            title: 'Transaction failed!',
+            description: 'Try again.',
+            category: 'error'
+        });
+    }
 
     approving.value = false;
 };
@@ -231,7 +237,13 @@ const approveB = async () => {
 
     if (txHash) {
         getAllowanceB();
-    } else { }
+    } else {
+        notify.push({
+            title: 'Transaction failed!',
+            description: 'Try again.',
+            category: 'error'
+        });
+    }
 
     approving.value = false;
 };
@@ -345,7 +357,13 @@ const makePayment = async () => {
             },
             token.value.address == zeroAddress ? subscription.amount : BigInt(0)
         );
-    } else { }
+    } else {
+        notify.push({
+            title: 'Invalid transaction type!',
+            description: 'Try again.',
+            category: 'error'
+        });
+    }
 
     if (transactionHash) {
         notify.push({
