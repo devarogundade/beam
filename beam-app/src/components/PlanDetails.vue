@@ -59,7 +59,7 @@ const shareLink = () => {
 
 onMounted(() => {
     document.body.style.overflowY = 'hidden';
-    planLink.value = `https://beam-checkout.netlify.app?id=${props.plan._id}type=plan`;
+    planLink.value = `https://beam-checkout.netlify.app?id=${props.plan._id}&type=plan`;
 });
 
 onUnmounted(() => {
