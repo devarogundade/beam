@@ -6,13 +6,20 @@ import ProgressBox from '@/components/ProgressBox.vue';
 import { Client } from '@/scripts/client';
 import { Plan } from '@/scripts/types';
 import Converter from '@/scripts/converter';
+import CreatePlan from '@/components/CreatePlan.vue';
 
 const walletStore = useWalletStore();
 const progress = ref<boolean>(false);
 const plans = ref<Plan[]>([]);
 const selectedPlan = ref<Plan | null>(null);
 
-const getSubscriptions = async (page: number, load: boolean = true) => {
+const emit = defineEmits(['close-creating-plan']);
+
+const props = defineProps({
+    creatingPlan: { type: Boolean }
+});
+
+const getPlans = async (load: boolean = true) => {
     if (!walletStore.address) return;
     progress.value = load;
 
@@ -22,7 +29,7 @@ const getSubscriptions = async (page: number, load: boolean = true) => {
 };
 
 onMounted(() => {
-    getSubscriptions(1);
+    getPlans();
 });
 </script>
 
@@ -51,6 +58,8 @@ onMounted(() => {
         <img src="/images/empty.png" alt="">
         <p>No plans.</p>
     </div>
+
+    <CreatePlan v-if="props.creatingPlan" @refresh="getPlans(false)" @close="emit('close-creating-plan')" />
 
     <PlanDetails v-if="selectedPlan" :plan="selectedPlan" @close="selectedPlan = null" />
 </template>

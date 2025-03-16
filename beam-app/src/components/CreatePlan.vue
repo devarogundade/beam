@@ -99,7 +99,7 @@ const create = async () => {
 
     const transactionHash = await MerchantContract.createSubscription({
         token: getTokens[0].address,
-        interval: form.value.interval,
+        interval: (form.value.interval * 24 * 60 * 60),
         amount: parseUnits(form.value.amountInUsd.toString(), getTokens[0].decimals),
         gracePeriod: form.value.gracePeriod,
         description: form.value.description
@@ -121,7 +121,7 @@ const create = async () => {
         description: form.value.description,
         images: form.value.images,
         category: form.value.category,
-        interval: form.value.interval,
+        interval: (form.value.interval * 24 * 60 * 60 * 1000),
         gracePeriod: form.value.gracePeriod,
         amountInUsd: form.value.amountInUsd
     });
@@ -200,12 +200,12 @@ onUnmounted(() => {
                 </div>
 
                 <div class="details">
-                    <p class="head">Product Details</p>
+                    <p class="head">Plan Details</p>
 
                     <div class="inputs">
                         <div class="label">
                             <p>Name</p>
-                            <p>16<span>/24</span></p>
+                            <p>{{ form.name.length }}<span>/24</span></p>
                         </div>
 
                         <input type="text" v-model="form.name">
@@ -214,11 +214,11 @@ onUnmounted(() => {
                     <div class="inputs">
                         <div class="label">
                             <p>Description</p>
-                            <p>150<span>/400</span></p>
+                            <p>{{ form.description.length }}<span>/400</span></p>
                         </div>
 
                         <textarea rows="3" v-model="form.description"
-                            placeholder="Shortly describe the product"></textarea>
+                            placeholder="Shortly describe the plan"></textarea>
                     </div>
 
                     <div class="inputs_grid">
@@ -237,15 +237,17 @@ onUnmounted(() => {
                             <div class="label">
                                 <p>Duration</p>
                             </div>
-
-                            <input type="number" v-model="form.interval" placeholder="0">
+                            <div class="input_grid input_grid_2">
+                                <input type="number" v-model="form.interval" placeholder="0">
+                                <p>Days</p>
+                            </div>
                         </div>
                     </div>
 
                     <div class="inputs">
                         <div class="label">
                             <p>Category</p>
-                            <p>9<span>/18</span></p>
+                            <p>{{ form.category.length }}<span>/18</span></p>
                         </div>
 
                         <input type="text" v-model="form.category">
@@ -507,6 +509,10 @@ onUnmounted(() => {
     grid-template-columns: 40px 1fr;
     border: 1px solid var(--bg-lightest);
     border-radius: 8px;
+}
+
+.input_grid_2 {
+    grid-template-columns: 1fr 60px;
 }
 
 .input_grid input {

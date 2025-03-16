@@ -182,7 +182,7 @@ onUnmounted(() => {
                     <div class="inputs">
                         <div class="label">
                             <p>Name</p>
-                            <p>16<span>/24</span></p>
+                            <p>{{ form.name.length }}<span>/24</span></p>
                         </div>
 
                         <input type="text" v-model="form.name">
@@ -191,7 +191,7 @@ onUnmounted(() => {
                     <div class="inputs">
                         <div class="label">
                             <p>Description</p>
-                            <p>150<span>/400</span></p>
+                            <p>{{ form.description.length }}<span>/400</span></p>
                         </div>
 
                         <textarea rows="3" v-model="form.description"
@@ -222,7 +222,7 @@ onUnmounted(() => {
                     <div class="inputs">
                         <div class="label">
                             <p>Category</p>
-                            <p>9<span>/18</span></p>
+                            <p>{{ form.category.length }}<span>/18</span></p>
                         </div>
 
                         <input type="text" v-model="form.category">

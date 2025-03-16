@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 import ChevronDownIcon from '@/components/icons/ChevronDownIcon.vue';
 import FilterIcon from '@/components/icons/FilterIcon.vue';
+import PlusIcon from '@/components/icons/PlusIcon.vue';
+import { ref } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute();
+const creatingPlan = ref<boolean>(false);
 </script>
 
 <template>
@@ -69,10 +72,15 @@ const route = useRoute();
                     <FilterIcon />
                     <p>Filter</p>
                 </button>
+
+                <button class="create_plan" @click="creatingPlan = true">
+                    <PlusIcon />
+                    <p>New Plan</p>
+                </button>
             </div>
         </div>
 
-        <RouterView />
+        <RouterView :creating-plan="creatingPlan" @close-creating-plan="creatingPlan = false" />
     </div>
 </template>
 
@@ -198,6 +206,28 @@ const route = useRoute();
 }
 
 .filter p {
+    font-size: 16px;
+    color: var(--tx-normal);
+}
+
+.create_plan {
+    height: 40px;
+    padding: 0 26px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    border: 1px solid var(--bg-lightest);
+    background: var(--primary);
+}
+
+.create_plan svg {
+    width: 20;
+    height: 20;
+}
+
+.create_plan p {
     font-size: 16px;
     color: var(--tx-normal);
 }
