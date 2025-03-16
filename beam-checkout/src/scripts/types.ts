@@ -38,7 +38,7 @@ export type Plan = {
   gracePeriod: number;
   available: boolean;
   interval: number;
-  amountInUsd: number;
+  amount: number;
   createdAt: Date;
   updatedAt: Date | null;
 };

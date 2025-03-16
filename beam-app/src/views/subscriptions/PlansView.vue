@@ -7,6 +7,7 @@ import { Client } from '@/scripts/client';
 import { Plan } from '@/scripts/types';
 import Converter from '@/scripts/converter';
 import CreatePlan from '@/components/CreatePlan.vue';
+import { getToken } from 'beam-ts/src/utils/constants';
 
 const walletStore = useWalletStore();
 const progress = ref<boolean>(false);
@@ -49,7 +50,7 @@ onMounted(() => {
                         <p>{{ plan.available ? 'Active' : 'Not active' }}</p>
                     </div>
 
-                    <div class="amount">${{ Converter.toMoney(plan.amountInUsd) }}</div>
+                    <div class="amount">{{ getToken(plan.token)?.symbol }}{{ Converter.toMoney(plan.amount) }}</div>
                 </div>
             </div>
         </div>

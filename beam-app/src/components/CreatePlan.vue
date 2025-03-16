@@ -4,20 +4,22 @@ import CheckIcon from './icons/CheckIcon.vue';
 import CloseIcon from './icons/CloseIcon.vue';
 import EraserIcon from './icons/EraserIcon.vue';
 import UploadIcon from './icons/UploadIcon.vue';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { Client } from '@/scripts/client';
 import Storage from '@/scripts/storage';
 import { MerchantContract } from '@/scripts/contract';
 import { getTokens } from 'beam-ts/src/utils/constants';
 import { parseUnits } from 'viem';
 import { notify } from '@/reactives/notify';
+import { Token } from '@/scripts/types';
 
 const emit = defineEmits(['close', 'refresh']);
 const walletStore = useWalletStore();
 
 const creating = ref<boolean>(false);
 const selectedImage = ref<number>(0);
-
+const token = ref<Token | null>(null);
+const tokens = ref<Token[]>([]);
 const images = ref<(File | null)[]>([null, null, null]);
 const selectedImageURLs = ref<(string | undefined)[]>([undefined, undefined, undefined]);
 
@@ -28,7 +30,7 @@ const form = ref({
     category: '',
     interval: 0,
     gracePeriod: 0,
-    amountInUsd: 0
+    amount: 0
 });
 
 const onImageSelected = (e: Event) => {
@@ -41,6 +43,7 @@ const onImageSelected = (e: Event) => {
 
 const create = async () => {
     if (creating.value) return;
+    if (!token.value) return;
     if (!walletStore.address) return;
 
     if (form.value.name.length < 3) {
@@ -79,9 +82,9 @@ const create = async () => {
         return;
     }
 
-    if (form.value.amountInUsd == 0) {
+    if (form.value.amount == 0) {
         notify.push({
-            title: 'Price cannot be zero!',
+            title: 'Amount cannot be zero!',
             description: 'Try again',
             category: "error"
         });
@@ -97,10 +100,12 @@ const create = async () => {
         }
     }
 
+    const interval = (form.value.interval * 24 * 60 * 60 * 1000);
+
     const transactionHash = await MerchantContract.createSubscription({
-        token: getTokens[0].address,
-        interval: (form.value.interval * 24 * 60 * 60),
-        amount: parseUnits(form.value.amountInUsd.toString(), getTokens[0].decimals),
+        token: token.value.address,
+        interval: interval,
+        amount: parseUnits(form.value.amount.toString(), token.value.decimals),
         gracePeriod: form.value.gracePeriod,
         description: form.value.description
     });
@@ -121,9 +126,10 @@ const create = async () => {
         description: form.value.description,
         images: form.value.images,
         category: form.value.category,
-        interval: (form.value.interval * 24 * 60 * 60 * 1000),
+        interval: interval,
         gracePeriod: form.value.gracePeriod,
-        amountInUsd: form.value.amountInUsd
+        amount: form.value.amount,
+        token: token.value.address
     });
 
     if (created) {
@@ -146,8 +152,15 @@ const create = async () => {
     creating.value = false;
 };
 
+watch(walletStore, () => {
+    tokens.value = getTokens.filter(t => walletStore.merchant?.tokens.includes(t.address));
+    if (tokens.value.length > 0) token.value = tokens.value[0];
+}, { deep: true });
+
 onMounted(() => {
     document.body.style.overflowY = 'hidden';
+    tokens.value = getTokens.filter(t => walletStore.merchant?.tokens.includes(t.address));
+    if (tokens.value.length > 0) token.value = tokens.value[0];
 });
 
 onUnmounted(() => {
@@ -221,15 +234,36 @@ onUnmounted(() => {
                             placeholder="Shortly describe the plan"></textarea>
                     </div>
 
+                    <div class="asset">
+                        <div class="label">
+                            <p>Token</p>
+                        </div>
+
+                        <div class="tokens">
+                            <div v-for="t in tokens"
+                                :class="t.address == token?.address ? 'token token_selected' : 'token'"
+                                @click="token = t">
+                                <div class="token_info">
+                                    <img :src="t.image" alt="">
+                                    <p>{{ t.symbol }}</p>
+                                </div>
+                                <div class="radio">
+                                    <div>
+                                        <span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="inputs_grid">
                         <div class="inputs">
                             <div class="label">
-                                <p>Price</p>
+                                <p>Amount</p>
                             </div>
-
                             <div class="input_grid">
-                                <p>$</p>
-                                <input type="number" v-model="form.amountInUsd" placeholder="0.00">
+                                <p>{{ token?.symbol }}</p>
+                                <input type="number" v-model="form.amount" placeholder="0">
                             </div>
                         </div>
 
@@ -497,6 +531,84 @@ onUnmounted(() => {
     color: var(--tx-dimmed);
 }
 
+.asset {
+    margin-top: 24px;
+    padding: 0 30px;
+}
+
+.tokens {
+    margin-top: 14px;
+    display: grid;
+    align-items: center;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.token {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 44px;
+    border-radius: 8px 10px 10px 8px;
+    border: 1px solid var(--bg-lighter);
+    cursor: pointer;
+    user-select: none;
+}
+
+.token_info {
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.token_info img {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+}
+
+.token_info p {
+    color: var(--tx-normal);
+    font-size: 14px;
+}
+
+.token .radio {
+    width: 44px;
+    height: 100%;
+    border: 1px solid var(--bg-lightest);
+    border-radius: 0 8px 8px 0;
+    background: var(--bg-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.token .radio div {
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    border: 1px solid var(--bg-lightest);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.token .radio div span {
+    width: 10px;
+    height: 10px;
+    border-radius: 10px;
+}
+
+.token_selected .radio div {
+    border: 1px solid var(--primary-light);
+}
+
+.token_selected .radio div span {
+    background: var(--primary);
+}
+
 .inputs_grid {
     gap: 10px;
     display: grid;
@@ -506,7 +618,7 @@ onUnmounted(() => {
 .input_grid {
     overflow: hidden;
     display: grid;
-    grid-template-columns: 40px 1fr;
+    grid-template-columns: 60px 1fr;
     border: 1px solid var(--bg-lightest);
     border-radius: 8px;
 }

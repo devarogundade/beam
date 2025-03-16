@@ -68,7 +68,8 @@ export type Plan = {
   gracePeriod: number;
   available: boolean;
   interval: number;
-  amountInUsd: number;
+  amount: number;
+  token: Hex;
   createdAt: Date;
   updatedAt: Date | null;
 };
@@ -92,7 +93,8 @@ export type CreatePlan = {
   category: string;
   interval: number;
   gracePeriod: number;
-  amountInUsd: number;
+  amount: number;
+  token: Hex;
 };
 
 export type CreateMerchant = {

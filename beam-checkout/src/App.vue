@@ -32,6 +32,7 @@ const beamSdk = new BeamSDK({
 
 const modules = [Pagination];
 const amount = ref<number>(0);
+const planAmountInUsd = ref<number>(0);
 const token = ref<Token | null>(null);
 const tokens = ref<Token[]>([]);
 const product = ref<Product | null>(null);
@@ -75,16 +76,16 @@ const getPlanAmount = async () => {
     if (!plan.value) return;
     if (!subscription.value) return;
 
-    const amountInUsd = plan.value.amountInUsd * form.value.quantity;
     const decimals = token.value?.decimals || 18;
 
-    const result = await BeamOracleContract.getAmountFromUsd(
+    amount.value = Number(formatUnits(subscription.value.amount, decimals));
+
+    const result = await BeamOracleContract.getAmountInUsd(
         subscription.value.token,
-        parseUnits(amountInUsd.toString(), decimals),
-        10 ** 8
+        parseUnits(plan.value.amount.toString(), decimals)
     );
 
-    amount.value = Number(formatUnits(result, decimals));
+    planAmountInUsd.value = Number(formatUnits(result, decimals));
 };
 
 const getProduct = async (id: string) => {
@@ -140,9 +141,11 @@ const proceed = async () => {
     }
 
     try {
-        const amountInUsd = product.value.amountInUsd * form.value.quantity;
+        let amountInUsd = 0;
 
         if (product.value) {
+            amountInUsd = product.value.amountInUsd * form.value.quantity;
+
             result.value = await beamSdk.oneTimeTransaction.create({
                 merchant: product.value.merchant,
                 payers: [],
@@ -155,6 +158,8 @@ const proceed = async () => {
                 }
             });
         } else if (plan.value && subscription.value) {
+            amountInUsd = planAmountInUsd.value;
+
             result.value = await beamSdk.recurrentTransaction.create({
                 merchant: subscription.value.merchant,
                 subscriptionId: subscription.value.subsciptionId,
@@ -187,7 +192,7 @@ const proceed = async () => {
             token: result.value.token,
             amountInUsd: amountInUsd,
             quantity: product.value ? form.value.quantity : 0,
-            dueDate: plan.value ? new Date(Number(result.value.dueDate) * 1000) : null,
+            dueDate: plan.value ? new Date(Number(result.value.dueDate)) : null,
         });
 
         if (created) {
@@ -319,7 +324,7 @@ onMounted(() => {
                                         Number(formatUnits(subscription.amount, token?.decimals || 18))
                                     )
                                 }}{{ token?.symbol }}
-                                <span>${{ Converter.toMoney(plan.amountInUsd) }}</span>
+                                <span>${{ Converter.toMoney(planAmountInUsd) }}</span>
                             </h3>
                         </div>
 

@@ -60,7 +60,8 @@ export type CreatePlan = {
   category: string;
   interval: number;
   gracePeriod: number;
-  amountInUsd: number;
+  amount: number;
+  token: Hex;
 };
 
 export type UpdateProduct = {

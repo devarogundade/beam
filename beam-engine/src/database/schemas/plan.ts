@@ -39,7 +39,10 @@ export class Plan {
   sold: number;
 
   @Prop({ required: true })
-  amountInUsd: number;
+  amount: number;
+
+  @Prop({ required: true })
+  token: Hex;
 
   @Prop({ required: true })
   createdAt: Date;
