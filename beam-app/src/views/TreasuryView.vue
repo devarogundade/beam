@@ -227,7 +227,7 @@ onMounted(() => {
                 <div class="product_info">
                   <p v-if="transaction.type == TransactionType.OneTime">{{
                     transaction.description?.length > 0 ? transaction.description : 'One Time'
-                    }}</p>
+                  }}</p>
                   <p v-if="transaction.type == TransactionType.Recurrent">{{
                     transaction.description?.length > 0 ?
                       transaction.description : 'Recurrent'
@@ -392,6 +392,7 @@ onMounted(() => {
 <style scoped>
 .treasury {
   padding: 30px 50px;
+  padding-bottom: 100px;
 }
 
 .assets_grid {
