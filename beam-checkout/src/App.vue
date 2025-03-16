@@ -4,7 +4,7 @@ import { onMounted, ref, watch } from "vue";
 import BeamSDK from "beam-ts/src";
 import { Network } from "@/scripts/types";
 import type { Merchant, Subscription, Token, TransactionCallback } from "beam-ts/src/types";
-import { getTokens } from "beam-ts/src/utils/constants";
+import { getTokens, getToken } from "beam-ts/src/utils/constants";
 import type { Plan, Product } from "./scripts/types";
 import { parseUnits, formatUnits, parseEther } from "viem";
 import { Swiper, SwiperSlide } from 'swiper/vue';
@@ -83,10 +83,10 @@ const getPlanAmount = async () => {
 
     const result = await BeamOracleContract.getAmountInUsd(
         subscription.value.token,
-        parseUnits(plan.value.amount.toString(), decimals)
+        subscription.value.amount
     );
 
-    planAmountInUsd.value = Number(formatUnits(result, decimals));
+    planAmountInUsd.value = Number(formatUnits(result, decimals + 8));
 };
 
 const getProduct = async (id: string) => {
@@ -122,6 +122,7 @@ const getPlan = async (id: string) => {
         });
     }
 
+    token.value = getToken(subscriptions[0].token) || null;
     subscription.value = subscriptions[0];
 
     getPlanAmount();
@@ -129,7 +130,6 @@ const getPlan = async (id: string) => {
 
 const proceed = async () => {
     if (!token.value) return;
-    if (!product.value) return;
     if (!merchant.value) return;
 
     if (form.value.metadata.buyer.length < 3) {
@@ -183,7 +183,7 @@ const proceed = async () => {
 
         const created = await Client.createSale({
             transactionId: result.value.transactionId,
-            merchant: product.value.merchant,
+            merchant: merchant.value.merchant,
             buyer: form.value.metadata.buyer,
             product: product.value ? product.value._id : undefined,
             plan: plan.value ? plan.value._id : undefined,
@@ -223,7 +223,7 @@ const proceed = async () => {
 
 watch(merchant, () => {
     tokens.value = getTokens.filter(t => merchant.value?.tokens.includes(t.address));
-    if (tokens.value.length > 0) token.value = tokens.value[0];
+    if (product.value && tokens.value.length > 0) token.value = tokens.value[0];
 }, { deep: true });
 
 watch(form, () => {
@@ -324,7 +324,7 @@ onMounted(() => {
                                     Converter.toMoney(
                                         Number(formatUnits(subscription.amount, token?.decimals || 18))
                                     )
-                                }}{{ token?.symbol }}
+                                }} {{ token?.symbol }}
                                 <span>${{ Converter.toMoney(planAmountInUsd) }}</span>
                             </h3>
                         </div>
