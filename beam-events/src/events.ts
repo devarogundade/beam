@@ -5,7 +5,6 @@ import {
   MerchantMetadataUpdated as MerchantMetadataUpdatedEvent,
   OneTimeTransactionCreated as OneTimeTransactionCreatedEvent,
   OneTimeTransactionFulfilled as OneTimeTransactionFulfilledEvent,
-  TransactionReceived as TransactionReceivedEvent,
   RecurrentTransactionCancelled as RecurrentTransactionCancelledEvent,
   RecurrentTransactionCreated as RecurrentTransactionCreatedEvent,
   RecurrentTransactionFulfilled as RecurrentTransactionFulfilledEvent,
