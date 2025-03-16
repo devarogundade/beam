@@ -93,7 +93,7 @@ const DelegationContract = {
 };
 
 const UniswapContract = {
-  address: "0x8b35fCcF67beC1c3078f8aAf7Af3Ac24ac2f744D" as Hex,
+  address: "0x7e2383bDfE05Ab5eD3afcEc54F3B70f84e8342De" as Hex,
 
   async requiredAmountIn(params: RequiredAmountIn): Promise<bigint> {
     try {
@@ -110,7 +110,7 @@ const UniswapContract = {
 };
 
 const AaveV3Contract = {
-  address: "0xC26f9Fde58600CbCA2F2479494c8303E21d81f10" as Hex,
+  address: "0xC035c5169baBF043434006E21783592AD9b10467" as Hex,
 
   async getHealthFactor(payer: Hex): Promise<bigint | null> {
     try {
@@ -166,7 +166,7 @@ const AaveV3Contract = {
 };
 
 const BeamContract = {
-  address: "0x20A03BCc252474c215435ffBDFD6A63958C1EA8C" as Hex,
+  address: "0xd6E06EA9236D9f531794b3dA5b0c40636E1096C7" as Hex,
 
   async oneTimeTransaction(
     params: CreateOneTimeTransaction,

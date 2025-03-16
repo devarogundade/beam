@@ -4,7 +4,7 @@ import { type Hex } from "viem";
 import { oracleAbi } from "../abis/oracle";
 
 const BeamOracleContract = {
-  address: "0x50fF12F1A514D5e2c6F27422E29A636A4ae1e3D4" as Hex,
+  address: "0x70dB6baAC2e412B350C203f67D68Eb35d2255289" as Hex,
 
   async getAmountInUsd(token: Hex, amountIn: bigint): Promise<bigint> {
     try {

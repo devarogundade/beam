@@ -18,7 +18,7 @@ import type {
 } from "./params";
 
 export const HookManagerContract = {
-  address: "0x08E9A0a70972Aec9fCeFEF881AeA780b918C23D8" as Hex,
+  address: "0x779eA79Fb1d6F2d322E5bdD817F4F06563c1F72d" as Hex,
 
   async register(params: RegisterHook): Promise<Hex | null> {
     try {
@@ -216,7 +216,7 @@ export const MultiSigContract = {
 };
 
 export const MerchantContract = {
-  address: "0xd5eF0844d2C9CaDDEd162F3A14Db2e49Cf449c6b" as Hex,
+  address: "0xf38C3bdFD8a2f6d70afa8361A4EFd6794F25F649" as Hex,
 
   async create(params: CreateMerchant): Promise<Hex | null> {
     console.log(params);
