@@ -132,6 +132,11 @@ watch(signers, () => {
                         <p>MultiSig Wallet</p>
                     </button>
                 </RouterLink>
+                <RouterLink to="/settings/developer">
+                    <button class="title">
+                        <p>Dev & Plugins</p>
+                    </button>
+                </RouterLink>
             </div>
 
             <button :class="isValid ? 'next_active next' : 'next'" @click="saveChanges">

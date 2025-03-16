@@ -19,6 +19,7 @@ import MultisigView from "@/views/onboarding/MultisigView.vue";
 import GeneralView from "@/views/settings/GeneralView.vue";
 import WalletSettings from "@/views/settings/WalletSettings.vue";
 import PaymentsSettingsView from "@/views/settings/PaymentsSettingsView.vue";
+import DeveloperView from "@/views/settings/DeveloperView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -137,6 +138,11 @@ const router = createRouter({
               path: "/settings/wallet",
               name: "settings-wallet",
               component: WalletSettings,
+            },
+            {
+              path: "/settings/developer",
+              name: "settings-developer",
+              component: DeveloperView,
             },
           ],
         },

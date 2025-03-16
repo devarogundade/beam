@@ -21,22 +21,24 @@ class WebhookWorker extends WorkerHost {
   async process(job: Job<WebhookOptions>): Promise<any> {
     const options = job.data;
 
-    const merchant = await this.merchantModel.findOne({
-      address: options.merchant,
-    });
+    const merchants = await this.merchantModel.find();
 
-    if (!merchant || merchant.webhooks.length == 0) {
-      return await job.moveToCompleted(null, '');
+    for (let index = 0; index < merchants.length; index++) {
+      const merchant = merchants[index];
+
+      if (!merchant || merchant.webhooks.length == 0) continue;
+
+      const requests: Promise<AxiosResponse<any, any>>[] = [];
+
+      for (let index = 0; index < merchant.webhooks.length; index++) {
+        const urlEnpoint = merchant.webhooks[index];
+        requests.push(
+          this.httpService.axiosRef.post(urlEnpoint, options.events),
+        );
+      }
+
+      await Promise.all(requests);
     }
-
-    const requests: Promise<AxiosResponse<any, any>>[] = [];
-
-    for (let index = 0; index < merchant.webhooks.length; index++) {
-      const urlEnpoint = merchant.webhooks[index];
-      requests.push(this.httpService.axiosRef.post(urlEnpoint, options.event));
-    }
-
-    await Promise.all(requests);
   }
 
   @OnWorkerEvent('completed')

@@ -14,6 +14,7 @@ import {
   CreatePlan,
   TransactionType,
   ClientMerchant,
+  WebhookOptions,
 } from './types';
 import { Merchant } from './database/schemas/merchant';
 import { Model, UpdateResult } from 'mongoose';
@@ -31,10 +32,14 @@ import { Chat } from './database/schemas/chat';
 import { Hex, zeroAddress } from 'viem';
 import OpenAI from 'openai';
 import { Plan } from './database/schemas/plan';
+import WebhookWorker from './workers/webhook';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 
 @Injectable()
 export class AppService {
   constructor(
+    @InjectQueue(WebhookWorker.name) private webhookWorkerQueue: Queue,
     @InjectModel(Merchant.name) private merchantModel: Model<Merchant>,
     @InjectModel(Product.name) private productModel: Model<Product>,
     @InjectModel(Sale.name) private saleModel: Model<Sale>,
@@ -44,8 +49,16 @@ export class AppService {
     publicClient.watchContractEvent({
       address: EVENTS_CONTRACT,
       abi: eventsAbi,
-      onLogs: (logs) => {
-        console.log(EVENTS_CONTRACT, logs);
+      onLogs: (events) => {
+        const options: WebhookOptions = {
+          events,
+        };
+
+        this.webhookWorkerQueue
+          .add(`event-${Date.now()}`, options)
+          .catch((error) => {
+            console.log(error);
+          });
       },
     });
   }
@@ -53,7 +66,7 @@ export class AppService {
   async chat(params: CreateChat): Promise<boolean> {
     try {
       await this.chatModel.create({
-        from: params.merchant,
+        from: params.merchant.toLowerCase(),
         to: zeroAddress,
         text: params.message,
         createdAt: new Date(),
@@ -80,7 +93,7 @@ export class AppService {
           { role: 'user', content: params.message },
           {
             role: 'system',
-            content: `Merchant address is: ${params.merchant}.`,
+            content: `Merchant address is: ${params.merchant.toLowerCase()}.`,
           },
           { role: 'system', content: `Profile is: ${profile}.` },
           { role: 'system', content: `Sales are: ${sales}.` },
@@ -94,7 +107,7 @@ export class AppService {
 
       await this.chatModel.create({
         from: zeroAddress,
-        to: params.merchant,
+        to: params.merchant.toLowerCase(),
         text: completion.choices[0].message.content,
         createdAt: new Date(),
       });
@@ -107,12 +120,14 @@ export class AppService {
   }
 
   async chats(merchant: string): Promise<Chat[]> {
-    return this.chatModel.find({ $or: [{ from: merchant }, { to: merchant }] });
+    return this.chatModel.find({
+      $or: [{ from: merchant.toLowerCase() }, { to: merchant.toLowerCase() }],
+    });
   }
 
   async createMerchant(params: CreateMerchant): Promise<Merchant> {
     return this.merchantModel.create({
-      address: params.merchant,
+      address: params.merchant.toLowerCase(),
       webhooks: params.webhooks,
     });
   }
@@ -134,7 +149,7 @@ export class AppService {
     simple: boolean = false,
   ): Promise<Merchant | ClientMerchant | null> {
     const data = await this.merchantModel.findOne({
-      address: merchant,
+      address: merchant.toLowerCase(),
     });
 
     if (!data) return null;
@@ -169,9 +184,9 @@ export class AppService {
 
   async updateWebhooks(params: UpdateWebhooks): Promise<any> {
     return this.merchantModel.updateOne(
-      { address: params.merchant },
+      { address: params.merchant.toLowerCase() },
       {
-        address: params.merchant,
+        address: params.merchant.toLowerCase(),
         webhooks: params.webhooks,
       },
       {
@@ -182,7 +197,7 @@ export class AppService {
 
   async createProduct(params: CreateProduct): Promise<Product> {
     return this.productModel.create({
-      merchant: params.merchant,
+      merchant: params.merchant.toLowerCase(),
       name: params.name,
       description: params.description,
       images: params.images,
@@ -198,7 +213,7 @@ export class AppService {
   async createPlan(params: CreatePlan): Promise<Plan> {
     return this.planModel.create({
       transactionHash: params.transactionHash,
-      merchant: params.merchant,
+      merchant: params.merchant.toLowerCase(),
       name: params.name,
       description: params.description,
       images: params.images,
@@ -216,7 +231,7 @@ export class AppService {
 
   async updateProduct(params: UpdateProduct): Promise<UpdateResult> {
     return this.productModel.updateOne(
-      { _id: params.id, address: params.merchant },
+      { _id: params.id, address: params.merchant.toLowerCase() },
       {
         name: params.name,
         description: params.description,
@@ -230,11 +245,11 @@ export class AppService {
   }
 
   async getProducts(merchant: Hex): Promise<Product[]> {
-    return this.productModel.find({ merchant });
+    return this.productModel.find({ merchant: merchant.toLowerCase() });
   }
 
   async getPlans(merchant: Hex): Promise<Plan[]> {
-    return this.planModel.find({ merchant });
+    return this.planModel.find({ merchant: merchant.toLowerCase() });
   }
 
   async createSale(params: CreateSale): Promise<Sale> {
@@ -263,7 +278,7 @@ export class AppService {
       { transactionId: params.transactionId },
       {
         transactionId: params.transactionId,
-        merchant: params.merchant,
+        merchant: params.merchant.toLowerCase(),
         buyer: params.buyer,
         product: params.product,
         plan: params.plan,
@@ -287,7 +302,7 @@ export class AppService {
     fromDate: Date | null,
     toDate: Date | null,
   ): Promise<Sale[]> {
-    const query: any = { merchant };
+    const query: any = { merchant: merchant.toLowerCase() };
 
     if (type) query.type = type;
     if (toDate) query.createdAt = { ...query.createdAt, $lte: toDate };

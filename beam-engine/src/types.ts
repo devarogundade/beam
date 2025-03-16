@@ -28,8 +28,7 @@ export enum TransactionType {
 }
 
 export type WebhookOptions = {
-  merchant: Hex;
-  event: any;
+  events: any[];
 };
 
 export type ReceiptOptions = {

@@ -104,6 +104,11 @@ watch(walletStore, () => {
                         <p>MultiSig Wallet</p>
                     </button>
                 </RouterLink>
+                <RouterLink to="/settings/developer">
+                    <button class="title">
+                        <p>Dev & Plugins</p>
+                    </button>
+                </RouterLink>
             </div>
 
             <button :class="tokens && tokens.length > 0 ? 'next_active next' : 'next'" @click="saveChanges">

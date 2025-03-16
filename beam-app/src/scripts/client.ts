@@ -4,6 +4,7 @@ import type {
   ClientMerchant,
   CreateMerchant,
   CreateProduct,
+  UpdateWebhooks,
   CreatePlan,
   Product,
   Sale,
@@ -27,6 +28,18 @@ export const Client = {
   async createMerchant(params: CreateMerchant): Promise<ClientMerchant | null> {
     try {
       const response = await this.client.post(`/merchants/create`, params);
+      return response.data;
+    } catch (error) {
+      return null;
+    }
+  },
+
+  async updateWebhooks(params: UpdateWebhooks): Promise<any> {
+    try {
+      const response = await this.client.post(
+        `/merchants/update-webhooks`,
+        params
+      );
       return response.data;
     } catch (error) {
       return null;

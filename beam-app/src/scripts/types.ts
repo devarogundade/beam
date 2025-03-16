@@ -108,6 +108,11 @@ export type CreateMerchant = {
   webhooks: string[];
 };
 
+export type UpdateWebhooks = {
+  merchant: Hex;
+  webhooks: string[];
+};
+
 export type CreateProduct = {
   merchant: Hex;
   name: string;

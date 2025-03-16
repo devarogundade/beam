@@ -124,7 +124,6 @@ onMounted(() => {
 </script>
 
 <template>
-
     <div class="container">
         <div class="toolbar">
             <div class="titles">
@@ -141,6 +140,11 @@ onMounted(() => {
                 <RouterLink to="/settings/wallet">
                     <button class="title">
                         <p>MultiSig Wallet</p>
+                    </button>
+                </RouterLink>
+                <RouterLink to="/settings/developer">
+                    <button class="title">
+                        <p>Dev & Plugins</p>
                     </button>
                 </RouterLink>
             </div>
