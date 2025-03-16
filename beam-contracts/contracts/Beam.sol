@@ -98,8 +98,7 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
 
         IWallet(wallet).deposit{value: msg.value}(
             adjustedToken,
-            adjustedAmount,
-            transactionId
+            adjustedAmount
         );
 
         if (completed) _oneTimeTransaction.onComplete(transactionId);
@@ -181,8 +180,7 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
 
         IWallet(wallet).deposit{value: msg.value}(
             adjustedToken,
-            adjustedAmount,
-            params.transactionId
+            adjustedAmount
         );
 
         if (completed) _oneTimeTransaction.onComplete(params.transactionId);
@@ -263,8 +261,7 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
 
         IWallet(wallet).deposit{value: msg.value}(
             adjustedToken,
-            adjustedAmount,
-            transactionId
+            adjustedAmount
         );
 
         _recurrentTransaction.onComplete(transactionId, amount);
@@ -344,8 +341,7 @@ contract Beam is Ownable, TransactionRouter, BeamHelpers {
 
         IWallet(wallet).deposit{value: msg.value}(
             adjustedToken,
-            adjustedAmount,
-            params.transactionId
+            adjustedAmount
         );
 
         _recurrentTransaction.onComplete(params.transactionId, amount);

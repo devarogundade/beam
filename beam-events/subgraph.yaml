@@ -22,7 +22,6 @@ dataSources:
         - MerchantMetadataUpdated
         - OneTimeTransactionCreated
         - OneTimeTransactionFulfilled
-        - TransactionReceived
         - RecurrentTransactionCancelled
         - RecurrentTransactionCreated
         - RecurrentTransactionFulfilled
@@ -50,8 +49,6 @@ dataSources:
           handler: handleOneTimeTransactionCreated
         - event: OneTimeTransactionFulfilled(bytes32,address,address,address,uint256,address,uint256,uint256,uint8)
           handler: handleOneTimeTransactionFulfilled
-        # - event: TransactionReceived(indexed address,address,address,uint256,bytes32)
-        #   handler: handleTransactionReceived
         - event: RecurrentTransactionCancelled(bytes32)
           handler: handleRecurrentTransactionCancelled
         - event: RecurrentTransactionCreated(bytes32,address,address,uint256,address,uint256,address,uint256,uint256,string,(uint8,string),uint8)
@@ -62,7 +59,7 @@ dataSources:
           handler: handleSignersUpdated
         - event: SubsciptionDeleted(indexed bytes32)
           handler: handleSubsciptionDeleted
-        - event: SubscriptionCreated(indexed bytes32,indexed address,uint256,uint256,uint256,string)
+        - event: SubscriptionCreated(indexed bytes32,indexed address,address,uint256,uint256,uint256,string)
           handler: handleSubscriptionCreated
         - event: SubscriptionUpdated(indexed bytes32,uint256,uint256,string,bool)
           handler: handleSubscriptionUpdated

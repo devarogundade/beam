@@ -143,16 +143,6 @@ contract Events is
         emit RecurrentTransactionCancelled(transactionId);
     }
 
-    function paymentReceived(
-        address merchant,
-        address token,
-        address payer,
-        uint256 amount,
-        bytes32 transactionId
-    ) external override onlyRole(WALLET_ROLE) {
-        emit TransactionReceived(merchant, token, payer, amount, transactionId);
-    }
-
     function withdrawRequestCreated(
         address merchant,
         uint256 requestId,
@@ -231,6 +221,7 @@ contract Events is
     function subscriptionCreated(
         bytes32 subsciptionId,
         address merchant,
+        address token,
         uint256 interval,
         uint256 amount,
         uint256 gracePeriod,
@@ -239,6 +230,7 @@ contract Events is
         emit SubscriptionCreated(
             subsciptionId,
             merchant,
+            token,
             interval,
             amount,
             gracePeriod,

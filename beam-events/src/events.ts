@@ -176,29 +176,6 @@ export function handleOneTimeTransactionFulfilled(
   confirmation.save();
 }
 
-// export function handleTransactionReceived(
-//   event: TransactionReceivedEvent
-// ): void {
-//   let confirmation = new Confirmation(
-//     event.transaction.hash.concatI32(event.logIndex.toI32())
-//   );
-
-//   confirmation.transactionId = event.params.transactionId;
-//   confirmation.from = event.params.payer;
-//   confirmation.recipient = event.params.merchant;
-//   confirmation.token = event.params.token;
-//   confirmation.amount = event.params.amount;
-//   confirmation.type = 1;
-
-//   confirmation.blockNumber = event.block.number;
-//   confirmation.blockTimestamp = event.block.timestamp;
-//   confirmation.transactionHash = event.transaction.hash;
-
-//   confirmation.transaction = event.params.transactionId;
-
-//   confirmation.save();
-// }
-
 export function handleRecurrentTransactionCancelled(
   event: RecurrentTransactionCancelledEvent
 ): void {
@@ -342,6 +319,7 @@ export function handleSubscriptionCreated(
 
   subscription.subsciptionId = event.params.subsciptionId;
   subscription.merchant = event.params.merchant;
+  subscription.token = event.params.token;
   subscription.interval = event.params.interval;
   subscription.amount = event.params.amount;
   subscription.gracePeriod = event.params.gracePeriod;

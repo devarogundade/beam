@@ -30,6 +30,10 @@ export type GetSubscription = {
   subscriptionId: Hex;
 };
 
+export type GetSubscriptionsHash = {
+  transactionHash: Hex;
+};
+
 export type GetSubscriptions = {
   merchant: Hex;
   page: number;
@@ -128,6 +132,7 @@ export type Subscription = {
   id: Hex;
   subsciptionId: Hex;
   merchant: Hex;
+  token: Hex;
   interval: number;
   amount: bigint;
   gracePeriod: number;
@@ -136,20 +141,4 @@ export type Subscription = {
   blockNumber: number;
   blockTimestamp: number;
   transactionHash: Hex;
-};
-
-export type WithdrawRequest = {
-  id: Hex;
-  merchant: Hex;
-  requestId: number;
-  token: Hex;
-  amount: bigint;
-  recipient: Hex;
-  signers: Hex[];
-  fulfilleds: Hex[];
-  executed: boolean;
-  blockNumber: number;
-  blockTimestamp: number;
-  transactionHash: Hex;
-  confirmations: Confirmation[];
 };

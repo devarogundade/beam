@@ -1,9 +1,12 @@
 import type { Hex } from "viem";
 
-export enum Connection {
-  Wallet,
-  Guest,
-}
+export type Notification = {
+  title: string;
+  description: string;
+  category: string;
+  linkTitle?: string;
+  linkUrl?: string;
+};
 
 export type Metadata = {
   schemaVersion: number;

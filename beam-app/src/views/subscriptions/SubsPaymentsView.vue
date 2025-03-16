@@ -126,6 +126,10 @@ onMounted(() => {
             </tbody>
         </table>
     </div>
+    <div class="empty" v-if="!progress && sales.length == 0">
+        <img src="/images/empty.png" alt="">
+        <p>No payments.</p>
+    </div>
 </template>
 
 <style scoped>

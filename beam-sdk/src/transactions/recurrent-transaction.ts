@@ -5,6 +5,7 @@ import type {
   GetSubscriptions,
   Transaction,
   Subscription,
+  GetSubscriptionsHash,
 } from "../types";
 import { BaseTransaction } from "./base";
 import { IRecurrentTransaction } from "../interfaces/recurrent-transaction";
@@ -102,6 +103,12 @@ export class RecurrentTransaction
 
   getSubscription(params: GetSubscription): Promise<Subscription | null> {
     return this.graph.getSubscription(params.subscriptionId);
+  }
+
+  getSubscriptionFromHash(
+    params: GetSubscriptionsHash
+  ): Promise<Subscription[]> {
+    return this.graph.getSubscriptionsFromHash(params.transactionHash);
   }
 
   getSubscriptions(params: GetSubscriptions): Promise<Subscription[]> {

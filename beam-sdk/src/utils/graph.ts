@@ -3,7 +3,6 @@ import type {
   Transaction,
   Confirmation,
   Subscription,
-  WithdrawRequest,
 } from "../types";
 import type { Hex } from "viem";
 import { TransactionStatus, TransactionType } from "../enums";
@@ -318,6 +317,7 @@ export class Graph {
                 id
                 subsciptionId
                 merchant
+                token
                 interval
                 amount
                 gracePeriod
@@ -330,9 +330,38 @@ export class Graph {
         }`,
       });
 
-      return data.data.subscription;
+      return data.data.subscriptionPlan;
     } catch (error) {
       return null;
+    }
+  }
+
+  async getSubscriptionsFromHash(
+    transactionHash: Hex
+  ): Promise<Subscription[]> {
+    try {
+      const data = await this.client.graphCall<any>({
+        query: `{
+            subscriptionPlans(where: {transactionHash: "${transactionHash.toLowerCase()}"}) {
+                id
+                subsciptionId
+                merchant
+                token
+                interval
+                amount
+                gracePeriod
+                description
+                trashed
+                blockNumber
+                blockTimestamp
+                transactionHash
+            }
+        }`,
+      });
+
+      return data.data.subscriptionPlans;
+    } catch (error) {
+      return [];
     }
   }
 
@@ -356,6 +385,7 @@ export class Graph {
           id
           subscriptionId
           merchant
+          token
           interval
           amount
           gracePeriod
@@ -368,66 +398,9 @@ export class Graph {
       }`,
       });
 
-      return data?.data?.subscriptions ?? [];
+      return data?.data?.subscriptionPlans ?? [];
     } catch (error) {
       console.error("Error fetching subscriptions:", error);
-      return [];
-    }
-  }
-
-  async getWithdrawRequest(
-    merchant: Hex,
-    requestId: number
-  ): Promise<WithdrawRequest | null> {
-    try {
-      const data = await this.client.graphCall<any>({
-        query: `{
-            withdrawRequest(id: "${merchant.toLowerCase()}${requestId}") {
-                id
-                subsciptionId
-                merchant
-                interval
-                amount
-                gracePeriod
-                description
-                trashed
-                blockNumber
-                blockTimestamp
-                transactionHash
-                confirmations
-            }
-        }`,
-      });
-
-      return data.data.withdrawRequest;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  async getWithdrawRequests(merchant: Hex): Promise<WithdrawRequest[]> {
-    try {
-      const data = await this.client.graphCall<any>({
-        query: `{
-            withdrawRequests(where: {merchant: "${merchant.toLowerCase()}"}) {
-                id
-                subsciptionId
-                merchant
-                interval
-                amount
-                gracePeriod
-                description
-                trashed
-                blockNumber
-                blockTimestamp
-                transactionHash
-                confirmations
-            }
-        }`,
-      });
-
-      return data.data.withdrawRequests;
-    } catch (error) {
       return [];
     }
   }

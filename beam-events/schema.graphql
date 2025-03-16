@@ -62,6 +62,7 @@ type SubscriptionPlan @entity(immutable: false) {
   id: Bytes!
   subsciptionId: Bytes!
   merchant: Bytes! # address
+  token: Bytes! # address
   interval: BigInt! # uint256
   amount: BigInt! # uint256
   gracePeriod: BigInt! # uint256

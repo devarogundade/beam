@@ -9,11 +9,7 @@ interface IWallet {
         uint256 minSigners
     ) external;
 
-    function deposit(
-        address token,
-        uint256 amount,
-        bytes32 transactionId
-    ) external payable;
+    function deposit(address token, uint256 amount) external payable;
 
     function approveWithdraw(uint256 requestId) external;
 

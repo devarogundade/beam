@@ -65,6 +65,10 @@ onMounted(() => {
             </div>
         </div>
     </div>
+    <div class="empty" v-if="!progress && products.length == 0">
+        <img src="/images/empty.png" alt="">
+        <p>No products.</p>
+    </div>
 
     <AddProduct v-if="props.addingProduct" @refresh="getProducts(false)" @close="emit('close-adding-product')" />
 

@@ -39,14 +39,6 @@ interface IWalletEvents {
 
     event TokensUpdated(address indexed merchant, address[] tokens);
 
-    function paymentReceived(
-        address merchant,
-        address token,
-        address payer,
-        uint256 amount,
-        bytes32 transactionId
-    ) external;
-
     function withdrawRequestCreated(
         address merchant,
         uint256 requestId,

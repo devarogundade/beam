@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import NotifyPop from '@/components/NotifyPop.vue';
 import { onMounted, ref, watch } from "vue";
 import BeamSDK from "beam-ts/src";
 import { Network } from "@/scripts/types";
-import type { Merchant, Token, TransactionCallback } from "beam-ts/src/types";
+import type { Merchant, Subscription, Token, TransactionCallback } from "beam-ts/src/types";
 import { getTokens } from "beam-ts/src/utils/constants";
-import type { Product } from "./scripts/types";
+import type { Plan, Product } from "./scripts/types";
 import { parseUnits, formatUnits, parseEther } from "viem";
 import { Swiper, SwiperSlide } from 'swiper/vue';
 import { Pagination } from 'swiper/modules';
@@ -18,6 +19,7 @@ import AppHeader from "@/components/AppHeader.vue";
 import { BeamOracleContract } from "./scripts/contract";
 import Converter from "./scripts/converter";
 import TicketIcon from "./components/icons/TicketIcon.vue";
+import { notify } from './reactives/notify';
 
 type PayData = {
     quantity: number,
@@ -31,9 +33,12 @@ const beamSdk = new BeamSDK({
 
 const modules = [Pagination];
 const amount = ref<number>(0);
-const token = ref<Token | null>(getTokens[0]);
+const token = ref<Token | null>(null);
+const tokens = ref<Token[]>([]);
 const product = ref<Product | null>(null);
+const plan = ref<Plan | null>(null);
 const merchant = ref<Merchant | null>(null);
+const subscription = ref<Subscription | null>(null);
 
 const result = ref<TransactionCallback | null>(null);
 
@@ -52,7 +57,7 @@ const form = ref<PayData>({
     },
 });
 
-const getAmount = async () => {
+const getProductAmount = async () => {
     if (!token.value) return;
     if (!product.value) return;
 
@@ -61,6 +66,22 @@ const getAmount = async () => {
 
     const result = await BeamOracleContract.getAmountFromUsd(
         token.value.address,
+        parseUnits(amountInUsd.toString(), decimals),
+        10 ** 8
+    );
+
+    amount.value = Number(formatUnits(result, decimals));
+};
+
+const getPlanAmount = async () => {
+    if (!plan.value) return;
+    if (!subscription.value) return;
+
+    const amountInUsd = plan.value.amountInUsd * form.value.quantity;
+    const decimals = token.value?.decimals || 18;
+
+    const result = await BeamOracleContract.getAmountFromUsd(
+        subscription.value.token,
         parseUnits(amountInUsd.toString(), decimals),
         10 ** 8
     );
@@ -77,7 +98,33 @@ const getProduct = async (id: string) => {
         merchant: product.value.merchant
     });
 
-    getAmount();
+    getProductAmount();
+};
+
+const getPlan = async (id: string) => {
+    plan.value = await Client.getPlan(id);
+
+    if (!plan.value?.merchant) return;
+
+    merchant.value = await beamSdk.merchant.getMerchant({
+        merchant: plan.value.merchant
+    });
+
+    const subscriptions = await beamSdk.recurrentTransaction.getSubscriptionFromHash({
+        transactionHash: plan.value.transactionHash
+    });
+
+    if (subscriptions.length == 0) {
+        notify.push({
+            title: 'Subscription not found on-chain!',
+            description: 'Try again',
+            category: "error"
+        });
+    }
+
+    subscription.value = subscriptions[0];
+
+    getPlanAmount();
 };
 
 const proceed = async () => {
@@ -86,7 +133,11 @@ const proceed = async () => {
     if (!merchant.value) return;
 
     if (form.value.metadata.buyer.length < 3) {
-        // 
+        notify.push({
+            title: 'Buyer\'s name is too short!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
@@ -105,7 +156,7 @@ const proceed = async () => {
             }
         });
 
-        await Client.createSale({
+        const created = await Client.createSale({
             transactionId: result.value.transactionId,
             merchant: product.value.merchant,
             buyer: form.value.metadata.buyer,
@@ -117,27 +168,67 @@ const proceed = async () => {
             amountInUsd: amountInUsd,
             quantity: form.value.quantity
         });
+
+        if (created) {
+            notify.push({
+                title: 'Purchase successful!',
+                description: 'Transaction was sent',
+                category: "success",
+                linkTitle: 'View Trx',
+                linkUrl: `${import.meta.env.VITE_EXPLORER_URL}/tx/${result.value.transactionId}`
+            });
+        } else {
+            notify.push({
+                title: 'Failed to record product sale!',
+                description: 'Try again',
+                category: "error"
+            });
+        }
     } catch (error) {
-        //
+        result.value = null;
+        notify.push({
+            title: 'Tranaction failed!',
+            description: 'Try again',
+            category: "error"
+        });
     }
 };
 
+watch(merchant, () => {
+    tokens.value = getTokens.filter(t => merchant.value?.tokens.includes(t.address));
+    if (tokens.value.length > 0) token.value = tokens.value[0];
+}, { deep: true });
+
 watch(form, () => {
-    getAmount();
+    getPlanAmount();
+    getProductAmount();
 }, { deep: true });
 
 watch(token, () => {
-    getAmount();
+    getPlanAmount();
+    getProductAmount();
 }, { deep: true });
 
 onMounted(() => {
-    const productId = new URL(window.location.href)
+    const id = new URL(window.location.href)
         .searchParams
         .get('id');
 
-    if (!productId) return;
+    const type = new URL(window.location.href)
+        .searchParams
+        .get('type') || 'product';
 
-    getProduct(productId);
+    if (id && type == 'product') {
+        getProduct(id);
+    } else if (id && type == 'plan') {
+        getPlan(id);
+    } else {
+        notify.push({
+            title: 'Invalid product link id!',
+            description: 'Try again',
+            category: "error"
+        });
+    }
 });
 </script>
 
@@ -214,7 +305,7 @@ onMounted(() => {
                             <label>Pay With</label>
 
                             <div class="tokens">
-                                <div v-for="t in getTokens"
+                                <div v-for="t in tokens"
                                     :class="t.address == token?.address ? 'token token_selected' : 'token'"
                                     @click="token = t">
                                     <div class="token_info">
@@ -266,6 +357,8 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+
+        <NotifyPop />
     </section>
 </template>
 

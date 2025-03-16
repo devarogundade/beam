@@ -1,6 +1,6 @@
 {
   "name": "beam-ts",
-  "version": "2.0.0",
+  "version": "2.2.1",
   "description": "TS library for beam payment.",
   "main": "dist/index.js",
   "devDependencies": {

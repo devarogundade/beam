@@ -5,6 +5,7 @@ import { onMounted, ref } from 'vue';
 import BeamSDK from "beam-ts/src/index";
 import { Network } from '@/scripts/types';
 import type { Subscription } from "beam-ts/src/types";
+import ProgressBox from '@/components/ProgressBox.vue';
 
 const beamSdk = new BeamSDK({
     network: Network.Testnet
@@ -32,6 +33,7 @@ onMounted(() => {
 </script>
 
 <template>
+    <ProgressBox v-if="progress" />
     <div class="plans">
         <div class="plan" v-for="plan, index in plans" :key="index" @click="selectedPlan = plan">
             <img src="/images/image_1.png" alt="">
@@ -51,6 +53,10 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+    </div>
+    <div class="empty" v-if="!progress && plans.length == 0">
+        <img src="/images/empty.png" alt="">
+        <p>No plans.</p>
     </div>
 
     <PlanDetails v-if="selectedPlan" :plan="selectedPlan" @close="selectedPlan = null" />

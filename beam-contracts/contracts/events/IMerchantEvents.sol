@@ -21,6 +21,7 @@ interface IMerchantEvents {
     event SubscriptionCreated(
         bytes32 indexed subsciptionId,
         address indexed merchant,
+        address token,
         uint256 interval,
         uint256 amount,
         uint256 gracePeriod,
@@ -54,6 +55,7 @@ interface IMerchantEvents {
     function subscriptionCreated(
         bytes32 subsciptionId,
         address merchant,
+        address token,
         uint256 interval,
         uint256 amount,
         uint256 gracePeriod,

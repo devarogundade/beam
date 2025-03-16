@@ -114,6 +114,7 @@ contract Merchant is Pausable, Ownable, IMerchant {
         _events.subscriptionCreated(
             subscriptionId,
             msg.sender,
+            params.token,
             params.interval,
             params.amount,
             params.gracePeriod,

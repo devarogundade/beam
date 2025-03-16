@@ -608,6 +608,12 @@
       },
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "interval",
         "type": "uint256"
@@ -1229,39 +1235,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "merchant",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "payer",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "transactionId",
-        "type": "bytes32"
-      }
-    ],
-    "name": "paymentReceived",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
         "name": "transactionId",
         "type": "bytes32"
@@ -1497,6 +1470,11 @@
       {
         "internalType": "address",
         "name": "merchant",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "token",
         "type": "address"
       },
       {

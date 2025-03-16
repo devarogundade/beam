@@ -310,6 +310,11 @@ onMounted(() => {
           </tr>
         </tbody>
       </table>
+
+      <div class="empty" v-if="!progress && transactions.length == 0">
+        <img src="/images/empty.png" alt="">
+        <p>No transactions.</p>
+      </div>
     </div>
 
     <ReceiveToken v-if="walletStore.merchant && receiveToken" :address="walletStore.merchant.wallet"
