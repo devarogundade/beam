@@ -7,7 +7,7 @@ import { useWalletStore } from '@/stores/wallet';
 import type { Hex } from 'viem';
 import { onMounted, ref, watch } from 'vue';
 import BeamSDK from 'beam-ts/src';
-import { Network } from '@/scripts/types';
+import { Connection, Network } from '@/scripts/types';
 
 const isValid = ref<boolean>(false);
 const walletStore = useWalletStore();
@@ -19,6 +19,7 @@ const beamSdk = new BeamSDK({
 
 const saveChanges = async () => {
     if (!walletStore.merchant) return;
+    if (walletStore.connection != Connection.Wallet) return;
     if (!isValid.value) {
         return;
     }
@@ -46,9 +47,7 @@ interface Signer {
     disabled: boolean;
 }
 
-const signers = ref<Signer[]>([
-    { name: 'My Main Wallet', address: walletStore.address, disabled: true }
-]);
+const signers = ref<Signer[]>([]);
 
 const addSigner = () => {
     signers.value.push({ name: 'My Wallet ' + signers.value.length, address: null, disabled: false });
@@ -72,6 +71,16 @@ const getSigners = async () => {
 };
 
 onMounted(() => {
+    if (!walletStore.merchant) return;
+    signers.value = walletStore.merchant.signers.map((s, index) => {
+        return {
+            address: s,
+            name: index == 0 ? 'My Main Wallet' : `Signer ${index}`,
+            disabled: index == 0
+        };
+    });
+    threshold.value = walletStore.merchant.minSigners;
+
     getSigners();
 });
 
@@ -88,7 +97,7 @@ watch(walletStore, () => {
 });
 
 watch(signers, () => {
-    isValid.value = signers.value.every(signer => signer.name.length >= 1 && signer.address?.length === 42);
+    isValid.value = signers.value.every(signer => signer.name.length >= 1 && signer.address?.length === 42) && walletStore.connection == Connection.Wallet;
 }, { deep: true });
 </script>
 

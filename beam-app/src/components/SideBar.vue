@@ -100,10 +100,11 @@ const walletStore = useWalletStore();
                     </button>
                 </div>
             </RouterLink>
+            <div v-else style="height: 45px;"></div>
 
             <div class="account">
                 <div class="account_info">
-                    <img :src="JSON.parse(walletStore.merchant.metadata_value)?.imageURL ? JSON.parse(walletStore.merchant.metadata_value)?.imageURL : '/images/user.png'"
+                    <img :src="JSON.parse(walletStore.merchant.metadata_value)?.imageURL ? JSON.parse(walletStore.merchant.metadata_value)?.imageURL : '/images/colors.png'"
                         alt="account">
                     <div class="account_name">
                         <p>{{ JSON.parse(walletStore.merchant.metadata_value)?.name }}</p>
@@ -114,9 +115,11 @@ const walletStore = useWalletStore();
                     </div>
                 </div>
 
-                <div class="account_arrow">
-                    <ChevronRightIcon />
-                </div>
+                <RouterLink to="/settings">
+                    <div class="account_arrow">
+                        <ChevronRightIcon />
+                    </div>
+                </RouterLink>
             </div>
         </footer>
     </div>
@@ -276,6 +279,11 @@ footer a {
     margin-top: 20px;
     cursor: pointer;
     border-top: 1px solid var(--bg-lightest);
+}
+
+.account a {
+    display: block;
+    margin-left: 20px;
 }
 
 .account_info {

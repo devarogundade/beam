@@ -4,7 +4,7 @@ import UploadIcon from '@/components/icons/UploadIcon.vue';
 import { useWalletStore } from '@/stores/wallet';
 import { onMounted, ref, watch } from 'vue';
 import BeamSDK from 'beam-ts/src';
-import { Network } from '@/scripts/types';
+import { Connection, Network } from '@/scripts/types';
 import Storage from '@/scripts/storage';
 import { MerchantContract } from '@/scripts/contract';
 import { SCHEMA_JSON } from 'beam-ts/src/utils/constants';
@@ -31,6 +31,7 @@ const onImageSelected = (event: Event) => {
 
 const saveChanges = async () => {
     if (!walletStore.address) return;
+    if (walletStore.connection != Connection.Wallet) return;
     if (!walletStore.merchant) return;
 
     if (!name.value) {
@@ -90,8 +91,12 @@ watch(walletStore, () => {
 });
 
 onMounted(() => {
-    getMerchant();
+    if (walletStore.merchant) {
+        name.value = JSON.parse(walletStore.merchant.metadata_value)?.name;
+        imageURL.value = JSON.parse(walletStore.merchant.metadata_value)?.imageURL;
+    }
 
+    getMerchant();
 });
 </script>
 
@@ -117,7 +122,9 @@ onMounted(() => {
                 </RouterLink>
             </div>
 
-            <button :class="(name?.length || 0) >= 3 ? 'next_active next' : 'next'" @click="saveChanges">
+            <button
+                :class="(name?.length || 0) >= 3 && walletStore.connection == Connection.Wallet ? 'next_active next' : 'next'"
+                @click="saveChanges">
                 <p>Save Changes</p>
                 <ChevronRightIcon />
             </button>
