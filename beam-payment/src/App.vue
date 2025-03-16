@@ -71,7 +71,7 @@ onMounted(async () => {
 
   if (session && initiator) {
     window.addEventListener('message', (event) => {
-      if (initiator == event.origin) {
+      if (initiator == event.origin && !dataStore.data) {
         dataStore.setData(JSON.parse(event.data));
       }
     });

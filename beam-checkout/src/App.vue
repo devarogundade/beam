@@ -57,6 +57,10 @@ const form = ref<PayData>({
     },
 });
 
+const reload = () => {
+    location.reload();
+};
+
 const getProductAmount = async () => {
     if (!token.value) return;
     if (!product.value) return;
@@ -415,17 +419,19 @@ onMounted(() => {
                     </div>
 
                     <div class="mint">
-                        <button>
-                            <TicketIcon />
-                            <p>Get Receipt</p>
-                        </button>
+                        <RouterLink :to="`https://beam-payment.netlify.app/receipt?tx=${result.transactionId}`">
+                            <button>
+                                <TicketIcon />
+                                <p>Get Receipt</p>
+                            </button>
+                        </RouterLink>
 
-                        <button v-if="product" @click="result = null; form.quantity = 1">
+                        <button v-if="product" @click="reload">
                             <PlusIcon />
                             <p>Buy Again</p>
                         </button>
 
-                        <button v-else-if="plan" @click="result = null;">
+                        <button v-else-if="plan" @click="reload">
                             <PlusIcon />
                             <p>Subscribe Again</p>
                         </button>
