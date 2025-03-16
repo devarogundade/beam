@@ -55,8 +55,8 @@ const getTransaction = async (transactionId: Hex) => {
 };
 
 watch(dataStore, () => {
-  if (dataStore.result) {
-    window.opener.postMessage(dataStore.result);
+  if (dataStore.result && dataStore.initiator) {
+    window.opener.postMessage(dataStore.result, dataStore.initiator.url);
   }
 }, { deep: true });
 
