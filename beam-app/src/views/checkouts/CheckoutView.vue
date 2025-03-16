@@ -22,7 +22,7 @@ const addingProduct = ref<boolean>(false);
 
                     <div class="stat_info">
                         <h3>${{ Converter.toMoney(walletStore.clientMerchant?.productSalesInUsd || 0) }}</h3>
-                        <p><span>+14%</span> than last 7d</p>
+                        <p><span>+0.00%</span> than last 7d</p>
                     </div>
                 </div>
 
