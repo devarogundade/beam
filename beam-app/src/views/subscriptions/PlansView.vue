@@ -106,6 +106,10 @@ onMounted(() => {
     margin-top: 16px;
     font-size: 14px;
     color: var(--tx-dimmed);
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 50px;
 }
 
 .plan_type {
