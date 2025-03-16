@@ -70,6 +70,8 @@ export class AppService {
 
       const products = JSON.stringify(await this.getProducts(params.merchant));
 
+      const plans = JSON.stringify(await this.getPlans(params.merchant));
+
       const completion = await openai.chat.completions.create({
         messages: [
           { role: 'user', content: params.message },
@@ -80,6 +82,7 @@ export class AppService {
           { role: 'system', content: `Profile is: ${profile}.` },
           { role: 'system', content: `Sales are: ${sales}.` },
           { role: 'system', content: `Products are: ${products}.` },
+          { role: 'system', content: `Plans are: ${plans}.` },
           { role: 'system', content: BEAM_AI_KNOWLEDGE_BASE },
           { role: 'system', content: BEAM_AI_REPORT_KNOWLEDGE_BASE },
         ],
@@ -168,8 +171,8 @@ export class AppService {
       category: params.category,
       interval: params.interval,
       gracePeriod: params.gracePeriod,
-      available: true,
       amountInUsd: params.amountInUsd,
+      available: true,
       createdAt: new Date(),
       updatedAt: null,
     });
@@ -184,7 +187,6 @@ export class AppService {
         images: params.images,
         category: params.category,
         quantity: params.quantity,
-        available: params.available,
         amountInUsd: params.amountInUsd,
         updatedAt: new Date(),
       },
@@ -200,15 +202,26 @@ export class AppService {
   }
 
   async createSale(params: CreateSale): Promise<Sale> {
-    await this.productModel.findOneAndUpdate(
-      { _id: params.product },
-      {
-        $inc: {
-          quantity: -1 * params.quantity,
-          sold: params.quantity,
+    if (params.type == TransactionType.OneTime) {
+      await this.productModel.findOneAndUpdate(
+        { _id: params.product },
+        {
+          $inc: {
+            quantity: -1 * params.quantity,
+            sold: params.quantity,
+          },
         },
-      },
-    );
+      );
+    } else if (params.type == TransactionType.Recurrent) {
+      await this.planModel.findOneAndUpdate(
+        { _id: params.plan },
+        {
+          $inc: {
+            sold: 1,
+          },
+        },
+      );
+    }
 
     return this.saleModel.findOneAndUpdate(
       { transactionId: params.transactionId },
@@ -224,6 +237,7 @@ export class AppService {
         token: params.token,
         amountInUsd: params.amountInUsd,
         quantity: params.quantity,
+        dueDate: params.dueDate,
         createdAt: new Date(),
         updatedAt: null,
       },

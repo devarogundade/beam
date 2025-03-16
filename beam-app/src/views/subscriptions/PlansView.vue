@@ -2,27 +2,21 @@
 import PlanDetails from '@/components/PlanDetails.vue';
 import { useWalletStore } from '@/stores/wallet';
 import { onMounted, ref } from 'vue';
-import BeamSDK from "beam-ts/src/index";
-import { Network } from '@/scripts/types';
-import type { Subscription } from "beam-ts/src/types";
 import ProgressBox from '@/components/ProgressBox.vue';
-
-const beamSdk = new BeamSDK({
-    network: Network.Testnet
-});
+import { Client } from '@/scripts/client';
+import { Plan } from '@/scripts/types';
+import Converter from '@/scripts/converter';
 
 const walletStore = useWalletStore();
 const progress = ref<boolean>(false);
-const plans = ref<Subscription[]>([]);
-const selectedPlan = ref<Subscription | null>(null);
+const plans = ref<Plan[]>([]);
+const selectedPlan = ref<Plan | null>(null);
 
 const getSubscriptions = async (page: number, load: boolean = true) => {
     if (!walletStore.address) return;
     progress.value = load;
 
-    plans.value = await beamSdk.recurrentTransaction.getSubscriptions({
-        merchant: walletStore.address, page, limit: 20
-    });
+    plans.value = await Client.getPlans(walletStore.address);
 
     progress.value = false;
 };
@@ -39,17 +33,16 @@ onMounted(() => {
             <img src="/images/image_1.png" alt="">
 
             <div class="plan_info">
-                <h3 class="name">Rabbit R1 Pro Premium</h3>
-                <p class="description">Lorem ipsum dolor sit amet consectetur. Ultrices et semper ant dolor sit amet.
-                </p>
+                <h3 class="name">{{ plan.name }}</h3>
+                <p class="description">{{ plan.description }}</p>
 
                 <div class="plan_type">
                     <div class="duration">
                         <p>Duration: <span>{{ plan.interval }}</span></p>
-                        <p>Active</p>
+                        <p>{{ plan.available ? 'Active' : 'Not active' }}</p>
                     </div>
 
-                    <div class="amount">$24.99</div>
+                    <div class="amount">${{ Converter.toMoney(plan.amountInUsd) }}</div>
                 </div>
             </div>
         </div>

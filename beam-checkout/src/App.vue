@@ -23,7 +23,6 @@ import { notify } from './reactives/notify';
 
 type PayData = {
     quantity: number,
-    description: string,
     metadata: { [key: string]: any; };
 };
 
@@ -50,7 +49,6 @@ const routes = ref<{ [key: number]: string; }>({
 
 const form = ref<PayData>({
     quantity: 1,
-    description: '',
     metadata: {
         buyer: '',
         amountInUsd: true
@@ -144,29 +142,52 @@ const proceed = async () => {
     try {
         const amountInUsd = product.value.amountInUsd * form.value.quantity;
 
-        result.value = await beamSdk.oneTimeTransaction.create({
-            merchant: product.value.merchant,
-            payers: [],
-            amounts: [parseEther(amount.value.toString()).toString()] as any,
-            token: token.value.address,
-            description: form.value.description,
-            metadata: {
-                schemaVersion: 1,
-                value: JSON.stringify(form.value.metadata)
-            }
-        });
+        if (product.value) {
+            result.value = await beamSdk.oneTimeTransaction.create({
+                merchant: product.value.merchant,
+                payers: [],
+                amounts: [parseEther(amount.value.toString()).toString()] as any,
+                token: token.value.address,
+                description: 'Product sale',
+                metadata: {
+                    schemaVersion: 1,
+                    value: JSON.stringify(form.value.metadata)
+                }
+            });
+        } else if (plan.value && subscription.value) {
+            result.value = await beamSdk.recurrentTransaction.create({
+                merchant: subscription.value.merchant,
+                subscriptionId: subscription.value.subsciptionId,
+                description: 'Subscription',
+                metadata: {
+                    schemaVersion: 1,
+                    value: JSON.stringify(form.value.metadata)
+                }
+            });
+        }
+
+        if (!result.value) {
+            notify.push({
+                title: 'Invalid data!',
+                description: 'Try again',
+                category: "error"
+            });
+            return;
+        }
 
         const created = await Client.createSale({
             transactionId: result.value.transactionId,
             merchant: product.value.merchant,
             buyer: form.value.metadata.buyer,
-            product: product.value._id,
+            product: product.value ? product.value._id : undefined,
+            plan: plan.value ? plan.value._id : undefined,
             type: result.value.type,
             status: result.value.status,
             amount: amount.value,
             token: result.value.token,
             amountInUsd: amountInUsd,
-            quantity: form.value.quantity
+            quantity: product.value ? form.value.quantity : 0,
+            dueDate: plan.value ? new Date(Number(result.value.dueDate) * 1000) : null,
         });
 
         if (created) {
@@ -237,13 +258,12 @@ onMounted(() => {
 
     <section>
         <div class="app_width">
-
-            <ProgressBox v-if="!product || !merchant" />
+            <ProgressBox v-if="!merchant" />
 
             <div v-else class="container">
                 <div class="product">
                     <div class="images">
-                        <swiper class="swiper" :pagination="{
+                        <swiper class="swiper" v-if="product" :pagination="{
                             clickable: true,
                             dynamicBullets: true,
                         }" :modules="modules">
@@ -251,36 +271,59 @@ onMounted(() => {
                                 <img :src="image" :alt="product.name">
                             </SwiperSlide>
                         </swiper>
+
+                        <swiper class="swiper" :pagination="{
+                            clickable: true,
+                            dynamicBullets: true,
+                        }" :modules="modules" v-else-if="plan">
+                            <SwiperSlide v-for="image in plan.images" :key="image">
+                                <img :src="image" :alt="plan.name">
+                            </SwiperSlide>
+                        </swiper>
                     </div>
 
 
                     <div class="info">
-                        <p class="name">{{ product.name }}</p>
+                        <p class="name" v-if="product">{{ product.name }}</p>
+                        <p class="name" v-else-if="plan">{{ plan.name }}</p>
                     </div>
 
                     <div class="description">
                         <p class="head">Description</p>
-                        <p class="body">
-                            {{ product.description }}
-                        </p>
+                        <p class="body" v-if="product"> {{ product.description }} </p>
+                        <p class="body" v-else-if="plan"> {{ plan.description }} </p>
                     </div>
                 </div>
 
                 <div class="detail" v-if="!result">
                     <div class="props">
                         <div class="item">
-                            <div class="category">
+                            <div class="category" v-if="product">
                                 <p>{{ product.category }}</p>
                                 <label>Items left: <span>{{ product.quantity }}</span></label>
                             </div>
 
-                            <h3 class="price">
+                            <div class="category" v-else-if="plan">
+                                <p>{{ plan.category }}</p>
+                                <label>Status: <span>{{ plan.available ? 'Active' : 'Not active' }}</span></label>
+                            </div>
+
+                            <h3 class="price" v-if="product">
                                 ${{ Converter.toMoney(product.amountInUsd * form.quantity) }}
                                 <span>{{ Converter.toMoney(amount) }} {{ token?.symbol }}</span>
                             </h3>
+
+                            <h3 class="price" v-else-if="plan && subscription">
+                                {{
+                                    Converter.toMoney(
+                                        Number(formatUnits(subscription.amount, token?.decimals || 18))
+                                    )
+                                }}{{ token?.symbol }}
+                                <span>${{ Converter.toMoney(plan.amountInUsd) }}</span>
+                            </h3>
                         </div>
 
-                        <div class="quantity">
+                        <div class="quantity" v-if="product">
                             <label>Quantity</label>
                             <div class="amount">
                                 <button @click="form.quantity > 0 ? form.quantity -= 1 : null">
@@ -293,7 +336,7 @@ onMounted(() => {
                             </div>
                         </div>
 
-                        <div class="type">
+                        <div class="type" v-if="product">
                             <label>Choose pay type</label>
                             <select>
                                 <option value="one-time">One Time Payment</option>
@@ -304,13 +347,27 @@ onMounted(() => {
                         <div class="asset">
                             <label>Pay With</label>
 
-                            <div class="tokens">
+                            <div class="tokens" v-if="product">
                                 <div v-for="t in tokens"
                                     :class="t.address == token?.address ? 'token token_selected' : 'token'"
                                     @click="token = t">
                                     <div class="token_info">
                                         <img :src="t.image" alt="">
                                         <p>{{ t.symbol }}</p>
+                                    </div>
+                                    <div class="radio">
+                                        <div>
+                                            <span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tokens tokens_1" v-else-if="subscription">
+                                <div class="token token_selected">
+                                    <div class="token_info">
+                                        <img :src="token?.image" alt="">
+                                        <p>{{ token?.symbol }}</p>
                                     </div>
                                     <div class="radio">
                                         <div>
@@ -327,10 +384,15 @@ onMounted(() => {
                         </div>
                     </div>
 
-                    <div class="action">
+                    <div class="action" v-if="product">
                         <button disabled v-if="product.quantity == 0 || product.quantity < form.quantity">Not
                             available</button>
                         <button disabled v-else-if="form.quantity == 0">Cart is empty</button>
+                        <button v-else @click="proceed">Proceed</button>
+                    </div>
+
+                    <div class="action" v-else-if="plan">
+                        <button disabled v-if="!plan.available">Not available</button>
                         <button v-else @click="proceed">Proceed</button>
                     </div>
                 </div>
@@ -339,7 +401,10 @@ onMounted(() => {
                     <div class="ticket">
                         <img src="/images/ticket.png" alt="">
                         <h3>Payment Successful</h3>
-                        <p>You’ve successfully paid for {{ product.name }}
+                        <p v-if="product">You’ve successfully paid for {{ product.name }}
+                            using {{ routes[result.route] }} payment method.</p>
+
+                        <p v-else-if="plan">You’ve successfully subscribed to {{ plan.name }}
                             using {{ routes[result.route] }} payment method.</p>
                     </div>
 
@@ -349,9 +414,14 @@ onMounted(() => {
                             <p>Get Receipt</p>
                         </button>
 
-                        <button @click="result = null; form.quantity = 1">
+                        <button v-if="product" @click="result = null; form.quantity = 1">
                             <PlusIcon />
                             <p>Buy Again</p>
+                        </button>
+
+                        <button v-else-if="plan" @click="result = null;">
+                            <PlusIcon />
+                            <p>Subscribe Again</p>
                         </button>
                     </div>
                 </div>
@@ -534,6 +604,10 @@ input {
     align-items: center;
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
+}
+
+.tokens_1 {
+    grid-template-columns: repeat(1, 1fr);
 }
 
 .token {

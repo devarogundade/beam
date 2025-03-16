@@ -27,9 +27,6 @@ export class Product {
   quantity: number;
 
   @Prop({ required: true })
-  available: boolean;
-
-  @Prop({ required: true })
   sold: number;
 
   @Prop({ required: true })

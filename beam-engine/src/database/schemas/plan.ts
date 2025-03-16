@@ -36,6 +36,9 @@ export class Plan {
   available: boolean;
 
   @Prop({ required: true })
+  sold: number;
+
+  @Prop({ required: true })
   amountInUsd: number;
 
   @Prop({ required: true })

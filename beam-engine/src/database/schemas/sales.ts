@@ -44,6 +44,9 @@ export class Sale {
   @Prop({ required: true })
   quantity: number;
 
+  @Prop({ default: undefined })
+  dueDate?: Date;
+
   @Prop({ required: true })
   createdAt: Date;
 

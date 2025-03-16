@@ -187,7 +187,7 @@ onMounted(() => {
     <div class="transactions" v-else>
       <div class="title">
         <div class="name">
-          <p>Confirmations</p>
+          <p>Transactions</p>
           <p>{{ transactions.length }} <span>Txns</span></p>
         </div>
 
@@ -218,12 +218,20 @@ onMounted(() => {
                 <ReceiveIcon v-if="transaction.type == TransactionType.Send" />
 
                 <div class="product_info">
-                  <p v-if="transaction.type == TransactionType.OneTime">One Time</p>
-                  <p v-if="transaction.type == TransactionType.Recurrent">Recurrent</p>
-                  <p v-if="transaction.type == TransactionType.Send">Send</p>
+                  <p v-if="transaction.type == TransactionType.OneTime">{{
+                    transaction.description.length > 0 ? transaction.description : 'One Time'
+                  }}</p>
+                  <p v-if="transaction.type == TransactionType.Recurrent">{{
+                    transaction.description.length > 0 ?
+                      transaction.description : 'Recurrent'
+                  }}</p>
+                  <p v-if="transaction.type == TransactionType.Send">{{
+                    transaction.description.length > 0 ?
+                      transaction.description : 'Send'
+                  }}</p>
 
                   <div v-if="transaction.type == TransactionType.OneTime">
-                    <p>{{ transaction.payers.length }} Txns</p>
+                    <p>{{ transaction.payers.length }} {{ transaction.payers.length < 2 ? 'Signer' : 'Signers' }}</p>
                   </div>
                 </div>
               </div>

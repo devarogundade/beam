@@ -72,7 +72,6 @@ export type UpdateProduct = {
   category: string;
   quantity: number;
   amountInUsd: number;
-  available: boolean;
 };
 
 export type CreateSale = {
@@ -87,6 +86,7 @@ export type CreateSale = {
   token: Hex;
   amountInUsd: number;
   quantity: number;
+  dueDate: Date | null;
 };
 
 export type CreateChat = {

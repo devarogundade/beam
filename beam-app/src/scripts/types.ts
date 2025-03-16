@@ -34,7 +34,6 @@ export type Product = {
   images: string[];
   category: string;
   quantity: number;
-  available: boolean;
   sold: number;
   amountInUsd: number;
   createdAt: Date;
@@ -53,6 +52,7 @@ export type Sale = {
   token: Hex;
   amountInUsd: number;
   quantity: number;
+  dueDate: Date | null;
   createdAt: Date;
   updatedAt: Date | null;
 };
