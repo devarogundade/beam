@@ -3,6 +3,7 @@ import { Client } from '@/scripts/client';
 import PaymentsIcon from './icons/PaymentsIcon.vue';
 import { useWalletStore } from '@/stores/wallet';
 import { ref } from 'vue';
+import { notify } from '@/reactives/notify';
 
 const walletStore = useWalletStore();
 const creating = ref<boolean>(false);
@@ -21,9 +22,19 @@ const createClientMerchant = async () => {
     if (created) {
         const clientMerchant = await Client.getMerchant(walletStore.address);
 
+        notify.push({
+            title: 'Checkout page created!',
+            description: 'Start selling with ease.',
+            category: "sucesss"
+        });
+
         walletStore.setClientMerchant(clientMerchant);
     } else {
-        // notify failed api call
+        notify.push({
+            title: 'Failed to create checkout page!',
+            description: 'Try again',
+            category: "error"
+        });
     }
 
     creating.value = false;

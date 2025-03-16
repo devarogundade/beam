@@ -10,6 +10,7 @@ import { useWalletStore } from '@/stores/wallet';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { getTokens } from 'beam-ts/src/utils/constants';
+import { notify } from '@/reactives/notify';
 
 const router = useRouter();
 const walletStore = useWalletStore();
@@ -51,10 +52,21 @@ const create = async () => {
     });
 
     if (txHash) {
+        notify.push({
+            title: 'Account created!',
+            description: 'Transaction was sent.',
+            category: "success",
+            linkTitle: 'View Trx',
+            linkUrl: `${import.meta.env.VITE_EXPLORER_URL}/tx/${txHash}`
+        });
 
         router.push('/');
     } else {
-
+        notify.push({
+            title: 'Failed to create account!',
+            description: 'Try again',
+            category: "error"
+        });
     }
 
     creating.value = false;

@@ -9,6 +9,7 @@ import { Network } from '@/scripts/types';
 import type { Merchant } from 'beam-ts/src/types';
 import ProgressBox from './components/ProgressBox.vue';
 import { Client } from './scripts/client';
+import { notify } from './reactives/notify';
 
 const router = useRouter();
 const walletStore = useWalletStore();
@@ -27,7 +28,11 @@ const getMerchant = async () => {
   });
 
   if (!merchant.value) {
-    // notify user that merchant account is not found
+    notify.push({
+      title: 'Account not found!',
+      description: 'Try again',
+      category: "error"
+    });
     return router.push('/onboarding');
   }
 

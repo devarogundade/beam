@@ -8,6 +8,7 @@ import { Connection, Network } from '@/scripts/types';
 import Storage from '@/scripts/storage';
 import { MerchantContract } from '@/scripts/contract';
 import { SCHEMA_JSON } from 'beam-ts/src/utils/constants';
+import { notify } from '@/reactives/notify';
 
 const beamSdk = new BeamSDK({
     network: Network.Testnet
@@ -35,10 +36,20 @@ const saveChanges = async () => {
     if (!walletStore.merchant) return;
 
     if (!name.value) {
+        notify.push({
+            title: 'Enter a valid name!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
     if ((name.value?.length || 0) < 3) {
+        notify.push({
+            title: 'Name is too short!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
@@ -68,8 +79,20 @@ const saveChanges = async () => {
             ...walletStore.merchant,
             metadata_value: JSON.stringify(metadata_value)
         });
-    } else {
 
+        notify.push({
+            title: 'Changes saved!',
+            description: 'Transaction was sent.',
+            category: "success",
+            linkTitle: 'View Trx',
+            linkUrl: `${import.meta.env.VITE_EXPLORER_URL}/tx/${txHash}`
+        });
+    } else {
+        notify.push({
+            title: 'Failed to save changes!',
+            description: 'Try again',
+            category: "error"
+        });
     }
 };
 

@@ -15,9 +15,7 @@ const threshold = ref<number>(1);
 
 const next = () => {
     if (!walletStore.merchant) return;
-    if (!isValid.value) {
-        return;
-    }
+    if (!isValid.value) return;
 
     let metadata_value = JSON.parse(walletStore.merchant.metadata_value);
     metadata_value = {

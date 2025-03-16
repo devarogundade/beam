@@ -7,6 +7,7 @@ import UploadIcon from './icons/UploadIcon.vue';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { Client } from '@/scripts/client';
 import Storage from '@/scripts/storage';
+import { notify } from '@/reactives/notify';
 
 const emit = defineEmits(['close', 'refresh']);
 const walletStore = useWalletStore();
@@ -39,22 +40,47 @@ const create = async () => {
     if (!walletStore.address) return;
 
     if (form.value.name.length < 3) {
+        notify.push({
+            title: 'Name is too short!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
     if (form.value.description.length < 3) {
+        notify.push({
+            title: 'Description is too short!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
     if (form.value.category.length < 3) {
+        notify.push({
+            title: 'Category is too short!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
     if (form.value.quantity == 0) {
+        notify.push({
+            title: 'Quantity cannot be zero!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
     if (form.value.amountInUsd == 0) {
+        notify.push({
+            title: 'Price cannot be zero!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
@@ -78,10 +104,20 @@ const create = async () => {
     });
 
     if (created) {
+        notify.push({
+            title: 'Product added!',
+            description: 'Share product link to your customers.',
+            category: "sucesss"
+        });
+
         emit('refresh');
         emit('close');
     } else {
-
+        notify.push({
+            title: 'Failed to create product!',
+            description: 'Try again',
+            category: "error"
+        });
     }
 
     creating.value = false;

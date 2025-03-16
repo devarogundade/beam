@@ -4,6 +4,7 @@ import BulbIcon from '@/components/icons/BulbIcon.vue';
 import CloseIcon from '@/components/icons/CloseIcon.vue';
 import SendIcon from '@/components/icons/SendIcon.vue';
 import ProgressBox from '@/components/ProgressBox.vue';
+import { notify } from '@/reactives/notify';
 import { Client } from '@/scripts/client';
 import type { Chat } from '@/scripts/types';
 import { useWalletStore } from '@/stores/wallet';
@@ -70,7 +71,16 @@ const sendText = async () => {
     }, 400);
 
     text.value = '';
-    await Client.sendChat(walletStore.address, message);
+
+    const sent = await Client.sendChat(walletStore.address, message);
+
+    if (!sent) {
+        notify.push({
+            title: 'Failed to chat with AI!',
+            description: 'Try again',
+            category: "error"
+        });
+    }
 
     sending.value = false;
     getChats(false);

@@ -2,6 +2,7 @@
 import ChevronLeftIcon from '@/components/icons/ChevronLeftIcon.vue';
 import ChevronRightIcon from '@/components/icons/ChevronRightIcon.vue';
 import UploadIcon from '@/components/icons/UploadIcon.vue';
+import { notify } from '@/reactives/notify';
 import { useWalletStore } from '@/stores/wallet';
 import { zeroAddress } from 'viem';
 import { onMounted, ref } from 'vue';
@@ -28,10 +29,20 @@ const next = () => {
     if (!walletStore.address) return;
 
     if (!name.value) {
+        notify.push({
+            title: 'Enter a valid name!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
     if ((name.value?.length || 0) < 3) {
+        notify.push({
+            title: 'Name is too short!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 

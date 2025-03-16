@@ -8,6 +8,7 @@ import type { Hex } from 'viem';
 import { onMounted, ref, watch } from 'vue';
 import BeamSDK from 'beam-ts/src';
 import { Connection, Network } from '@/scripts/types';
+import { notify } from '@/reactives/notify';
 
 const isValid = ref<boolean>(false);
 const walletStore = useWalletStore();
@@ -20,9 +21,8 @@ const beamSdk = new BeamSDK({
 const saveChanges = async () => {
     if (!walletStore.merchant) return;
     if (walletStore.connection != Connection.Wallet) return;
-    if (!isValid.value) {
-        return;
-    }
+
+    if (!isValid.value) return;
 
     const txHash = await MultiSigContract.updateSigners(
         walletStore.merchant.wallet,
@@ -36,8 +36,20 @@ const saveChanges = async () => {
             signers: signers.value.filter(s => s.address != null).map((s) => s.address!),
             minSigners: threshold.value
         });
-    } else {
 
+        notify.push({
+            title: 'Changes saved!',
+            description: 'Transaction was sent.',
+            category: "success",
+            linkTitle: 'View Trx',
+            linkUrl: `${import.meta.env.VITE_EXPLORER_URL}/tx/${txHash}`
+        });
+    } else {
+        notify.push({
+            title: 'Failed to save changes!',
+            description: 'Try again',
+            category: "error"
+        });
     }
 };
 

@@ -12,12 +12,11 @@ const walletStore = useWalletStore();
 const address = ref<Hex | null>(null);
 
 const watch = () => {
-    if (!address.value) {
-        return;
-    }
+    if (!address.value) return;
 
     walletStore.setAddress(address.value);
     walletStore.setConnection(Connection.Guest);
+
     router.push('/');
 };
 </script>

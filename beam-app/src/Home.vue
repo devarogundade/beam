@@ -30,7 +30,6 @@ const getMerchant = async () => {
     }
 };
 
-
 onMounted(() => {
     getMerchant();
 });

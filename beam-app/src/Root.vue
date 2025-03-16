@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// import NotifyPop from '@/components/NotifyPop.vue';
+import NotifyPop from '@/components/NotifyPop.vue';
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 
@@ -20,4 +20,5 @@ getAnalytics(app);
 
 <template>
     <RouterView />
+    <NotifyPop />
 </template>

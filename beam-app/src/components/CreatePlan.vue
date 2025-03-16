@@ -10,6 +10,7 @@ import Storage from '@/scripts/storage';
 import { MerchantContract } from '@/scripts/contract';
 import { getTokens } from 'beam-ts/src/utils/constants';
 import { parseUnits } from 'viem';
+import { notify } from '@/reactives/notify';
 
 const emit = defineEmits(['close', 'refresh']);
 const walletStore = useWalletStore();
@@ -43,22 +44,47 @@ const create = async () => {
     if (!walletStore.address) return;
 
     if (form.value.name.length < 3) {
+        notify.push({
+            title: 'Name is too short!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
     if (form.value.description.length < 3) {
+        notify.push({
+            title: 'Description is too short!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
     if (form.value.category.length < 3) {
+        notify.push({
+            title: 'Category is too short!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
     if (form.value.interval == 0) {
+        notify.push({
+            title: 'Duration cannot be zero!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
     if (form.value.amountInUsd == 0) {
+        notify.push({
+            title: 'Price cannot be zero!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
@@ -80,7 +106,11 @@ const create = async () => {
     });
 
     if (!transactionHash) {
-
+        notify.push({
+            title: 'Failed to create subscription on-chain!',
+            description: 'Try again',
+            category: "error"
+        });
         return;
     }
 
@@ -97,10 +127,20 @@ const create = async () => {
     });
 
     if (created) {
+        notify.push({
+            title: 'Plan created!',
+            description: 'Share plan link to your customers.',
+            category: "sucesss"
+        });
+
         emit('refresh');
         emit('close');
     } else {
-
+        notify.push({
+            title: 'Failed to create plan!',
+            description: 'Try again',
+            category: "error"
+        });
     }
 
     creating.value = false;
