@@ -8,7 +8,7 @@ dataSources:
     name: Events
     network: scroll-sepolia
     source:
-      address: "0xFcF9cF44C8Df40637EfB5eB2cf901c762599b093"
+      address: "0xA10E3e1e1c574CAcFe18776834568Deb49d94b44"
       abi: Events
       startBlock: 8500684
     mapping:

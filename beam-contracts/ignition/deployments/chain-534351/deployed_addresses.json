@@ -14,5 +14,7 @@
   "BeamOracleModule#BeamOracle": "0x2e009188D9277ac7b58537fe0eBEf5F4912e7a1B",
   "HookManagerModule#HookManager": "0x6bAaEdD503FcdF573E28a4a9Ea7d9CeF8C901e67",
   "MerchantModule#Merchant": "0xc4Bf9Fe6A0E9104b03f290C80fC1C2058529bD6c",
-  "OneTimeTransactionModule#OneTimeTransaction": "0xEe3c254b0FebaF2984DE64849223eAb494319f86"
+  "OneTimeTransactionModule#OneTimeTransaction": "0xEe3c254b0FebaF2984DE64849223eAb494319f86",
+  "RecurrentTransactionModule#RecurrentTransaction": "0xEF6ec3bAC878D746734A495eCceE655b7712C6e0",
+  "BeamModule#Beam": "0x31f73F44019328da4545d589a1f3e8A62C0a3e69"
 }

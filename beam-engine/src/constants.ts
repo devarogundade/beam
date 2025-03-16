@@ -3,7 +3,7 @@
 import { Hex } from 'viem';
 
 export const EVENTS_CONTRACT: Hex =
-  '0xFcF9cF44C8Df40637EfB5eB2cf901c762599b093';
+  '0xA10E3e1e1c574CAcFe18776834568Deb49d94b44';
 
 export const BEAM_AI_KNOWLEDGE_BASE = `
     You are a helpful assistant to merchant.
