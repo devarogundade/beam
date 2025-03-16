@@ -11,6 +11,7 @@ import EraserIcon from './icons/EraserIcon.vue';
 import TrashIcon from './icons/TrashIcon.vue';
 import { onMounted, onUnmounted, ref } from 'vue';
 import Converter from '@/scripts/converter';
+import { notify } from '@/reactives/notify';
 
 const modules = [Pagination];
 const productLink = ref<string>('');
@@ -21,9 +22,43 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
+const copyLink = async () => {
+    try {
+        await navigator.clipboard.writeText(productLink.value);
+        notify.push({
+            title: 'Link copied!',
+            description: productLink.value,
+            category: 'success'
+        });
+    } catch (error) {
+        notify.push({
+            title: 'Failed to copy link!',
+            description: productLink.value,
+            category: 'error'
+        });
+    }
+};
+
+const shareLink = () => {
+    if (!navigator.canShare()) {
+        notify.push({
+            title: 'Cannot share!',
+            description: 'Copy instead.',
+            category: 'error'
+        });
+        return;
+    }
+
+    navigator.share({
+        title: props.product.names,
+        text: props.product.description,
+        url: productLink.value
+    });
+};
+
 onMounted(() => {
     document.body.style.overflowY = 'hidden';
-    productLink.value = `https://beam-checkout.netlify.app?${props.product._id}`;
+    productLink.value = `https://beam-checkout.netlify.app?id=${props.product._id}`;
 });
 
 onUnmounted(() => {
@@ -79,12 +114,12 @@ onUnmounted(() => {
                     <div class="body">
                         <div class="field">
                             <p>{{ productLink }}</p>
-                            <div class="icon">
+                            <div class="icon" @click="copyLink">
                                 <CopyIcon />
                             </div>
                         </div>
 
-                        <div class="forward">
+                        <div class="forward" @click="shareLink">
                             <ForwardIcon />
                         </div>
                     </div>
@@ -264,6 +299,9 @@ onUnmounted(() => {
     padding: 0 10px;
     font-size: 14px;
     color: var(--tx-semi);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-wrap: nowrap;
 }
 
 .link .field .icon {

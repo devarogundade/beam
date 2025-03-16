@@ -3,12 +3,30 @@ import CloseIcon from './icons/CloseIcon.vue';
 import QrcodeVue from 'qrcode.vue';
 import { onMounted, onUnmounted } from 'vue';
 import CopyIcon from './icons/CopyIcon.vue';
+import { notify } from '@/reactives/notify';
 
 const emit = defineEmits(['close']);
 
 const props = defineProps({
     address: { type: String, required: true }
 });
+
+const copyLink = async () => {
+    try {
+        await navigator.clipboard.writeText(props.address);
+        notify.push({
+            title: 'Address copied!',
+            description: props.address,
+            category: 'success'
+        });
+    } catch (error) {
+        notify.push({
+            title: 'Failed to copy address!',
+            description: props.address,
+            category: 'error'
+        });
+    }
+};
 
 onMounted(() => {
     document.body.style.overflowY = 'hidden';
@@ -47,7 +65,7 @@ onUnmounted(() => {
                 <img src="/images/colors.png" alt="">
                 <div class="input">
                     <p>{{ props.address }}</p>
-                    <div class="icon">
+                    <div class="icon" @click="copyLink">
                         <CopyIcon />
                     </div>
                 </div>

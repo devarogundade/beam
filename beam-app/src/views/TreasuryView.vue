@@ -14,7 +14,7 @@ import BeamSDK from "beam-ts/src";
 import type { Token, Transaction } from "beam-ts/src/types";
 import { getToken, getTokens } from "beam-ts/src/utils/constants";
 import CompletedIcon from '@/components/icons/CompletedIcon.vue';
-import { formatUnits } from 'viem';
+import { formatUnits, zeroAddress } from 'viem';
 import Converter from '@/scripts/converter';
 import PaymentsIcon from '@/components/icons/PaymentsIcon.vue';
 import ArrowDownIcon from '@/components/icons/ArrowDownIcon.vue';
@@ -31,6 +31,7 @@ const beamSdk = new BeamSDK({
 const walletStore = useWalletStore();
 const progress = ref<boolean>(false);
 const balances = ref<{ [key: string]: number; }>({
+  zeroAddress: 0,
   '0x2c9678042d52b97d27f2bd2947f7111d93f3dd0d': 0,
   '0x5ea79f3190ff37418d42f9b2618688494dbd9693': 0,
   '0x9E8CEC4F2F4596141B62e88966D7167E9db555aD': 0,
@@ -219,14 +220,14 @@ onMounted(() => {
 
                 <div class="product_info">
                   <p v-if="transaction.type == TransactionType.OneTime">{{
-                    transaction.description.length > 0 ? transaction.description : 'One Time'
+                    transaction.description?.length > 0 ? transaction.description : 'One Time'
                   }}</p>
                   <p v-if="transaction.type == TransactionType.Recurrent">{{
-                    transaction.description.length > 0 ?
+                    transaction.description?.length > 0 ?
                       transaction.description : 'Recurrent'
                   }}</p>
                   <p v-if="transaction.type == TransactionType.Send">{{
-                    transaction.description.length > 0 ?
+                    transaction.description?.length > 0 ?
                       transaction.description : 'Send'
                   }}</p>
 

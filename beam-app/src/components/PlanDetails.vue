@@ -1,11 +1,21 @@
 <script setup lang="ts">
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
 import CloseIcon from './icons/CloseIcon.vue';
 import CopyIcon from './icons/CopyIcon.vue';
 import ForwardIcon from './icons/ForwardIcon.vue';
 import EditIcon from './icons/EditIcon.vue';
 import EraserIcon from './icons/EraserIcon.vue';
 import TrashIcon from './icons/TrashIcon.vue';
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
+import Converter from '@/scripts/converter';
+import { getToken } from 'beam-ts/src/utils/constants';
+import { notify } from '@/reactives/notify';
+
+const modules = [Pagination];
+const planLink = ref<string>('');
 
 const props = defineProps({
     plan: { type: Object, required: true }
@@ -13,8 +23,43 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
+const copyLink = async () => {
+    try {
+        await navigator.clipboard.writeText(planLink.value);
+        notify.push({
+            title: 'Link copied!',
+            description: planLink.value,
+            category: 'success'
+        });
+    } catch (error) {
+        notify.push({
+            title: 'Failed to copy link!',
+            description: planLink.value,
+            category: 'error'
+        });
+    }
+};
+
+const shareLink = () => {
+    if (!navigator.canShare()) {
+        notify.push({
+            title: 'Cannot share!',
+            description: 'Copy instead.',
+            category: 'error'
+        });
+        return;
+    }
+
+    navigator.share({
+        title: props.plan.names,
+        text: props.plan.description,
+        url: planLink.value
+    });
+};
+
 onMounted(() => {
     document.body.style.overflowY = 'hidden';
+    planLink.value = `https://beam-checkout.netlify.app?id=${props.plan._id}type=plan`;
 });
 
 onUnmounted(() => {
@@ -35,41 +80,49 @@ onUnmounted(() => {
 
             <div class="scroll">
                 <div class="images">
-                    <img :src="`/images/image_${1}.png`" alt="">
+                    <swiper class="swiper" :pagination="{
+                        clickable: true,
+                        dynamicBullets: true,
+                    }" :modules="modules">
+                        <SwiperSlide v-for="image in props.plan.images" :key="image">
+                            <img :src="image" :alt="props.plan.name">
+                        </SwiperSlide>
+                    </swiper>
                 </div>
 
                 <div class="info">
-                    <p class="name">Rabbit R1 Device</p>
+                    <p class="name">{{ props.plan.name }}</p>
 
                     <div class="type">
-                        <div class="duration">
-                            <p>Duration: <span>30d</span></p>
-                            <p>Active</p>
+                        <div class="category">
+                            <p>{{ props.plan.category }}</p>
+                            <p>Status: {{ props.plan.available ? 'Active' : 'Not active' }}</p>
                         </div>
 
-                        <div class="amount">$24.99</div>
+                        <div class="price">{{ Converter.toMoney(props.plan.amount) }}
+                            {{ getToken(props.plan.token)?.symbol }}
+                        </div>
                     </div>
                 </div>
 
                 <div class="description">
                     <p class="head">Description</p>
-                    <p class="body">Lorem ipsum dolor sit amet consectetur. Scelerisque eu augue sed sagittis enim
-                        dignissim. Lorem non nisl nulla tristique ornare est. Congue mi dictum faucibus pulvinar
-                        volutpat
-                        nisl sapien. </p>
+                    <p class="body">
+                        {{ props.plan.description }}
+                    </p>
                 </div>
 
                 <div class="link">
                     <p class="head">Payment Link</p>
                     <div class="body">
                         <div class="field">
-                            <p>beampay.com/reflex...</p>
-                            <div class="icon">
+                            <p>{{ planLink }}</p>
+                            <div class="icon" @click="copyLink">
                                 <CopyIcon />
                             </div>
                         </div>
 
-                        <div class="forward">
+                        <div class="forward" @click="shareLink">
                             <ForwardIcon />
                         </div>
                     </div>
@@ -115,10 +168,11 @@ onUnmounted(() => {
     padding-right: 20px;
 }
 
+
 .plan {
-    border-radius: 16px;
-    height: fit-content;
     width: 400px;
+    height: fit-content;
+    border-radius: 16px;
     background: var(--bg);
     overflow: hidden;
 }
@@ -133,6 +187,10 @@ onUnmounted(() => {
 .title p {
     font-size: 16px;
     color: var(--tx-normal);
+}
+
+.swiper {
+    width: 100%;
 }
 
 .scroll {
@@ -171,32 +229,24 @@ onUnmounted(() => {
 }
 
 .type {
-    margin-top: 18px;
-    padding-top: 18px;
-    border-top: 1px dashed var(--bg-lightest);
+    margin-top: 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.duration p:first-child {
+.category p {
+    color: var(--tx-dimmed);
     font-size: 14px;
-    color: var(--tx-semi);
 }
 
-.duration p:first-child span {
+.category p span {
     color: var(--tx-normal);
 }
 
-.duration p:last-child {
-    margin-top: 6px;
-    font-size: 14px;
-    color: var(--accent-green);
-}
-
-.amount {
+.price {
+    color: var(--tx-normal);
     font-size: 16px;
-    color: var(--tx-normal);
 }
 
 .description .head {
@@ -252,6 +302,9 @@ onUnmounted(() => {
     padding: 0 10px;
     font-size: 14px;
     color: var(--tx-semi);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    text-wrap: nowrap;
 }
 
 .link .field .icon {
