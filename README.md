@@ -1,6 +1,14 @@
 # Beam
 
+## Init SDK
 
+```ts
+const beamSdk = new BeamSDK({
+    network: Network.Testnet,
+});
+```
+
+## Create One Time Payment
 ```ts
 beamSdk.oneTimeTransaction.create({
                 merchant: address,
