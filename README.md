@@ -1,6 +1,6 @@
-# Beam
+# Beam SDK
 
-## Init SDK
+## Init
 
 ```ts
 const beamSdk = new BeamSDK({
