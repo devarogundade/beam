@@ -163,9 +163,6 @@ const getAllowanceB = async () => {
 };
 
 const approve = async () => {
-    if (approving.value) return;
-    if (!token.value) return;
-    if (!dataStore.data) return;
     if (!walletStore.address) {
         notify.push({
             title: 'Connect your wallet!',
@@ -174,6 +171,9 @@ const approve = async () => {
         });
         return;
     }
+    if (approving.value) return;
+    if (!token.value) return;
+    if (!dataStore.data) return;
 
     if (amount.value == 0) return;
 
@@ -202,9 +202,6 @@ const approve = async () => {
 
 
 const approveB = async () => {
-    if (approving.value) return;
-    if (!tokenB.value) return;
-    if (!dataStore.data) return;
     if (!walletStore.address) {
         notify.push({
             title: 'Connect your wallet!',
@@ -213,6 +210,9 @@ const approveB = async () => {
         });
         return;
     }
+    if (approving.value) return;
+    if (!tokenB.value) return;
+    if (!dataStore.data) return;
 
     if (amountB.value == 0) return;
 
@@ -240,11 +240,6 @@ const approveB = async () => {
 };
 
 const makePayment = async () => {
-    if (paying.value) return;
-    if (!dataStore.data) return;
-    if (!token.value) return;
-    if (!tokenB.value) return;
-    if (!dataStore.initiator) return;
     if (!walletStore.address) {
         notify.push({
             title: 'Connect your wallet!',
@@ -253,6 +248,11 @@ const makePayment = async () => {
         });
         return;
     }
+    if (paying.value) return;
+    if (!dataStore.data) return;
+    if (!token.value) return;
+    if (!tokenB.value) return;
+    if (!dataStore.initiator) return;
 
     const params = new URLSearchParams(window.location.search);
     const session = params.get("session");

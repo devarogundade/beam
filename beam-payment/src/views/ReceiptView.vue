@@ -31,14 +31,20 @@ const beamSdk = new BeamSDK({
 
 const mint = async () => {
     if (minting.value) return;
-    if (!walletStore.address) return;
+    if (!walletStore.address) {
+        notify.push({
+            title: 'Connect your wallet!',
+            description: 'Try again',
+            category: "error"
+        });
+        return;
+    }
     if (!captureDiv.value) return;
     if (!transaction.value) return;
 
     const canvas = await html2canvas(captureDiv.value);
 
     canvas.toBlob(async (blob) => {
-        if (!transaction.value) return;
         if (!walletStore.address) {
             notify.push({
                 title: 'Connect your wallet!',
@@ -47,6 +53,7 @@ const mint = async () => {
             });
             return;
         }
+        if (!transaction.value) return;
 
         minting.value = true;
 

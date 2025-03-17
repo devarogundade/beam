@@ -93,9 +93,6 @@ const getAllowance = async () => {
 };
 
 const approve = async () => {
-    if (approving.value) return;
-    if (!dataStore.data) return;
-    if (!dataStore.data.token) return;
     if (!walletStore.address) {
         notify.push({
             title: 'Connect your wallet!',
@@ -104,6 +101,9 @@ const approve = async () => {
         });
         return;
     }
+    if (approving.value) return;
+    if (!dataStore.data) return;
+    if (!dataStore.data.token) return;
 
     if (amount.value == 0) return;
 
@@ -154,10 +154,6 @@ const proceed = async () => {
 };
 
 const makePayment = async () => {
-    if (paying.value) return;
-    if (!dataStore.initiator) return;
-    if (!dataStore.data) return;
-    if (!token.value) return;
     if (!walletStore.address) {
         notify.push({
             title: 'Connect your wallet!',
@@ -166,6 +162,10 @@ const makePayment = async () => {
         });
         return;
     }
+    if (paying.value) return;
+    if (!dataStore.initiator) return;
+    if (!dataStore.data) return;
+    if (!token.value) return;
 
     const params = new URLSearchParams(window.location.search);
     const session = params.get("session");

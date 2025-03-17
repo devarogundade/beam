@@ -184,9 +184,6 @@ const getAllowanceB = async () => {
 };
 
 const approve = async () => {
-    if (approving.value) return;
-    if (!token.value) return;
-    if (!dataStore.data) return;
     if (!walletStore.address) {
         notify.push({
             title: 'Connect your wallet!',
@@ -195,6 +192,9 @@ const approve = async () => {
         });
         return;
     }
+    if (approving.value) return;
+    if (!token.value) return;
+    if (!dataStore.data) return;
 
     if (amount.value == 0) return;
 
@@ -223,9 +223,6 @@ const approve = async () => {
 
 
 const approveB = async () => {
-    if (approving.value) return;
-    if (!tokenB.value) return;
-    if (!dataStore.data) return;
     if (!walletStore.address) {
         notify.push({
             title: 'Connect your wallet!',
@@ -234,6 +231,9 @@ const approveB = async () => {
         });
         return;
     }
+    if (approving.value) return;
+    if (!tokenB.value) return;
+    if (!dataStore.data) return;
 
     if (amountB.value == 0) return;
 
