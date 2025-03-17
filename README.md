@@ -8,7 +8,7 @@ const beamSdk = new BeamSDK({
 });
 ```
 
-## Create One Time Payment
+## Create One Time Transaction
 ```ts
 beamSdk.oneTimeTransaction.create({
                 merchant: address,
@@ -22,4 +22,17 @@ beamSdk.oneTimeTransaction.create({
                 },
                 splitPayment: boolean
             })
+```
+
+## Create Recurrent Transaction
+```ts
+await beamSdk.recurrentTransaction.create({
+                merchant: subscription.value.merchant,
+                subscriptionId: subscription.value.subsciptionId,
+                description: 'Subscription',
+                metadata: {
+                    schemaVersion: 1,
+                    value: JSON.stringify(form.value.metadata)
+                }
+            });
 ```
