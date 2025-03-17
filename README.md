@@ -66,6 +66,11 @@ cancel(
   ): Promise<TransactionCallback>;
 ```
 
+## Get Merchant
+```ts
+getMerchant(params: GetMerchant): Promise<Merchant | null>;
+```
+
 ## Get Transaction
 ```ts
 getTransaction(params: GetTransaction): Promise<Transaction | null>;
