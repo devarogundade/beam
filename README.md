@@ -15,7 +15,9 @@
 
 # Beam SDK
 
-```npm i beam-ts@latest```
+```command
+npm i beam-ts@latest
+```
 
 ## Init
 
