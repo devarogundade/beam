@@ -35,12 +35,12 @@ create(params: PrepareRecurrentTransaction): Promise<TransactionCallback>;
 
 ```ts
 beamSdk.recurrentTransaction.create({
-                merchant: subscription.value.merchant,
-                subscriptionId: subscription.value.subsciptionId,
-                description: 'Subscription',
+                merchant: address,
+                subscriptionId: bytes32,
+                description: string,
                 metadata: {
-                    schemaVersion: 1,
-                    value: JSON.stringify(form.value.metadata)
+                    schemaVersion: number,
+                    value: string
                 }
             });
 ```
