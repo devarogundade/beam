@@ -74,7 +74,7 @@ onMounted(() => {
 
     token.value = getToken(dataStore.data.token);
     const amounts: bigint[] = dataStore.data.amounts;
-    const payers: Hex[] = dataStore.data.payers || [walletStore.address];
+    const payers: Hex[] = (dataStore.data.payers && dataStore.data.payers.length > 0) ? dataStore.data.payers : [walletStore.address];
 
     if (amounts.length != payers.length) {
         notify.push({
