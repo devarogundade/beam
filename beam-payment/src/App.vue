@@ -52,7 +52,8 @@ const getSubscription = async () => {
         description: dataStore.data?.description || result.description,
         metadata: dataStore.data?.metadata,
         subscriptionId: result.subsciptionId,
-        token: result.token
+        token: result.token,
+        splitPayment: false
       });
     });
   }
@@ -83,6 +84,7 @@ const getTransaction = async (transactionId: Hex) => {
       },
       token: result.token,
       subscriptionId: undefined,
+      splitPayment: false,
     });
 
     getSubscription();
