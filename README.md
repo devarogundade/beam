@@ -44,3 +44,38 @@ beamSdk.recurrentTransaction.create({
                 }
             });
 ```
+
+## Get Transaction
+```ts
+getTransaction(params: GetTransaction): Promise<Transaction | null>;
+```
+
+## Get Transactions
+```ts
+getTransactions(params: GetTransactions): Promise<Transaction[]>;
+```
+
+## Get Transactions From Hash
+```ts
+getTransactionsFromHash(params: GetTransactionHash): Promise<Transaction[]>;
+```
+
+## Get One Time Transactions
+```ts
+getOneTimeTransactions(params: GetTransactions): Promise<Transaction[]>;
+```
+
+## Get Recurrent Transactions
+```ts
+getRecurrentTransactions(params: GetTransactions): Promise<Transaction[]>;
+```
+
+## Get Subscription
+```ts
+getSubscription(params: GetSubscription): Promise<Subscription | null>;
+```
+
+## Get Subscriptions
+```ts
+getSubscriptions(params: GetSubscriptions): Promise<Subscription[]>;
+```
