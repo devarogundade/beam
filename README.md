@@ -2,16 +2,9 @@
 | Module | Address |
 |--------|---------|
 | [AaveV3Module#AaveV3](https://sepolia.scrollscan.com/address/0x0c4aB91eef4F9a3Db9179e9bF8421D64B5B4a35b#code) | 0x0c4aB91eef4F9a3Db9179e9bF8421D64B5B4a35b |
-| [BeamModule#AddressLib](https://sepolia.scrollscan.com/address/0xC2bB56b849C301F774DB5E85c4aF365ad8F78121#code) | 0xC2bB56b849C301F774DB5E85c4aF365ad8F78121 |
-| [BeamModule#IntegerLib](https://sepolia.scrollscan.com/address/0x17f7a5A0B0ff3bd9313Dae066769c243f7a2adE0#code) | 0x17f7a5A0B0ff3bd9313Dae066769c243f7a2adE0 |
 | [ChainlinkModule#Chainlink](https://sepolia.scrollscan.com/address/0xBAc706D7F29a2ba7DCfDAff3Da0B9f057EdF7c18#code) | 0xBAc706D7F29a2ba7DCfDAff3Da0B9f057EdF7c18 |
 | [EventsModule#Events](https://sepolia.scrollscan.com/address/0xA10E3e1e1c574CAcFe18776834568Deb49d94b44#code) | 0xA10E3e1e1c574CAcFe18776834568Deb49d94b44 |
-| [HookManagerModule#AddressLib](https://sepolia.scrollscan.com/address/0x09E41bb4A6DAA6479224926EEf90E0f471A64574#code) | 0x09E41bb4A6DAA6479224926EEf90E0f471A64574 |
-| [MerchantModule#HashLib](https://sepolia.scrollscan.com/address/0xeBe82cc3011aa33e7CF0B08E4A665FF53A093052#code) | 0xeBe82cc3011aa33e7CF0B08E4A665FF53A093052 |
-| [OneTimeTransactionModule#BoolLib](https://sepolia.scrollscan.com/address/0xa4A51e4Eb76d694a1602FF4d33F17910943D91E8#code) | 0xa4A51e4Eb76d694a1602FF4d33F17910943D91E8 |
-| [OneTimeTransactionModule#HashLib](https://sepolia.scrollscan.com/address/0x651E5644C108c0b28544B75a7b2c2a2111126e65#code) | 0x651E5644C108c0b28544B75a7b2c2a2111126e65 |
 | [ReceiptModule#Receipt](https://sepolia.scrollscan.com/address/0xF9fBFE7ce569e4A9A64606A2296BdF4403AD0B12#code) | 0xF9fBFE7ce569e4A9A64606A2296BdF4403AD0B12 |
-| [RecurrentTransactionModule#HashLib](https://sepolia.scrollscan.com/address/0x5857509e1Da590048B174bd10fbA57c4c52Edead#code) | 0x5857509e1Da590048B174bd10fbA57c4c52Edead |
 | [UniswapV2Module#UniswapV2](https://sepolia.scrollscan.com/address/0x54406D8748E8B0D930dEBEc11748768dcADC5eCC#code) | 0x54406D8748E8B0D930dEBEc11748768dcADC5eCC |
 | [BeamOracleModule#BeamOracle](https://sepolia.scrollscan.com/address/0x2e009188D9277ac7b58537fe0eBEf5F4912e7a1B#code) | 0x2e009188D9277ac7b58537fe0eBEf5F4912e7a1B |
 | [HookManagerModule#HookManager](https://sepolia.scrollscan.com/address/0x6bAaEdD503FcdF573E28a4a9Ea7d9CeF8C901e67#code) | 0x6bAaEdD503FcdF573E28a4a9Ea7d9CeF8C901e67 |
