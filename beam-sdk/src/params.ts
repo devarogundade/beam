@@ -9,6 +9,7 @@ export type PrepareOneTimeTransaction = {
   token: Hex;
   description: string;
   metadata: Metadata;
+  splitPayment: boolean;
 };
 
 export type PrepareFulfillOneTimeTransaction = {

@@ -14,6 +14,7 @@ import Converter from '@/scripts/converter';
 import { emptySignature } from 'beam-ts/src/utils/helpers';
 import { notify } from '@/reactives/notify';
 import ProgressBox from '@/components/ProgressBox.vue';
+import SplitPayments from '@/components/SplitPayments.vue';
 
 const router = useRouter();
 
@@ -26,6 +27,7 @@ const beamSdk = new BeamSDK({
 
 const type = ref('default');
 
+const splitPayments = ref<boolean>(false);
 const approving = ref<boolean>(false);
 const paying = ref<boolean>(false);
 const amount = ref<number>(0);
@@ -309,7 +311,11 @@ onMounted(() => {
             <div class="container" v-else-if="dataStore.data">
                 <div class="payment">
                     <div class="info">
-                        <p class="head">Payment</p>
+                        <div class="head">
+                            <p>Payment</p>
+                            <button v-if="dataStore.data.splitPayment && walletStore.address"
+                                @click="splitPayments = true">Split payment</button>
+                        </div>
 
                         <div class="amount">
                             <p>You'll Pay</p>
@@ -371,6 +377,8 @@ onMounted(() => {
                 </div>
             </div>
         </div>
+
+        <SplitPayments v-if="splitPayments" @close="splitPayments = false" />
     </section>
 </template>
 
@@ -392,10 +400,24 @@ onMounted(() => {
 }
 
 .head {
-    color: var(--tx-normal);
-    font-size: 16px;
     padding-bottom: 30px;
     border-bottom: 1px solid var(--bg-lightest);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.head p {
+    color: var(--tx-normal);
+    font-size: 16px;
+}
+
+.head button {
+    background: none;
+    color: var(--primary-light);
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
 }
 
 .amount {

@@ -40,6 +40,7 @@ const product = ref<Product | null>(null);
 const plan = ref<Plan | null>(null);
 const merchant = ref<Merchant | null>(null);
 const subscription = ref<Subscription | null>(null);
+const splitPayment = ref<boolean>(false);
 
 const result = ref<TransactionCallback | null>(null);
 
@@ -48,6 +49,10 @@ const routes = ref<{ [key: number]: string; }>({
     1: 'Swap to Pay',
     2: 'Borrow to Pay',
 });
+
+const onTypeChanged = (e: any) => {
+    splitPayment.value = e.target.value == 'split-payment';
+};
 
 const form = ref<PayData>({
     quantity: 1,
@@ -178,7 +183,8 @@ const proceed = async () => {
                 metadata: {
                     schemaVersion: 1,
                     value: JSON.stringify(form.value.metadata)
-                }
+                },
+                splitPayment: splitPayment.value
             });
         } else if (plan.value && subscription.value) {
             amountInUsd = planAmountInUsd.value;
@@ -366,9 +372,9 @@ onMounted(() => {
 
                         <div class="type" v-if="product">
                             <label>Choose pay type</label>
-                            <select>
+                            <select @click="onTypeChanged">
                                 <option value="one-time">One Time Payment</option>
-                                <option value="one-time">Split Payment</option>
+                                <option value="split-payment">Split Payment</option>
                             </select>
                         </div>
 

@@ -12,6 +12,7 @@ interface PayData {
   metadata?: Metadata;
   subscriptionId?: Hex;
   type: TransactionType;
+  splitPayment: boolean;
 }
 
 interface Initiator {
