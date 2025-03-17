@@ -20,8 +20,6 @@
 | [RecurrentTransactionModule#RecurrentTransaction](https://sepolia.scrollscan.com/address/0xEF6ec3bAC878D746734A495eCceE655b7712C6e0#code) | 0xEF6ec3bAC878D746734A495eCceE655b7712C6e0 |
 | [BeamModule#Beam](https://sepolia.scrollscan.com/address/0x31f73F44019328da4545d589a1f3e8A62C0a3e69#code) | 0x31f73F44019328da4545d589a1f3e8A62C0a3e69 |
 
-```
-
 # Beam SDK
 
 ## Init
