@@ -38,18 +38,17 @@ const onTypeChanged = (e: any) => {
 
 const getAmount = () => {
     if (!dataStore.data) return;
+    const amounts: bigint[] = dataStore.data.amounts || [];
+    const payers: Hex[] = dataStore.data.payers || [];
 
-    const index = dataStore.data.payers.length <= 1 ? 0 : dataStore.data.payers.findIndex(p =>
+    const index = payers.length <= 1 ? 0 : payers.findIndex(p =>
         p.toLowerCase() == walletStore.address?.toLowerCase()
     );
 
     if (index < 0) return;
 
-    const amounts = dataStore.data.amounts.map((amount) => {
-        return formatEther(amount);
-    });
-
-    amount.value = Number(amounts[index]);
+    const values = amounts.map((amount) => formatEther(amount));
+    amount.value = Number(values[index]);
 };
 
 const getBalance = async () => {
@@ -107,7 +106,9 @@ const approve = async () => {
 
     if (amount.value == 0) return;
 
-    const index = dataStore.data.payers.length <= 1 ? 0 : dataStore.data.payers.findIndex(p =>
+    const payers: Hex[] = dataStore.data.payers || [];
+
+    const index = payers.length <= 1 ? 0 : payers.findIndex(p =>
         p.toLowerCase() == walletStore.address?.toLowerCase()
     );
 
@@ -174,14 +175,17 @@ const makePayment = async () => {
 
     let transactionHash: Hex | null = null;
 
+    const amounts: bigint[] = dataStore.data.amounts || [];
+    const payers: Hex[] = dataStore.data.payers || [];
+
     if (dataStore.data.type == TransactionType.OneTime) {
-        const amounts = dataStore.data.amounts.map((amount) => {
+        const values = amounts.map((amount) => {
             const value = formatEther(amount);
             const decimals = token.value?.decimals || 18;
             return parseUnits(value, decimals);
         });
 
-        const index = dataStore.data.payers.length <= 1 ? 0 : dataStore.data.payers.findIndex(p =>
+        const index = payers.length <= 1 ? 0 : payers.findIndex(p =>
             p.toLowerCase() == walletStore.address?.toLowerCase()
         );
 
@@ -189,7 +193,7 @@ const makePayment = async () => {
             {
                 payers: [walletStore.address],
                 merchant: dataStore.data.merchant,
-                amounts: amounts,
+                amounts: values,
                 token: token.value.address,
                 tokenB: zeroAddress,
                 description: dataStore.data.description ? dataStore.data.description : '',

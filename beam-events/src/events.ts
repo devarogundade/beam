@@ -230,6 +230,7 @@ export function handleRecurrentTransactionCreated(
 
   transaction.payers = [];
   transaction.signers = [];
+  transaction.fulfilleds = [];
 
   transaction.save();
 
@@ -362,7 +363,7 @@ export function handleWithdrawRequestApproved(
   );
   if (!transaction) return;
 
-  transaction.signers.push(Value.fromAddress(event.params.signer).toBytes());
+  transaction.fulfilleds.push(Value.fromAddress(event.params.signer).toBytes());
 
   transaction.save();
 
@@ -415,6 +416,7 @@ export function handleWithdrawRequestCreated(
   transaction.transactionHash = event.transaction.hash;
 
   transaction.payers = [];
+  transaction.fulfilleds = [];
 
   transaction.save();
 

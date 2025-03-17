@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { useDataStore } from './stores/data';
 import ProgressBox from './components/ProgressBox.vue';
 import type { Hex } from 'viem';
 import BeamSDK from 'beam-ts/src';
-import { Network } from '@/scripts/types';
+import { Network, TransactionType } from '@/scripts/types';
 import { notify } from './reactives/notify';
+
+const beamSdk = new BeamSDK({
+  network: Network.Testnet,
+});
 
 const dataStore = useDataStore();
 
@@ -25,15 +29,46 @@ const getWebsiteTitle = async (url: string): Promise<string | null> => {
   }
 };
 
-const getTransaction = async (transactionId: Hex) => {
-  const beamSdk = new BeamSDK({
-    network: Network.Testnet,
-  });
+const getSubscription = async () => {
+  if (dataStore.data?.type == TransactionType.Recurrent && dataStore.data.subscriptionId) {
+    beamSdk.recurrentTransaction.getSubscription({
+      subscriptionId: dataStore.data.subscriptionId
+    }).then(result => {
+      if (!result) {
+        notify.push({
+          title: "Subscription not found!",
+          description: "Try again",
+          category: "error"
+        });
+        return;
+      }
 
+      dataStore.setData({
+        merchant: result.merchant,
+        payers: [],
+        amounts: [result.amount],
+        type: TransactionType.Recurrent,
+        description: dataStore.data?.description || result.description,
+        metadata: dataStore.data?.metadata,
+        subscriptionId: result.subsciptionId,
+        token: result.token
+      });
+    });
+  }
+};
+
+const getTransaction = async (transactionId: Hex) => {
   beamSdk.oneTimeTransaction.getTransaction({
     transactionId
   }).then(result => {
-    if (!result) return;
+    if (!result) {
+      notify.push({
+        title: "Transaction not found!",
+        description: "Try again",
+        category: "error"
+      });
+      return;
+    }
 
     dataStore.setData({
       merchant: result.merchant,
@@ -47,8 +82,9 @@ const getTransaction = async (transactionId: Hex) => {
       },
       token: result.token,
       subscriptionId: undefined,
-      mintReceipt: false
     });
+
+    getSubscription();
   });
 };
 
@@ -71,6 +107,7 @@ onMounted(async () => {
     window.addEventListener('message', (event) => {
       if (initiator == event.origin && !dataStore.data) {
         dataStore.setData(JSON.parse(event.data));
+        getSubscription();
       }
     });
   } else if (transactionId) {

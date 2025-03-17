@@ -224,7 +224,7 @@ const proceed = async () => {
                 description: 'Transaction was sent',
                 category: "success",
                 linkTitle: 'View Trx',
-                linkUrl: `${import.meta.env.VITE_EXPLORER_URL}/tx/${result.value.transactionId}`
+                linkUrl: `${import.meta.env.VITE_EXPLORER_URL}/tx/${result.value.transactionHash}`
             });
         } else {
             notify.push({
