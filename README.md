@@ -1,4 +1,4 @@
-[Pitch Deck]() | [Demo Video]() | [X]()
+[Pitch Deck]() | [Demo Video]() | [X](https://x.com/beamonscroll)
 
 # Contract Addresses
 | Module | Address |
