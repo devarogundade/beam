@@ -10,6 +10,10 @@ const beamSdk = new BeamSDK({
 
 ## Create One Time Transaction
 ```ts
+create(params: PrepareOneTimeTransaction): Promise<TransactionCallback>;
+```
+
+```ts
 beamSdk.oneTimeTransaction.create({
                 merchant: address,
                 payers: [address],
@@ -25,6 +29,10 @@ beamSdk.oneTimeTransaction.create({
 ```
 
 ## Create Recurrent Transaction
+```ts
+create(params: PrepareRecurrentTransaction): Promise<TransactionCallback>;
+```
+
 ```ts
 beamSdk.recurrentTransaction.create({
                 merchant: subscription.value.merchant,
