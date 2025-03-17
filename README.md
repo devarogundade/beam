@@ -26,7 +26,7 @@ beamSdk.oneTimeTransaction.create({
 
 ## Create Recurrent Transaction
 ```ts
-await beamSdk.recurrentTransaction.create({
+beamSdk.recurrentTransaction.create({
                 merchant: subscription.value.merchant,
                 subscriptionId: subscription.value.subsciptionId,
                 description: 'Subscription',
