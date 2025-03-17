@@ -169,7 +169,14 @@ const approve = async () => {
     if (approving.value) return;
     if (!token.value) return;
     if (!dataStore.data) return;
-    if (!walletStore.address) return;
+    if (!walletStore.address) {
+        notify.push({
+            title: 'Connect your wallet!',
+            description: 'Try again',
+            category: "error"
+        });
+        return;
+    }
 
     if (amount.value == 0) return;
 
@@ -201,7 +208,14 @@ const approveB = async () => {
     if (approving.value) return;
     if (!tokenB.value) return;
     if (!dataStore.data) return;
-    if (!walletStore.address) return;
+    if (!walletStore.address) {
+        notify.push({
+            title: 'Connect your wallet!',
+            description: 'Try again',
+            category: "error"
+        });
+        return;
+    }
 
     if (amountB.value == 0) return;
 
@@ -231,10 +245,17 @@ const approveB = async () => {
 const makePayment = async () => {
     if (paying.value) return;
     if (!dataStore.data) return;
-    if (!walletStore.address) return;
     if (!token.value) return;
     if (!tokenB.value) return;
     if (!dataStore.initiator) return;
+    if (!walletStore.address) {
+        notify.push({
+            title: 'Connect your wallet!',
+            description: 'Try again',
+            category: "error"
+        });
+        return;
+    }
 
     const params = new URLSearchParams(window.location.search);
     const session = params.get("session");

@@ -38,8 +38,15 @@ const mint = async () => {
     const canvas = await html2canvas(captureDiv.value);
 
     canvas.toBlob(async (blob) => {
-        if (!walletStore.address) return;
         if (!transaction.value) return;
+        if (!walletStore.address) {
+            notify.push({
+                title: 'Connect your wallet!',
+                description: 'Try again',
+                category: "error"
+            });
+            return;
+        }
 
         minting.value = true;
 
@@ -56,7 +63,7 @@ const mint = async () => {
         const imageURL = await Storage.awaitUpload(blob, `${treansactionId.value}-${Date.now()}`);
 
         const metadata = {
-            title: 'Payment receipt.',
+            name: 'Payment receipt.',
             description: transaction.value.description ? transaction.value.description : 'No description.',
             image: imageURL
         };
