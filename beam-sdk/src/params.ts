@@ -86,7 +86,11 @@ export type Signature = {
   s: Hex;
 };
 
-export type MintReceipt = { to: Hex; transactionId: Hex };
+export type MintReceipt = {
+  to: Hex;
+  transactionId: Hex;
+  URI: string;
+};
 
 export type RequiredSupplyMin = {
   payer: Hex;
