@@ -1,4 +1,6 @@
-[Pitch Deck]() | [Demo Video]() | [X](https://x.com/beamonscroll)
+Mint test tokens at [https://app.aave.com/faucet/](https://app.aave.com/faucet/)
+
+[Pitch Deck](https://www.figma.com/proto/mosLGIAalDCUYJudJoiH7F/Beam-Hack-Project-(Hand-Off-File)?page-id=320%3A6305&node-id=2018-52&viewport=967%2C129%2C0.05&t=rWQz8Y0B8P7i1FCe-1&scaling=min-zoom&content-scaling=fixed) | [Demo Video](https://youtu.be/z25vmzpwdAM) | [X](https://x.com/beamonscroll)
 
 # Contract Addresses
 | Module | Address |
