@@ -2,10 +2,11 @@
 import { onMounted, watch } from 'vue';
 import { useDataStore } from './stores/data';
 import ProgressBox from './components/ProgressBox.vue';
-import type { Hex } from 'viem';
+import { formatUnits, parseEther, parseUnits, type Hex } from 'viem';
 import BeamSDK from 'beam-ts/src';
 import { Network, TransactionType } from '@/scripts/types';
 import { notify } from './reactives/notify';
+import { getToken } from 'beam-ts/src/utils/constants';
 
 const beamSdk = new BeamSDK({
   network: Network.Testnet,
@@ -46,7 +47,7 @@ const getSubscription = async () => {
       dataStore.setData({
         merchant: result.merchant,
         payers: [],
-        amounts: [result.amount],
+        amounts: [parseEther(formatUnits(result.amount, getToken(result.token)?.decimals || 18))],
         type: TransactionType.Recurrent,
         description: dataStore.data?.description || result.description,
         metadata: dataStore.data?.metadata,
@@ -129,6 +130,5 @@ onMounted(async () => {
 </script>
 
 <template>
-  <ProgressBox v-if="!dataStore.data" />
   <RouterView />
 </template>

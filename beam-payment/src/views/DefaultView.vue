@@ -13,6 +13,7 @@ import { TokenContract } from '@/scripts/erc20';
 import Converter from '@/scripts/converter';
 import { emptySignature } from 'beam-ts/src/utils/helpers';
 import { notify } from '@/reactives/notify';
+import ProgressBox from '@/components/ProgressBox.vue';
 
 const router = useRouter();
 
@@ -304,7 +305,8 @@ onMounted(() => {
 <template>
     <section>
         <div class="app_width">
-            <div class="container" v-if="dataStore.data">
+            <ProgressBox v-if="!token || !amount" />
+            <div class="container" v-else-if="dataStore.data">
                 <div class="payment">
                     <div class="info">
                         <p class="head">Payment</p>
