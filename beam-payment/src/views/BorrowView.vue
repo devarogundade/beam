@@ -279,10 +279,6 @@ const getBorrowAllowance = async () => {
 };
 
 const signBorrowAllowance = async () => {
-    if (signing.value) return;
-    if (!dataStore.data) return;
-    if (!token.value) return;
-    if (!tokenB.value) return;
     if (!walletStore.address) {
         notify.push({
             title: 'Connect your wallet!',
@@ -291,6 +287,10 @@ const signBorrowAllowance = async () => {
         });
         return;
     }
+    if (signing.value) return;
+    if (!dataStore.data) return;
+    if (!token.value) return;
+    if (!tokenB.value) return;
 
     const debtToken = await AaveV3Contract.getVariableDebtTokenAddresses(token.value.address);
     if (!debtToken) return;
