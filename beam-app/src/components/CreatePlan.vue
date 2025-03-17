@@ -100,7 +100,7 @@ const create = async () => {
         }
     }
 
-    const interval = (form.value.interval * 24 * 60 * 60 * 1000);
+    const interval = (form.value.interval * 24 * 60 * 60);
 
     const transactionHash = await MerchantContract.createSubscription({
         token: token.value.address,
@@ -126,7 +126,7 @@ const create = async () => {
         description: form.value.description,
         images: form.value.images,
         category: form.value.category,
-        interval: interval,
+        interval: interval * 1000,
         gracePeriod: form.value.gracePeriod,
         amount: form.value.amount,
         token: token.value.address

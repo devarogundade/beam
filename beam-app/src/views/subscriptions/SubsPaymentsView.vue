@@ -61,7 +61,7 @@ onMounted(() => {
                                     Intl.DateTimeFormat('en-US', {
                                         month: 'short',
                                         day: '2-digit'
-                                    }).format(new Date(sale.dueDate))
+                                    }).format(new Date(sale.dueDate).getTime() * 1000)
                                 }}</p>
                             </div>
                         </div>
