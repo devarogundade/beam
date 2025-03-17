@@ -1,4 +1,4 @@
-#[Pitch Deck]()
+[Pitch Deck]() | [Demo Video]() | [X]()
 
 # Contract Addresses
 | Module | Address |
