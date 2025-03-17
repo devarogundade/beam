@@ -28,6 +28,13 @@ beamSdk.oneTimeTransaction.create({
             })
 ```
 
+## Fulfill One Time Transaction (Split Transaction)
+```ts
+fulfill(
+    params: PrepareFulfillOneTimeTransaction
+  ): Promise<TransactionCallback>;
+```
+
 ## Create Recurrent Transaction
 ```ts
 create(params: PrepareRecurrentTransaction): Promise<TransactionCallback>;
@@ -43,6 +50,20 @@ beamSdk.recurrentTransaction.create({
                     value: string
                 }
             });
+```
+
+## Fulfill/Renew Recurrent Transaction
+```ts
+fulfill(
+    params: PrepareFulfillRecurrentTransaction
+  ): Promise<TransactionCallback>;
+```
+
+## Cancel Recurrent Transaction
+```ts
+cancel(
+    params: PrepareCancelRecurrentTransaction
+  ): Promise<TransactionCallback>;
 ```
 
 ## Get Transaction
