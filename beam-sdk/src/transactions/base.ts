@@ -1,7 +1,7 @@
 import { BeamClient } from "../client";
 import type {
-  GetPayment,
-  GetPaymentHash,
+  GetTransaction,
+  GetTransactionHash,
   GetTransactions,
   Transaction,
 } from "../types";
@@ -117,11 +117,11 @@ export abstract class BaseTransaction {
     }
   }
 
-  getTransaction(params: GetPayment): Promise<Transaction | null> {
+  getTransaction(params: GetTransaction): Promise<Transaction | null> {
     return this.graph.getTransaction(params.transactionId);
   }
 
-  getTransactionsFromHash(params: GetPaymentHash): Promise<Transaction[]> {
+  getTransactionsFromHash(params: GetTransactionHash): Promise<Transaction[]> {
     return this.graph.getTransactionsFromHash(params.transactionHash);
   }
 

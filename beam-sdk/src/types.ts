@@ -40,11 +40,11 @@ export type GetSubscriptions = {
   limit: number;
 };
 
-export type GetPayment = {
+export type GetTransaction = {
   transactionId: Hex;
 };
 
-export type GetPaymentHash = {
+export type GetTransactionHash = {
   transactionHash: Hex;
 };
 

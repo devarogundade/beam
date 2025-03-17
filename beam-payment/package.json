@@ -16,7 +16,7 @@
     "@wagmi/core": "^2.16.5",
     "@web3modal/wagmi": "^5.1.11",
     "axios": "^1.8.3",
-    "beam-ts": "^2.2.5",
+    "beam-ts": "^2.2.6",
     "firebase": "^11.4.0",
     "html2canvas": "^1.4.1",
     "pinia": "^2.3.0",

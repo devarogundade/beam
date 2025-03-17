@@ -4,10 +4,10 @@ import {
 } from "../params";
 import type {
   TransactionCallback,
-  GetPayment,
+  GetTransaction,
   GetTransactions,
   Transaction,
-  GetPaymentHash,
+  GetTransactionHash,
 } from "../types";
 
 export interface IOneTimeTransaction {
@@ -17,11 +17,11 @@ export interface IOneTimeTransaction {
     params: PrepareFulfillOneTimeTransaction
   ): Promise<TransactionCallback>;
 
-  getTransaction(params: GetPayment): Promise<Transaction | null>;
+  getTransaction(params: GetTransaction): Promise<Transaction | null>;
 
   getTransactions(params: GetTransactions): Promise<Transaction[]>;
 
-  getTransactionsFromHash(params: GetPaymentHash): Promise<Transaction[]>;
+  getTransactionsFromHash(params: GetTransactionHash): Promise<Transaction[]>;
 
   getOneTimeTransactions(params: GetTransactions): Promise<Transaction[]>;
 }

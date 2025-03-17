@@ -7,11 +7,11 @@ import type {
   TransactionCallback,
   Transaction,
   GetTransactions,
-  GetPayment,
+  GetTransaction,
   Subscription,
   GetSubscription,
   GetSubscriptions,
-  GetPaymentHash,
+  GetTransactionHash,
   GetSubscriptionsHash,
 } from "../types";
 
@@ -34,11 +34,11 @@ export interface IRecurrentTransaction {
 
   getSubscriptions(params: GetSubscriptions): Promise<Subscription[]>;
 
-  getTransaction(params: GetPayment): Promise<Transaction | null>;
+  getTransaction(params: GetTransaction): Promise<Transaction | null>;
 
   getTransactions(params: GetTransactions): Promise<Transaction[]>;
 
-  getTransactionsFromHash(params: GetPaymentHash): Promise<Transaction[]>;
+  getTransactionsFromHash(params: GetTransactionHash): Promise<Transaction[]>;
 
   getRecurrentTransactions(params: GetTransactions): Promise<Transaction[]>;
 }
